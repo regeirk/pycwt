@@ -4,8 +4,8 @@ algorithm. This module references to the numpy, scipy and pylab Python
 packages.
 
 DISCLAIMER
-    This module is based on routines provided by C. Torrence and G.
-    Compo available at http://paos.colorado.edu/research/wavelets/
+    This module is based on routines and data provided by C. Torrence
+    and G. Compo available at http://paos.colorado.edu/research/wavelets/
     and on routines provided by A. Brazhe available at
     http://cell.biophys.msu.ru/static/swan/.
 
