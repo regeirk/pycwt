@@ -21,6 +21,7 @@ AUTHOR
     email: sebastian@regeirk.com
 
 REVISION
+    3 (2011-04-30 19:48 -3000)
     2 (2011-04-28 17:57 -0300)
     1 (2010-12-24 21:59 -0300)
 
@@ -36,7 +37,7 @@ __version__ = '$Revision: 2 $'
 # $Source$
 
 from numpy import (arange, ceil, concatenate, conjugate, cos, exp, isnan, log,
-                   log2, pi, prod, sqrt, zeros, polyval)
+                   log2, ones, pi, prod, real, sqrt, zeros, polyval)
 from numpy.fft import fft, ifft, fftfreq
 from numpy.lib.polynomial import polyval
 from pylab import find
@@ -245,7 +246,7 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     """Continuous wavelet transform of the signal at specified scales.
 
     PARAMETERS
-        signal (array_like) :
+        signal (array like) :
             Input signal array
         dt (float) :
             Sample spacing.
@@ -263,27 +264,27 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
             Mother wavelet class. Default is Morlet()
 
     RETURNS
-        W (array_like) :
+        W (array like) :
             Wavelet transform according to the selected mother wavelet.
             Has (J+1) x N dimensions.
-        scales (array_like) :
-            Vector of scale indices given by s0 * 2**(j * dj),
+        sj (array like) :
+            Vector of scale indices given by sj = s0 * 2**(j * dj),
             j={0, 1, ..., J}.
-        freqs (array_like) :
+        freqs (array like) :
             Vector of Fourier frequencies (in 1 / time units) that
             corresponds to the wavelet scales.
-        coi (array_like) :
+        coi (array like) :
             Returns the cone of influence, wich is a vector of N points
             containing the maximum Fourier period of useful information
             at that particular time. Periods greater than those are
             subject to edge effetcs.
-        fft (array_like) :
+        fft (array like) :
             Normalized fast fourier transform of the input signal.
-        fft_freqs (array_like):
+        fft_freqs (array like):
             Fourier frequencies (in 1/time units) for the calculated
             FFT spectrum.
 
-    EXAMPLES
+    EXAMPLE
         mother = wavelet.Morlet(6.)
         wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
             0.25, 0.25, 0.5, 28, mother)
@@ -296,20 +297,20 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     signal_ft = fft(signal, N)                    # Signal fourier transform
     ftfreqs = 2 * pi * fftfreq(N, dt)             # Fourier angular frequencies
 
-    scales = s0 * 2. ** (arange(0, J+1) * dj)     # The scales
-    freqs = 1. / (wavelet.flambda() * scales)     # As of Mallat 1999
+    sj = s0 * 2. ** (arange(0, J+1) * dj)         # The scales
+    freqs = 1. / (wavelet.flambda() * sj)         # As of Mallat 1999
 
     # Creates an empty wavlet transform matrix and fills it for every discrete
     # scale using the convolution theorem.
-    W = zeros((len(scales), N), 'complex')
-    for n, s in enumerate(scales):
+    W = zeros((len(sj), N), 'complex')
+    for n, s in enumerate(sj):
         psi_ft_bar = (s * ftfreqs[1] * N) ** .5 * wavelet.psi_ft(s * ftfreqs)
         W[n, :] = ifft(signal_ft * psi_ft_bar, N)
 
     # Checks for NaN in transform results and removes them from the scales,
     # frequencies and wavelet transform.
     sel = ~isnan(W).all(axis=1)
-    scales = scales[sel]
+    sj = sj[sel]
     freqs = freqs[sel]
     W = W[sel, :]
 
@@ -319,14 +320,49 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     coi = wavelet.flambda() * wavelet.coi() * dt * (concatenate((coi,
           coi[::-1])) + 1E-5)
     #
-    return (W[:, :n0], scales, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
+    return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
             ftfreqs[1:N/2] / (2. * pi))
 
 
-def icwt(transform, scales, dt=1.0, wavelet=Morlet()):
-    """Tentative inverse continuous wavelet transform."""
-    for n, s in enumerate(scales):
-        psi_ft_bar = conjugate(wavelet.psi_ft(s * ftfreqs))
+def icwt(W, sj, dt, dj=0.25, w=Morlet()):
+    """Inverse continuous wavelet transform.
+
+    PARAMETERS
+        W (array like):
+            Wavelet transform, the result of the cwt function.
+        sj (array like):
+            Vector of scale indices as returned by the cwt function.
+        dt (float) :
+            Sample spacing.
+        dj (float, optional) :
+            Spacing between discrete scales as used in the cwt
+            function. Default value is 0.25.
+        w (class, optional) :
+            Mother wavelet class. Default is Morlet()
+
+    RETURNS
+        iW (array like) :
+            Inverse wavelet transform.
+
+    EXAMPLE
+        mother = wavelet.Morlet(6.)
+        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+            0.25, 0.25, 0.5, 28, mother)
+        iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
+
+    """
+    a, b = W.shape
+    c = sj.size
+    if a == c:
+        sj = (ones([b, 1]) * sj).transpose()
+    elif b == c:
+        sj = ones([a, 1]) * sj
+    else:
+        raise Warning, 'Input array dimensions do not match.'
+
+    # As of Torrence and Compo (1998), eq. (11)
+    iW = dj * sqrt(dt) / w.cdelta * w.psi(0) * (real(W) / sj).sum(axis=0)
+    return iW
 
 
 def significance(signal, dt, scales, sigma_test=0, alpha=0.,
@@ -335,13 +371,13 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
     Significance testing for the onde dimensional wavelet transform.
 
     PARAMETERS
-        signal (array_like or float) :
+        signal (array like or float) :
             Input signal array. If a float number is given, then the
             variance is assumed to have this value. If an array is
             given, then its variance is automatically computed.
         dt (float, optional) :
             Sample spacing. Default is 1.0.
-        scales (array_like) :
+        scales (array like) :
             Vector of scale indices given returned by cwt function.
         sigma_test (int, optional) :
             Sets the type of significance test to be performed.
@@ -373,9 +409,9 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
             Mother wavelet class. Default is Morlet().
 
     RETURNS
-        signif (array_like) :
+        signif (array like) :
             Significance levels as a function of scale.
-        fft_theor (array_like):
+        fft_theor (array like):
             Theoretical red-noise spectrum as a function of period.
 
     """

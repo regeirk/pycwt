@@ -3,6 +3,10 @@ of routines for wavelet transform and statistical analysis via FFT
 algorithm. This module references to the numpy, scipy and pylab Python
 packages.
 
+The sample script (sample.py) illustrates the use of the wavelet and
+inverse wavelet transforms and the results are plotted in a figure
+similar to the sample_nino3.png image file.
+
 DISCLAIMER
     This module is based on routines and data provided by C. Torrence
     and G. Compo available at http://paos.colorado.edu/research/wavelets/
@@ -25,6 +29,7 @@ AUTHOR
     email: sebastian@regeirk.com
 
 REVISION
+    3 (2011-04-30 19:48 -3000)
     2 (2011-04-28 17:57 -0300)
     1 (2010-12-24 21:59 -0300)
 

@@ -34,7 +34,10 @@ __version__ = '$Revision: 2 $'
 
 import numpy
 import pylab
-import wavelet
+try:
+    reload(wavelet)
+except:
+    import wavelet
 
 # This script allows different sample data sets to be analised. Simply comment
 # and uncomment the respective fname, title, label, t0, dt and units variables
@@ -100,6 +103,7 @@ mother = wavelet.Morlet(6.)          # Morlet mother wavelet with wavenumber=6
 # analysis for the chosen data set.
 wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
                                                       mother)
+iwave = wavelet.icwt(wave, scales, dt, dj, mother)
 power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
 fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
 period = 1. / freqs
@@ -145,6 +149,7 @@ fig = pylab.figure(**figprops)
 
 # First subplot, the original time series anomaly.
 ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
+ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
 ax.plot(time, var, 'k', linewidth=1.5)
 ax.set_title('a) %s' % (title, ))
 if units != '':
