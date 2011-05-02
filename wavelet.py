@@ -81,10 +81,10 @@ class Morlet:
         return 1. / coi
 
     def _set_f0(self, f0):
-        # Sets the Morlet wavenumber, the degrees of freedom and the
+        # Sets the Morlet wave number, the degrees of freedom and the
         # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
         # \delta j_0 (Torrence and Compo, 1998, Table 2)
-        self.f0 = f0             # Wavenumber
+        self.f0 = f0             # Wave number
         self.dofmin = 2          # Minimum degrees of freedom
         if self.f0 == 6.:
             self.cdelta = 0.776  # Reconstruction factor
@@ -170,7 +170,7 @@ class DOG:
     def psi(self, t):
         """DOG wavelet as described in Torrence and Compo (1998)
 
-        The derivative of a Gaussian of order n can be determied using
+        The derivative of a Gaussian of order n can be determined using
         the probabilistic Hermite polynomials. They are explicitly
         written as:
             Hn(x) = 2 ** (-n / s) * n! * sum ((-1) ** m) * (2 ** 0.5 *
@@ -238,7 +238,7 @@ def fftconv(x, y):
     for i in range(n):
         x_y.append(X[i] * Y[i])
 
-    # Returns the inverse Fourier transform with padding corection
+    # Returns the inverse Fourier transform with padding correction
     return ifft(x_y)[4:N+4]
 
 
@@ -274,12 +274,12 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
             Vector of Fourier frequencies (in 1 / time units) that
             corresponds to the wavelet scales.
         coi (array like) :
-            Returns the cone of influence, wich is a vector of N points
-            containing the maximum Fourier period of useful information
-            at that particular time. Periods greater than those are
-            subject to edge effetcs.
+            Returns the cone of influence, which is a vector of N
+            points containing the maximum Fourier period of useful
+            information at that particular time. Periods greater than
+            those are subject to edge effects.
         fft (array like) :
-            Normalized fast fourier transform of the input signal.
+            Normalized fast Fourier transform of the input signal.
         fft_freqs (array like):
             Fourier frequencies (in 1/time units) for the calculated
             FFT spectrum.
@@ -294,7 +294,7 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
     if J == -1: J = int(log2(n0 * dt / s0) / dj)  # Number of scales
     N = 2 ** (int(log2(n0)) + 1)                  # Next higher power of 2.
-    signal_ft = fft(signal, N)                    # Signal fourier transform
+    signal_ft = fft(signal, N)                    # Signal Fourier transform
     ftfreqs = 2 * pi * fftfreq(N, dt)             # Fourier angular frequencies
 
     sj = s0 * 2. ** (arange(0, J+1) * dj)         # The scales
@@ -314,7 +314,7 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     freqs = freqs[sel]
     W = W[sel, :]
 
-    # Determines the cone-of-influence. Note that it is returned as a fuction
+    # Determines the cone-of-influence. Note that it is returned as a function
     # of time in Fourier periods.
     coi = arange(0, n0 / 2)
     coi = wavelet.flambda() * wavelet.coi() * dt * (concatenate((coi,
@@ -381,7 +381,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
             Vector of scale indices given returned by cwt function.
         sigma_test (int, optional) :
             Sets the type of significance test to be performed.
-            Accepted values are 0, 1 or 2. If ommited assume 0.
+            Accepted values are 0, 1 or 2. If omitted assume 0.
 
             If set to 0, performs a regular chi-square test, according
             to Torrence and Compo (1998) equation 18.
@@ -437,8 +437,9 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
 
     # Theoretical discrete Fourier power spectrum of the noise signal following
     # Gilman et al. (1963) and Torrence and Compo (1998), equation 16.
-    fft_theor = (1 - alpha ** 2) / (1 - 2 * alpha * cos(freq * 2 * pi) +
-                alpha ** 2)
+    pk = lambda k, a, N: (1 - a ** 2) / (1 + a ** 2 - 2 * a *
+        cos(2 * pi * k / N))
+    fft_theor = pk(freq, alpha, n0)
     fft_theor = variance * fft_theor     # Including time-series variance
     signif = fft_theor
 
@@ -464,7 +465,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=0.,
         dof[sel] = dofmin  # Minimum dof is dofmin
         for n, d in enumerate(dof):
             chisquare = chi2.ppf(significance_level, d) / d;
-            signif[n] = fft_theor[n] * chisquare;
+            signif[n] = fft_theor[n] * chisquare
     elif sigma_test == 2:  # Time-averaged significance
         if len(dof) != 2:
             raise Exception, ('DOF must be set to [s1, s2], '

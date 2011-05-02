@@ -39,7 +39,7 @@ try:
 except:
     import wavelet
 
-# This script allows different sample data sets to be analised. Simply comment
+# This script allows different sample data sets to be analysed. Simply comment
 # and uncomment the respective fname, title, label, t0, dt and units variables
 # to see the different results. t0 is the starting time, dt is the temporal
 # sampling step
@@ -93,8 +93,12 @@ time = numpy.arange(0, N) * dt + t0  # Time array in years
 dj = 0.25                            # Four sub-octaves per octaves
 s0 = -1 #2 * dt                      # Starting scale, here 6 months
 J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
-alpha = 0.72                         # Lag-1 autocorrelation for red noise ...
-                                     # (0.72) or white noise (0.0) background
+alpha = 0.0                          # Lag-1 autocorrelation for white noise
+#alpha = numpy.correlate(var, var, 'same')
+#alpha /= alpha.max()
+#alpha = 0.5 * (alpha[N / 2 + 1] + alpha[N / 2 + 2] ** 0.5)
+#
+#
 mother = wavelet.Morlet(6.)          # Morlet mother wavelet with wavenumber=6
 #mother = wavelet.Mexican_hat()       # Mexican hat wavelet, or DOG with m=2
 #mother = wavelet.Paul(4)             # Paul wavelet with order m=4
@@ -133,7 +137,7 @@ scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
 # The following routines plot the results in four different subplots containing
 # the original series anomaly, the wavelet power spectrum, the global wavelet
 # and Fourier spectra and finally the range averaged wavelet spectrum. In all
-# subplots the significance levels are eather included as dottet lines or as
+# sub-plots the significance levels are either included as dotted lines or as
 # filled contour lines.
 pylab.close('all')
 fontsize = 'medium'
@@ -147,7 +151,7 @@ pylab.rcParams.update(params)          # Plot parameters
 figprops = dict(figsize=(11, 8), dpi=72)
 fig = pylab.figure(**figprops)
 
-# First subplot, the original time series anomaly.
+# First sub-plot, the original time series anomaly.
 ax = pylab.axes([0.1, 0.75, 0.65, 0.2])
 ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
 ax.plot(time, var, 'k', linewidth=1.5)
@@ -157,7 +161,7 @@ if units != '':
 else:
   ax.set_ylabel(r'%s' % (label, ))
 
-# Second subplot, the normalized wavelet power spectrum and significance level
+# Second sub-plot, the normalized wavelet power spectrum and significance level
 # contour lines and cone of influece hatched area.
 bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
 levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
@@ -177,7 +181,7 @@ bx.set_yticks(numpy.log2(Yticks))
 bx.set_yticklabels(Yticks)
 bx.invert_yaxis()
 
-# Third subplot, the global wavelet and Fourier power spectra and theoretical
+# Third sub-plot, the global wavelet and Fourier power spectra and theoretical
 # noise spectra.
 cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
 cx.plot(glbl_signif, numpy.log2(period), 'k--')
@@ -196,7 +200,7 @@ cx.set_yticklabels(Yticks)
 pylab.setp(cx.get_yticklabels(), visible=False)
 cx.invert_yaxis()
 
-# Fourth subplot, the scale averaged wavelet spectrum as determined by the
+# Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
 # avg1 and avg2 parameters
 dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
 dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
