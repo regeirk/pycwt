@@ -24,6 +24,11 @@ INSTALLATION
 
         ~/.local/lib/python2.x/site-packages/kPyWavelet
 
+TODO
+    Considering that the provided code works properly, the following
+    steps are to include the cross-wavelet transform and wavelet
+    coherence into the module.
+
 AUTHOR
     Sebastian Krieger
     email: sebastian@regeirk.com
