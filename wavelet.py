@@ -304,7 +304,7 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     # scale using the convolution theorem.
     W = zeros((len(sj), N), 'complex')
     for n, s in enumerate(sj):
-        psi_ft_bar = (s * ftfreqs[1] * N) ** .5 * wavelet.psi_ft(s * ftfreqs)
+        psi_ft_bar = (s * ftfreqs[1] * N) ** .5 * conjugate(wavelet.psi_ft(s * ftfreqs))
         W[n, :] = ifft(signal_ft * psi_ft_bar, N)
 
     # Checks for NaN in transform results and removes them from the scales,
