@@ -17,7 +17,7 @@ DISCLAIMER
 
 AUTHOR
     Sebastian Krieger
-    email: naitsabes@regeirk.com
+    email: sebastian@nublia.com
 
 REVISION
     2 (2011-01-11 15:21)

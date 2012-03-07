@@ -18,10 +18,9 @@ DISCLAIMER
 
 AUTHOR
     Sebastian Krieger
-    email: sebastian@regeirk.com
+    email: sebastian@nublia.com
 
 REVISION
-    3 (2011-04-30 19:48 -3000)
     2 (2011-04-28 17:57 -0300)
     1 (2010-12-24 21:59 -0300)
 
@@ -94,7 +93,6 @@ class Morlet:
             self.cdelta = -1
             self.gamma = -1
             self.deltaj0 = -1
-
 
 class Paul:
     """Implements the Paul wavelet class.
@@ -315,10 +313,10 @@ def cwt(signal, dt, dj=0.25, s0=-1, J=-1, wavelet=Morlet()):
     W = W[sel, :]
 
     # Determines the cone-of-influence. Note that it is returned as a function
-    # of time in Fourier periods.
-    coi = arange(0, n0 / 2)
-    coi = wavelet.flambda() * wavelet.coi() * dt * (concatenate((coi,
-          coi[::-1])) + 1E-5)
+    # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
+    # end-points.
+    coi = (n0 / 2. - abs(arange(0, n0) - (n0 - 1) / 2))
+    coi = wavelet.flambda() * wavelet.coi() * dt * coi
     #
     return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
             ftfreqs[1:N/2] / (2. * pi))

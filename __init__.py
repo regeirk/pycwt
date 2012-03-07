@@ -18,9 +18,10 @@ DISCLAIMER
 
 AUTHOR
     Sebastian Krieger
-    email: sebastian@regeirk.com
+    email: sebastian@nublia.com
 
 REVISION
+    3 (2011-09-04 20:28 -0300)
     2 (2011-04-28 17:57 -0300)
     1 (2010-12-24 21:59 -0300)
 
@@ -32,7 +33,7 @@ REFERENCES
 
 """
 
-__version__ = '$Revision: 2 $'
+__version__ = '$Revision: 3 $'
 # $Source$
 
 from wavelet import cwt, icwt, significance, Morlet, Paul, DOG, Mexican_hat
