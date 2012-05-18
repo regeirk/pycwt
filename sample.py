@@ -44,40 +44,44 @@ except:
 # to see the different results. t0 is the starting time, dt is the temporal
 # sampling step
 #
-title = 'NINO3 Sea Surface Temperature (seasonal)'
-fname = 'sst_nino3.dat'
-label='NINO3 SST'
-t0=1871
-dt=0.25
-units='^{\circ}C'
-#
-#title = 'Mauna Loa Carbon Dioxide'
-#fname = 'mauna.dat'
-#label = 'Mauna Loa $CO_{2}$'
-#t0=1958.0
-#dt=0.08333333
-#units='ppm'
-#
-#title = 'All-India Monsoon Rainfall'
-#fname = 'monsoon.dat'
-#label = 'Rainfall'
-#t0 = 1871.0
-#dt = 0.25
-#units = 'mm'
-#
-#title = 'Wolf\'s Sunspot Number'
-#fname = 'sunspot.dat'
-#label = 'Sunspots'
-#t0 = 1748
-#dt = 0.25
-#units = ''
-#
-#title = 'Southern Oscillation Index'
-#fname = 'soi.dat'
-#label = 'SOI'
-#t0 = 1896
-#dt = 0.25
-#units = 'mb'
+sample = 'NINO3' # Either NINO3, MAUNA, MONSOON, SUNSPOTS or SOI
+if sample == 'NINO3':
+    title = 'NINO3 Sea Surface Temperature (seasonal)'
+    fname = 'sst_nino3.dat'
+    label='NINO3 SST'
+    t0=1871
+    dt=0.25
+    units='^{\circ}C'
+elif sample == 'MAUNA':
+    title = 'Mauna Loa Carbon Dioxide'
+    fname = 'mauna.dat'
+    label = 'Mauna Loa $CO_{2}$'
+    t0=1958.0
+    dt=0.08333333
+    units='ppm'
+elif sample == 'MONSOON':
+    title = 'All-India Monsoon Rainfall'
+    fname = 'monsoon.dat'
+    label = 'Rainfall'
+    t0 = 1871.0
+    dt = 0.25
+    units = 'mm'
+elif sample == 'SUNSPOTS':
+    title = 'Wolf\'s Sunspot Number'
+    fname = 'sunspot.dat'
+    label = 'Sunspots'
+    t0 = 1748
+    dt = 0.25
+    units = ''
+elif sample == 'SOI':
+    title = 'Southern Oscillation Index'
+    fname = 'soi.dat'
+    label = 'SOI'
+    t0 = 1896
+    dt = 0.25
+    units = 'mb'
+else:
+    raise Warning, 'No valid dataset chosen.'
 
 var = numpy.loadtxt(fname)
 avg1, avg2 = (2, 8)                  # Range of periods to average
