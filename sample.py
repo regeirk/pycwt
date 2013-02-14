@@ -96,7 +96,7 @@ time = numpy.arange(0, N) * dt + t0  # Time array in years
 
 dj = 0.25                            # Four sub-octaves per octaves
 s0 = -1 #2 * dt                      # Starting scale, here 6 months
-J = -1 # 7 / dj                      # Seven powers of two with dj sub-octaves
+J = -1  #7 / dj                      # Seven powers of two with dj sub-octaves
 alpha = 0.0                          # Lag-1 autocorrelation for white noise
 #alpha = numpy.correlate(var, var, 'same')
 #alpha /= alpha.max()
@@ -106,6 +106,7 @@ alpha = 0.0                          # Lag-1 autocorrelation for white noise
 mother = wavelet.Morlet(6.)          # Morlet mother wavelet with wavenumber=6
 #mother = wavelet.Mexican_hat()       # Mexican hat wavelet, or DOG with m=2
 #mother = wavelet.Paul(4)             # Paul wavelet with order m=4
+#mother = wavelet.DOG(6)              # Derivative of the Gaussian, with m=6
 
 # The following routines perform the wavelet transform and siginificance
 # analysis for the chosen data set.
@@ -144,6 +145,7 @@ scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
 # sub-plots the significance levels are either included as dotted lines or as
 # filled contour lines.
 pylab.close('all')
+pylab.ion()
 fontsize = 'medium'
 params = {'text.fontsize': fontsize,
           'xtick.labelsize': fontsize,
