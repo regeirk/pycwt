@@ -1,16 +1,22 @@
-Continuous wavelet transform module for Python. Includes a collection
-of routines for wavelet transform and statistical analysis via FFT
-algorithm. This module references to the numpy, scipy and pylab Python
+Continuous wavelet transform module for Python. Includes a collection of 
+routines for wavelet transform and statistical analysis via FFT algorithm. 
+Most recently cross-wavelet tranforms, wavelet coherence tests and plotting 
+functions were added to the module.
+
+This module references to the numpy, scipy, pylab and maybe other Python 
 packages.
 
-The sample script (sample.py) illustrates the use of the wavelet and
-inverse wavelet transforms and the results are plotted in a figure
-similar to the sample_nino3.png image file.
+The sample scripts (sample.py, sample_xwt.py) illustrate the use of the 
+wavelet and inverse wavelet transforms, cross-wavelet transform and wavelet 
+transform coherence. Results are plotted in figures similar to the sample 
+images.
 
 DISCLAIMER
-    This module is based on routines and data provided by C. Torrence
-    and G. Compo available at http://paos.colorado.edu/research/wavelets/
-    and on routines provided by A. Brazhe available at
+    This module is based on routines provided by C. Torrence and G. P. Compo
+    Compo available at http://paos.colorado.edu/research/wavelets/, on
+    routines provided by A. Grinsted, J. Moore and S. Jevrejeva available at 
+    http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence, and
+    on routines provided by A. Brazhe available at 
     http://cell.biophys.msu.ru/static/swan/.
 
     This software may be used, copied, or redistributed as long as it
@@ -23,11 +29,6 @@ INSTALLATION
     path. On Linux distribution one such option is
 
         ~/.local/lib/python2.x/site-packages/kPyWavelet
-
-TODO
-    Considering that the provided code works properly, the following
-    steps are to include the cross-wavelet transform and wavelet
-    coherence into the module.
 
 COMMENTS
     There is an errata page at the wavelet website maintaned at the Program 
@@ -61,20 +62,36 @@ COMMENTS
     0.01	            3.604	                5.767
 
 ACKNOWLEDGEMENTS
-    I would like to thank Jack Ireland and Renaud Dussurget for their 
-    attentive eyes, feedback and debugging.
+    I would like to thank Christopher Torrence, Gilbert P. Compo, Aslak 
+    Grinsted, John Moore, Svetlana Jevrejevaand and Alexey Brazhe for their 
+    code and also Jack Ireland and Renaud Dussurget for their attentive eyes, 
+    feedback and debugging.
 
 AUTHOR
     Sebastian Krieger
     email: sebastian@nublia.com
 
 REVISION
+    4 (2013-03-06 19:37 -3000)
     3 (2011-04-30 19:48 -3000)
     2 (2011-04-28 17:57 -0300)
     1 (2010-12-24 21:59 -0300)
 
 REFERENCES
-    [1] Mallat, Stephane G. (1999). A wavelet tour of signal processing
-    [2] Addison, Paul S. The illustrated wavelet transform handbook
-    [3] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical
-        Guide to Wavelet Analysis
+    [1] Mallat, S. (2008). A wavelet tour of signal processing: The
+        sparse way. Academic Press, 2008, 805.
+    [2] Addison, P. S. (2002). The illustrated wavelet transform 
+        handbook: introductory theory and applications in science,
+        engineering, medicine and finance. IOP Publishing.
+    [3] Torrence, C. and Compo, G. P. (1998). A Practical Guide to 
+        Wavelet Analysis. Bulletin of the American Meteorological 
+        Society, American Meteorological Society, 1998, 79, 61-78.
+    [4] Torrence, C. and Webster, P. J. (1999). Interdecadal changes in
+        the ENSO-Monsoon system, Journal of Climate, 12(8), 2679-2690.
+    [5] Grinsted, A.; Moore, J. C. & Jevrejeva, S. (2004). Application
+        of the cross wavelet transform and wavelet coherence to 
+        geophysical time series. Nonlinear Processes in Geophysics, 11,
+        561-566.
+    [6] Liu, Y.; Liang, X. S. and Weisberg, R. H. (2007). Rectification
+        of the bias in the wavelet power spectrum. Journal of 
+        Atmospheric and Oceanic Technology, 24(12), 2093-2102.

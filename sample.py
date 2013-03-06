@@ -97,12 +97,9 @@ time = numpy.arange(0, N) * dt + t0  # Time array in years
 dj = 0.25                            # Four sub-octaves per octaves
 s0 = -1 #2 * dt                      # Starting scale, here 6 months
 J = -1  #7 / dj                      # Seven powers of two with dj sub-octaves
-alpha = 0.0                          # Lag-1 autocorrelation for white noise
-#alpha = numpy.correlate(var, var, 'same')
-#alpha /= alpha.max()
-#alpha = 0.5 * (alpha[N / 2 + 1] + alpha[N / 2 + 2] ** 0.5)
-#
-#
+#alpha = 0.0                          # Lag-1 autocorrelation for white noise
+alpha, _, _ = wavelet.ar1(var)
+
 mother = wavelet.Morlet(6.)          # Morlet mother wavelet with wavenumber=6
 #mother = wavelet.Mexican_hat()       # Mexican hat wavelet, or DOG with m=2
 #mother = wavelet.Paul(4)             # Paul wavelet with order m=4
@@ -119,7 +116,7 @@ period = 1. / freqs
 
 signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
                         significance_level=slevel, wavelet=mother)
-sig95 = (signif * numpy.ones((N, 1))).transpose()
+sig95 = numpy.ones([1, N]) * signif[:, None]
 sig95 = power / sig95                # Where ratio > 1, power is significant
 
 # Calculates the global wavelet spectrum and determines its significance level.
