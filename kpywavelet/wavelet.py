@@ -255,8 +255,8 @@ def fftconv(x, y):
 
 
 def ar1(x):
-    r"""Allen and Smith autoregressive lag-1 autocorrelation alpha. In a
-    AR(1) model
+    """
+    Allen and Smith autoregressive lag-1 autocorrelation alpha. In a AR(1) model
     
         x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,
     
@@ -283,18 +283,16 @@ def ar1(x):
 
     """
     x = np.asarray(x)
-    N = x.size
-    xm = x.mean()
-    x = x - xm
+    x -= x.mean()
     
     # Estimates the lag zero and one covariance
-    c0 = x.transpose().dot(x) / N
-    c1 = x[0:N-1].transpose().dot(x[1:N]) / (N - 1)
+    c0 = x.transpose().dot(x) / x.size
+    c1 = x[0:x.size-1].transpose().dot(x[1:x.size]) / (x.size - 1)
     
     # According to A. Grinsteds' substitutions
-    B = -c1 * N - c0 * N**2 - 2 * c0 + 2 * c1 - c1 * N**2 + c0 * N
-    A = c0 * N**2
-    C = N * (c0 + c1 * N - c1)
+    B = -c1 * x.size - c0 * x.size**2 - 2 * c0 + 2 * c1 - c1 * x.size**2 + c0 * x.size
+    A = c0 * x.size**2
+    C = x.size * (c0 + c1 *x.size - c1)
     D = B**2 - 4 * A * C
     
     if D > 0:
@@ -304,8 +302,8 @@ def ar1(x):
             'Series is too short or trend is to large.')
     
     # According to Allen & Smith (1996), footnote 4    
-    mu2 = -1 / N + (2 / N**2) * ((N - g**N) / (1 - g) - 
-        g * (1 - g**(N - 1)) / (1 - g)**2)
+    mu2 = -1 / x.size + (2 / x.size**2) * ((x.size - g**x.size) / (1 - g) - 
+        g * (1 - g**(x.size - 1)) / (1 - g)**2)
     c0t = c0 / (1 - mu2)
     a = ((1 - g**2) * c0t) ** 0.5
 
@@ -348,7 +346,7 @@ def ar1_spectrum(freqs, ar1=0.) :
     return Pk
 
 
-def rednoise(N, g, a=1.) :
+def rednoise(N, g, a=1.):
     """Red noise generator using filter.
     
     PARAMETERS
@@ -988,9 +986,9 @@ def wct_significance(a1, a2, significance_level=0.95, mc_count=300,
     #
     nbins = 1000
     wlc = np.ma.zeros([kwargs['J']+1, nbins])
-    t1 = time()
+#    t1 = time()
     for i in range(mc_count):
-        t2 = time()
+#        t2 = time()
         # Generates two red-noise signals with lag-1 autoregressive 
         # coefficients given by a1 and a2
         noise1 = rednoise(N, a1, 1)
@@ -1015,12 +1013,12 @@ def wct_significance(a1, a2, significance_level=0.95, mc_count=300,
             for j, t in enumerate(cd[~cd.mask]):
                 wlc[s, t] += 1
         # Outputs some text to screen if desired
-        if not verbose:
-            stdout.write(len(vs) * '\b')
-            vs = '%s... %s ' % (vS, profiler(mc_count, i + 1, 0, t1, t2))
-            stdout.write(vs)
-            stdout.flush()
-    
+#        if not verbose:
+#            stdout.write(len(vs) * '\b')
+#            vs = '%s... %s ' % (vS, profiler(mc_count, i + 1, 0, t1, t2))
+#            stdout.write(vs)
+#            stdout.flush()
+#    
     # After many, many, many Monte Carlo simulations, determine the 
     # significance using the coherence coefficient counter percentile.
     wlc.mask = (wlc.data == 0.)
@@ -1042,82 +1040,82 @@ def wct_significance(a1, a2, significance_level=0.95, mc_count=300,
     return sig95, nW1['sj']
 
 
-def profiler(N, n, t0, t1, t2):
-    """Profiles the module usage.
-
-    PARAMETERS
-        N, n (int) :
-            Number of total elements (N) and number of overall elements
-            completed (n).
-        t0, t1, t2 (float) :
-            Time since the Epoch in seconds for the current module
-            (t0), subroutine (t1) and step (t2).
-    RETURNS
-        s (string) :
-            String containing the analysis result.
-
-    EXAMPLE
-
-    """
-    n, N = float(n), float(N)
-    perc = n / N * 100.
-    elap0 = s2hms(time() - t0)[3]
-    elap1 = s2hms(time() - t1)[3]
-    elap2 = s2hms(time() - t2)[3]
-    try:
-        togo = s2hms(-(N - n) / n * (time()-t1))[3]
-    except:
-        togo = '?h??m??s'
-
-    if t0 == 0:
-        s = '%.1f%%, %s (%s, %s)\n' % (perc, elap1, togo, elap2)
-    elif (t1 == 0) and (t2 == 0):
-        s = '%.1f%%, %s\n' % (perc, elap0)
-    else:
-        s = '%.1f%%, %s (%s, %s, %s)\n' % (perc, elap1, togo, elap0, elap2)
-    return s
-
-
-def s2hms(t) :
-    """Converts seconds to hour, minutes and seconds.
-
-    PARAMETERS
-        t (float) :
-            Seconds value to convert
-
-    RETURNS
-        hh, mm, ss (float) :
-            Calculated hour, minute and seconds
-        s (string) :
-            Formated output string.
-
-    EXAMPLE
-        hh, mm, ss, s = s2hms(123.45)
-
-    """
-    if t < 0:
-        sign = -1
-        t = -t
-    else:
-        sign = 1
-    hh = int(t / 3600.)
-    t -= hh * 3600.
-    mm = int(t / 60)
-    ss = t - (mm * 60.)
-    dd = int(hh / 24.)
-    HH = hh - dd * 24.
-
-    if (hh > 0) | (mm > 0):
-        s = '%04.1fs' % (ss)
-        if hh > 0:
-            s = '%dh%02dm%s' % (HH, mm, s)
-            if dd > 0:
-                s = '%dd%s' % (dd, s)
-        else:
-            s = '%dm%s' % (mm, s)
-    else:
-        s = '%.1fs' % (ss)
-    if sign == -1:
-        s = '-%s' % (s)
-        
-    return (hh, mm, ss, s)
+#def profiler(N, n, t0, t1, t2):
+#    """Profiles the module usage.
+#
+#    PARAMETERS
+#        N, n (int) :
+#            Number of total elements (N) and number of overall elements
+#            completed (n).
+#        t0, t1, t2 (float) :
+#            Time since the Epoch in seconds for the current module
+#            (t0), subroutine (t1) and step (t2).
+#    RETURNS
+#        s (string) :
+#            String containing the analysis result.
+#
+#    EXAMPLE
+#
+#    """
+#    n, N = float(n), float(N)
+#    perc = n / N * 100.
+#    elap0 = s2hms(time() - t0)[3]
+#    elap1 = s2hms(time() - t1)[3]
+#    elap2 = s2hms(time() - t2)[3]
+#    try:
+#        togo = s2hms(-(N - n) / n * (time()-t1))[3]
+#    except:
+#        togo = '?h??m??s'
+#
+#    if t0 == 0:
+#        s = '%.1f%%, %s (%s, %s)\n' % (perc, elap1, togo, elap2)
+#    elif (t1 == 0) and (t2 == 0):
+#        s = '%.1f%%, %s\n' % (perc, elap0)
+#    else:
+#        s = '%.1f%%, %s (%s, %s, %s)\n' % (perc, elap1, togo, elap0, elap2)
+#    return s
+#
+#
+#def s2hms(t) :
+#    """Converts seconds to hour, minutes and seconds.
+#
+#    PARAMETERS
+#        t (float) :
+#            Seconds value to convert
+#
+#    RETURNS
+#        hh, mm, ss (float) :
+#            Calculated hour, minute and seconds
+#        s (string) :
+#            Formated output string.
+#
+#    EXAMPLE
+#        hh, mm, ss, s = s2hms(123.45)
+#
+#    """
+#    if t < 0:
+#        sign = -1
+#        t = -t
+#    else:
+#        sign = 1
+#    hh = int(t / 3600.)
+#    t -= hh * 3600.
+#    mm = int(t / 60)
+#    ss = t - (mm * 60.)
+#    dd = int(hh / 24.)
+#    HH = hh - dd * 24.
+#
+#    if (hh > 0) | (mm > 0):
+#        s = '%04.1fs' % (ss)
+#        if hh > 0:
+#            s = '%dh%02dm%s' % (HH, mm, s)
+#            if dd > 0:
+#                s = '%dd%s' % (dd, s)
+#        else:
+#            s = '%dm%s' % (mm, s)
+#    else:
+#        s = '%.1fs' % (ss)
+#    if sign == -1:
+#        s = '-%s' % (s)
+#        
+#    return (hh, mm, ss, s)
