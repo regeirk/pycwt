@@ -18,7 +18,6 @@ from scipy.special.orthogonal import hermitenorm
 from os import makedirs
 from os.path import expanduser
 from sys import stdout
-from time import time
 
 class Morlet:
     """
@@ -28,9 +27,8 @@ class Morlet:
     f0 should be more than 0.8 for this function to be correct, its
     default value is f0=6.
 
+    #TODO: Implenment arbitarty order
     """
-
-    name = 'Morlet'
 
     def __init__(self, f0=6.0):
         self._set_f0(f0)
@@ -69,6 +67,25 @@ class Morlet:
             self.cdelta = -1
             self.gamma = -1
             self.deltaj0 = -1
+
+    def rect(x, normalize=False) :
+        """
+        TODO: THE FUCK IS THIS?
+        """
+        if type(x) in [int, float]:
+            shape = [x, ]
+        elif type(x) in [list, dict]:
+            shape = x
+        elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
+            shape = x.shape
+        X = np.zeros(shape)
+        X[0] = X[-1] = 0.5
+        X[1:-1] = 1
+        
+        if normalize:
+            X /= X.sum()
+        
+        return X
     
     def smooth(self, W, dt, dj, scales):
         """
@@ -78,21 +95,22 @@ class Morlet:
         value of the wavelet function at each scale, normalized to have a 
         total weight of unity, according to suggestions by Torrence & 
         Webster (1999) and by Grinsted et al. (2004).
+
+        #TODO: Implenment arbitarty order 
         """
-        
-        m, n = W.shape
-        T = np.zeros([m, n])
+
+        T = np.zeros([W.shape[0], W.shape[1]])
         
         # Filter in time. 
-        npad = int(2 ** np.ceil(np.log2(n)))
+        npad = int(2 ** np.ceil(np.log2(W.shape[1])))
         k = 2 * np.pi * fft.fftfreq(npad)
         k2 = k ** 2
         snorm = scales / dt
         
-        for i in range(m):
+        for i in range(W.shape[0]):
             F = np.exp(-0.5 * (snorm[i] ** 2) * k2)
             smooth = fft.ifft(F * fft.fft(W[i, :], npad))
-            T[i, :] = smooth[0:n]
+            T[i, :] = smooth[0:W.shape[1]]
         
         if np.isreal(W).all():
             T = T.real
@@ -100,7 +118,7 @@ class Morlet:
         # Filter in scale. For the Morlet wavelet it's simply a boxcar with
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
-        win = rect(int(round(wsize)), normalize=True)
+        win = self.rect(int(round(wsize)), normalize=True)
         T = convolve2d(T, win[:, None], 'same')
         
         return T        
@@ -112,9 +130,8 @@ class Paul:
     Note that the input parameter f is the angular frequency and that
     the default order for this wavelet is m=4.
 
+    #TODO: Implenment arbitarty order
     """
-
-    name = 'Paul'
 
     def __init__(self, m=4):
         self._set_m(m)
@@ -163,14 +180,12 @@ class DOG:
     Implements the derivative of a Guassian wavelet class.
 
     Note that the input parameter f is the angular frequency and that
-    for m=2 the DOG becomes the Mexican hat wavelet, which is then
-    default.
+    for m=2 the DOG becomes the Mexican hat wavelet and that
+    the default order for this wavelet is m=6.
 
+    #TODO: Implenment arbitarty order
     """
-
-    name = 'DOG'
-
-    def __init__(self, m=2):
+    def __init__(self, m=6):
         self._set_m(m)
 
     def psi_ft(self, f):
@@ -235,9 +250,6 @@ class Mexican_hat(DOG):
     This class inherits the DOG class using m=2.
 
     """
-
-    name = 'Mexican hat'
-
     def __init__(self):
         self._set_m(2)
 
@@ -263,24 +275,27 @@ def ar1(x):
     where <x> is the process mean, \gamma and \alpha are process 
     parameters and z(t) is a Gaussian unit-variance white noise.
         
-    PARAMETERS
-        x (array like) :
+    Parameters
+    ----------
+        x : numpy.ndarray, list
             Univariate time series
     
-    RETURNS
-        g (float) :
+    Return
+    ------
+        g : float
             Estimate of the lag-one autocorrelation.
-        a (float) :
+        a : float
             Estimate of the noise variance [var(x) ~= a**2/(1-g**2)]
-        mu2 (foat) :
+        mu2 : float
             Estimated square on the mean of a finite segment of AR(1) 
             noise, mormalized by the process variance.
     
-    REFERENCES
+    References
+    ----------
         [1] Allen, M. R. and Smith, L. A. (1996). Monte Carlo SSA: 
             detecting irregular oscillations in the presence of colored 
             noise. Journal of Climate, 9(12), 3373-3404.
-
+http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
     """
     x = np.asarray(x)
     x -= x.mean()
@@ -310,58 +325,72 @@ def ar1(x):
     return g, a, mu2
 
 
-def ar1_spectrum(freqs, ar1=0.) :
-    """Lag-1 autoregressive theoretical power spectrum
+def ar1_spectrum(freqs, ar1=0., fourier=False) :
+    """
+    Lag-1 autoregressive theoretical power spectrum.
     
-    PARAMETERS
-        ar1 (float) :
-            Lag-1 autoregressive correlation coefficient.
-        freqs (array like) :
+    According to a post from the MadSci Network, the time-series spectrum for 
+    an auto-regressive model can be represented as
+     
+    P_k = \frac{E}{\left|1- \sum\limits_{k=1}^{K} a_k \, e^{2 i \pi 
+       \frac{k f}{f_s} } \right|^2}
+    
+    which for an AR1 model can be reduced and is used here.
+    
+    The theoretical discrete fourier power spectrum of the noise signal
+    following Gilman et al. (1963) and Torrence and Compo (1998), equation 16
+    is available.
+
+    Parameters
+    ----------
+        freqs : numpy.ndarray, list
             Frequencies at which to calculate the theoretical power 
             spectrum.
-    
-    RETURNS
-        Pk (array like) :
+        ar1 : float
+            Lag-1 autoregressive correlation coefficient.
+        fourier : bool
+            Returns the theoretical power spectrum for FFT
+    Returns
+    -------
+        Pk : numpy.ndarray
             Theoretical discrete Fourier power spectrum of noise signal.
     
+    References
+    ----------
+        [1] http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
+        
     """
-    # According to a post from the MadSci Network available at 
-    # http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html,
-    # the time-series spectrum for an auto-regressive model can be
-    # represented as
-    # 
-    # P_k = \frac{E}{\left|1- \sum\limits_{k=1}^{K} a_k \, e^{2 i \pi 
-    #   \frac{k f}{f_s} } \right|^2}
-    #
-    # which for an AR1 model reduces to
-    #
+    
     freqs = np.asarray(freqs)
-    Pk = (1 - ar1 ** 2) / abs(1 - ar1 * np.exp(-2 * np.pi * 1j * freqs)) ** 2
-
-    # Theoretical discrete Fourier power spectrum of the noise signal following
-    # Gilman et al. (1963) and Torrence and Compo (1998), equation 16.
-    #N = len(freqs)
-    #Pk = (1 - ar1 ** 2) / (1 + ar1 ** 2 - 2 * ar1 * cos(2 * pi * freqs / N))
+    
+    if fourier:
+        Pk = (1 - ar1 ** 2) / (1 + ar1 ** 2 - 2 * ar1 * np.cos(2 * np.pi * freqs / len(freqs)))
+    else:
+        Pk = (1 - ar1 ** 2) / abs(1 - ar1 * np.exp(-2 * np.pi * 1j * freqs)) ** 2
     
     return Pk
 
 
 def rednoise(N, g, a=1.):
-    """Red noise generator using filter.
+    """
+    Red noise generator using filter.
     
-    PARAMETERS
-        N (integer) :
+    Parameters
+    ----------    
+        N : int
             Length of the desired time series.
-        g (float) :
+        g : float
             Lag-1 autocorrelation coefficient.
-        a (float, optional) :
+        a : float, optional
             Noise innovation variance parameter.
     
-    RETURNS
-        y (array like) :
+    Returns
+    -------
+        y : numpy.ndarray
             Red noise time series.
     
     """
+    
     if g == 0:
         yr = randn(N, 1) * a;
     else:
@@ -372,70 +401,56 @@ def rednoise(N, g, a=1.):
     
     return yr.flatten()
 
-
-def rect(x, normalize=False) :
-    if type(x) in [int, float]:
-        shape = [x, ]
-    elif type(x) in [list, dict]:
-        shape = x
-    elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
-        shape = x.shape
-    X = np.zeros(shape)
-    X[0] = X[-1] = 0.5
-    X[1:-1] = 1
-    
-    if normalize:
-        X /= X.sum()
-    
-    return X
-
-
 def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet(), result=None):
-    """Continuous wavelet transform of the signal at specified scales.
+    """
+    Continuous wavelet transform of the signal at specified scales.
 
-    PARAMETERS
-        signal (array like) :
+    Parameters
+    ----------
+        signal : numpy.ndarray, list
             Input signal array
-        dt (float) :
+        dt : float 
             Sample spacing.
-        dj (float, optional) :
+        dj : float, optional
             Spacing between discrete scales. Default value is 0.25.
             Smaller values will result in better scale resolution, but
             slower calculation and plot.
-        s0 (float, optional) :
+        s0 : float, optional
             Smallest scale of the wavelet. Default value is 2*dt.
-        J (float, optional) :
+        J : float, optional
             Number of scales less one. Scales range from s0 up to
             s0 * 2**(J * dj), which gives a total of (J + 1) scales.
             Default is J = (log2(N*dt/so))/dj.
-        wavelet (class, optional) :
-            Mother wavelet class. Default is Morlet()
-        result (string, optional) :
+        wavelet : instance of a wavelet class, optional 
+            Mother wavelet class. Default is Morlet wavelet.
+        result : string, optional
             If set to 'dictionary' returns the result arrays as itens
             of a dictionary.
 
-    RETURNS
-        W (array like) :
+    Returns
+    -------
+        W  : numpy.ndarray
             Wavelet transform according to the selected mother wavelet.
             Has (J+1) x N dimensions.
-        sj (array like) :
+        sj : numpy.ndarray
             Vector of scale indices given by sj = s0 * 2**(j * dj),
             j={0, 1, ..., J}.
-        freqs (array like) :
+        freqs : array like
             Vector of Fourier frequencies (in 1 / time units) that
             corresponds to the wavelet scales.
-        coi (array like) :
+        coi : numpy.ndarray
             Returns the cone of influence, which is a vector of N
             points containing the maximum Fourier period of useful
             information at that particular time. Periods greater than
             those are subject to edge effects.
-        fft (array like) :
+        fft : numpy.ndarray
             Normalized fast Fourier transform of the input signal.
-        fft_freqs (array like):
+        fft_freqs : numpy.ndarray
             Fourier frequencies (in 1/time units) for the calculated
             FFT spectrum.
 
-    EXAMPLE
+    Example
+    -------
         mother = wavelet.Morlet(6.)
         wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
             0.25, 0.25, 0.5, 28, mother)
@@ -494,27 +509,31 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet(), result=None):
 
 
 def icwt(W, sj, dt, dj=0.25, w=Morlet()):
-    """Inverse continuous wavelet transform.
+    """
+    Inverse continuous wavelet transform.
 
-    PARAMETERS
-        W (array like):
+    Parameters
+    ----------
+        W : numpy.ndarray
             Wavelet transform, the result of the cwt function.
-        sj (array like):
+        sj : numpy.ndarray
             Vector of scale indices as returned by the cwt function.
-        dt (float) :
+        dt : float
             Sample spacing.
-        dj (float, optional) :
+        dj : float, optional
             Spacing between discrete scales as used in the cwt
             function. Default value is 0.25.
-        w (class, optional) :
-            Mother wavelet class. Default is Morlet()
+        w : instance of wavelet class, optional
+            Mother wavelet class. Default is Morlet
 
-    RETURNS
-        iW (array like) :
+    Returns
+    -------
+        iW : numpy.ndarray
             Inverse wavelet transform.
 
-    EXAMPLE
-        mother = wavelet.Morlet(6.)
+    Example
+    -------
+        mother = wavelet.Morlet()
         wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
             0.25, 0.25, 0.5, 28, mother)
         iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
@@ -539,8 +558,9 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     """
     Significance testing for the onde dimensional wavelet transform.
 
-    PARAMETERS
-        signal (array like or float) :
+    Parameters
+    ----------
+        signal : array like, float
             Input signal array. If a float number is given, then the
             variance is assumed to have this value. If an array is
             given, then its variance is automatically computed.
