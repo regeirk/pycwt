@@ -15,9 +15,6 @@ from scipy.stats import chi2
 from scipy.special import gamma
 from scipy.signal import convolve2d, lfilter
 from scipy.special.orthogonal import hermitenorm
-from os import makedirs
-from os.path import expanduser
-from sys import stdout
 import time
 
 class Morlet:
@@ -674,9 +671,16 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     return (signif, fft_theor)
 
 
-def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wavelet=Morlet(), normalize=True):
+def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1,
+        wavelet=Morlet(), normalize=True):
     """
-    Cross wavelet transform. Both signals need to have the same length and the same dt
+    Calculate the cross wavelet transform (XWT). The XWT finds regions in time
+    frequency space where the time series show high common power. Torrence and
+    Compo (1998) state that the percent point function -- PPF (inverse of the
+    cumulative distribution function) of a chi-square distribution at 95%
+    confidence and two degrees of freedom is Z2(95%)=3.999. However, calculating
+    the PPF using chi2.ppf gives Z2(95%)=5.991. To ensure similar significance
+    intervals as in Grinsted et al. (2004), one has to use confidence of 86.46%.
     
     Parameters
     ----------
@@ -764,12 +768,26 @@ def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wav
 
 def wct(signal, signal2, dt, dj, s0, J, significance_level=0.95, wavelet=Morlet(), normalize=True):
     """
-    Wavelet transform coherence.
+    Calculate the wavelet coherence (WTC). The WTC finds regions in time
+    frequency space where the two time seris co-vary, but do not necessarily have
+    high power.
     
     Parameters
     ----------
-        x[1, 2], y[1, 2] (array like) :
-            Input data arrays to calculate cross wavelet transform.
+        signal, signal2 : numpy.ndarray, list
+            Input signal array to calculate cross wavelet transform.
+        dt : float 
+            Sample spacing.
+        dj : float, optional
+            Spacing between discrete scales. Default value is 0.25.
+            Smaller values will result in better scale resolution, but
+            slower calculation and plot.
+        s0 : float, optional
+            Smallest scale of the wavelet. Default value is 2*dt.
+        J : float, optional
+            Number of scales less one. Scales range from s0 up to
+            s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+            Default is J = (log2(N*dt/so))/dj.
         significance_level (float, optional) :
             Significance level to use. Default is 0.95.
         normalize (boolean, optional) :
@@ -963,20 +981,20 @@ def profiler(N, n, t0, t1, t2):
 def s2hms(t) :
     """Converts seconds to hour, minutes and seconds.
 
-    PARAMETERS
-        t (float) :
-            Seconds value to convert
+PARAMETERS
+t (float) :
+Seconds value to convert
 
-    RETURNS
-        hh, mm, ss (float) :
-            Calculated hour, minute and seconds
-        s (string) :
-            Formated output string.
+RETURNS
+hh, mm, ss (float) :
+Calculated hour, minute and seconds
+s (string) :
+Formated output string.
 
-    EXAMPLE
-        hh, mm, ss, s = s2hms(123.45)
+EXAMPLE
+hh, mm, ss, s = s2hms(123.45)
 
-    """
+"""
     if t < 0:
         sign = -1
         t = -t
@@ -1001,5 +1019,5 @@ def s2hms(t) :
         s = '%.1fs' % (ss)
     if sign == -1:
         s = '-%s' % (s)
-        
+    #
     return (hh, mm, ss, s)
