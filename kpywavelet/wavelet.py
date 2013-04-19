@@ -33,6 +33,7 @@ class Morlet:
 
     def __init__(self, f0=6.0):
         self._set_f0(f0)
+        self.name = 'Morlet'
 
     def psi_ft(self, f):
         """Fourier transform of the approximate Morlet wavelet."""
@@ -55,7 +56,7 @@ class Morlet:
         return 1. / self.coi
 
     def _set_f0(self, f0):
-        # Sets the Morlet wave number, the degrees of freedom and the
+        # Sets the Morlet wave number, the degrees ofFalse freedom and the
         # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
         # \delta j_0 (Torrence and Compo, 1998, Table 2)
         self.f0 = f0             # Wave number
@@ -68,25 +69,6 @@ class Morlet:
             self.cdelta = -1
             self.gamma = -1
             self.deltaj0 = -1
-
-    def rect(x, normalize=False) :
-        """
-        TODO: THE FUCK IS THIS?
-        """
-        if type(x) in [int, float]:
-            shape = [x, ]
-        elif type(x) in [list, dict]:
-            shape = x
-        elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
-            shape = x.shape
-        X = np.zeros(shape)
-        X[0] = X[-1] = 0.5
-        X[1:-1] = 1
-        
-        if normalize:
-            X /= X.sum()
-        
-        return X
     
     def smooth(self, W, dt, dj, scales):
         """
@@ -100,18 +82,19 @@ class Morlet:
         #TODO: Implenment arbitarty order 
         """
 
-        T = np.zeros([W.shape[0], W.shape[1]])
+        m, n = W.shape
+        T = np.zeros([m, n])
         
-        # Filter in time. 
-        npad = int(2 ** np.ceil(np.log2(W.shape[1])))
+        # Filter in time.
+        npad = int(2 ** np.ceil(np.log2(n)))
         k = 2 * np.pi * fft.fftfreq(npad)
         k2 = k ** 2
         snorm = scales / dt
         
-        for i in range(W.shape[0]):
+        for i in range(m):
             F = np.exp(-0.5 * (snorm[i] ** 2) * k2)
             smooth = fft.ifft(F * fft.fft(W[i, :], npad))
-            T[i, :] = smooth[0:W.shape[1]]
+            T[i, :] = smooth[0:n]
         
         if np.isreal(W).all():
             T = T.real
@@ -119,10 +102,10 @@ class Morlet:
         # Filter in scale. For the Morlet wavelet it's simply a boxcar with
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
-        win = self.rect(int(round(wsize)), normalize=True)
+        win = rect(int(round(wsize)), normalize=True)
         T = convolve2d(T, win[:, None], 'same')
         
-        return T        
+        return T
 
 class Paul:
     """
@@ -136,6 +119,7 @@ class Paul:
 
     def __init__(self, m=4):
         self._set_m(m)
+        self.name = 'Paul'
 
     def psi_ft(self, f):
         """Fourier transform of the Paul wavelet."""
@@ -188,6 +172,7 @@ class DOG:
     """
     def __init__(self, m=6):
         self._set_m(m)
+        self.name = 'DOG'
 
     def psi_ft(self, f):
         """Fourier transform of the DOG wavelet."""
@@ -253,8 +238,24 @@ class Mexican_hat(DOG):
     """
     def __init__(self):
         self._set_m(2)
+        self.name = 'Mexican Hat'
 
-
+def rect(x, normalize=False) :
+    if type(x) in [int, float]:
+        shape = [x, ]
+    elif type(x) in [list, dict]:
+        shape = x
+    elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
+        shape = x.shape
+    X = np.zeros(shape)
+    X[0] = X[-1] = 0.5
+    X[1:-1] = 1
+    
+    if normalize:
+        X /= X.sum()
+    
+    return X
+    
 def fftconv(x, y):
     """ Convolution of x and y using the FFT convolution theorem. """
     N = len(x)
@@ -296,19 +297,21 @@ def ar1(x):
         [1] Allen, M. R. and Smith, L. A. (1996). Monte Carlo SSA: 
             detecting irregular oscillations in the presence of colored 
             noise. Journal of Climate, 9(12), 3373-3404.
-http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
+            http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
     """
     x = np.asarray(x)
-    x -= x.mean()
+    N = x.size
+    xm = x.mean()
+    x = x - xm
     
     # Estimates the lag zero and one covariance
-    c0 = x.transpose().dot(x) / x.size
-    c1 = x[0:x.size-1].transpose().dot(x[1:x.size]) / (x.size - 1)
+    c0 = x.transpose().dot(x) / N
+    c1 = x[0:N-1].transpose().dot(x[1:N]) / (N - 1)
     
     # According to A. Grinsteds' substitutions
-    B = -c1 * x.size - c0 * x.size**2 - 2 * c0 + 2 * c1 - c1 * x.size**2 + c0 * x.size
-    A = c0 * x.size**2
-    C = x.size * (c0 + c1 *x.size - c1)
+    B = -c1 * N - c0 * N**2 - 2 * c0 + 2 * c1 - c1 * N**2 + c0 * N
+    A = c0 * N**2
+    C = N * (c0 + c1 * N - c1)
     D = B**2 - 4 * A * C
     
     if D > 0:
@@ -317,9 +320,9 @@ http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
         raise Warning ('Cannot place an upperbound on the unbiased AR(1). '
             'Series is too short or trend is to large.')
     
-    # According to Allen & Smith (1996), footnote 4    
-    mu2 = -1 / x.size + (2 / x.size**2) * ((x.size - g**x.size) / (1 - g) - 
-        g * (1 - g**(x.size - 1)) / (1 - g)**2)
+    # According to Allen & Smith (1996), footnote 4
+    mu2 = -1 / N + (2 / N**2) * ((N - g**N) / (1 - g) -
+        g * (1 - g**(N - 1)) / (1 - g)**2)
     c0t = c0 / (1 - mu2)
     a = ((1 - g**2) * c0t) ** 0.5
 
@@ -455,7 +458,7 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
 
     """
     n0 = len(signal)                              # Original signal length.
-    if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
+    if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale:
     if J == -1: J = int(np.log2(n0 * dt / s0) / dj)  # Number of scales
     N = 2 ** (int(np.log2(n0)) + 1)                  # Next higher power of 2.
     signal_ft = fft.fft(signal, N)                    # Signal Fourier transform
@@ -482,12 +485,11 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
     # Determines the cone-of-influence. Note that it is returned as a function
     # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
     # end-points.
-    coi = (n0 / 2. - np.abs(np.arange(0, n0) - (n0 - 1) / 2))
+    coi = (n0 / 2. - abs(np.arange(0, n0) - (n0 - 1) / 2))
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
     #
-    return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
-                ftfreqs[1:N/2] / (2. * np.pi))
-
+    return W[:, :n0], sj, freqs, coi, dj, s0, J
+    
 
 def icwt(W, sj, dt, dj=0.25, w=Morlet()):
     """
@@ -730,9 +732,9 @@ def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wav
     
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    W1, sj, freqs, coi, signal_ft, ftfreqs = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freqs, coi, dj, s0, J = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
 
-    W2, sj2, freqs2, coi2, signal_ft2, ftfreqs2 = cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W2, sj, freqs2, coi, dj, s0, J =  cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
     
     # Now the cross correlation of y1 and y2
     W12 = W1*W2.conj()
@@ -751,15 +753,16 @@ def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wav
         std1 = std2 = 1.
     a1, _, _ = ar1(y1)
     a2, _, _ = ar1(y2)
-    Pk1 = ar1_spectrum(W1['freqs'] * dt, a1)
-    Pk2 = ar1_spectrum(W2['freqs'] * dt, a2)
+    Pk1 = ar1_spectrum(freqs * dt, a1)
+    Pk2 = ar1_spectrum(freqs2 * dt, a2)
     dof = wavelet.dofmin
     PPF = chi2.ppf(significance_level, dof)
     signif = (std1 * std2 * (Pk1 * Pk2) ** 0.5 * PPF / dof)
     
-    return W12, coi, freqs, signif
+    return W12, sj, freqs, coi, dj, s0, J, signif
+    
 
-def wct(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wavelet=Morlet(), normalize=True):
+def wct(signal, signal2, dt, dj, s0, J, significance_level=0.95, wavelet=Morlet(), normalize=True):
     """
     Wavelet transform coherence.
     
@@ -801,9 +804,9 @@ def wct(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wav
     
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    W1, sj, freqs, coi, signal_ft, ftfreqs = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freqs, coi, dj, s0, J = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
 
-    W2, sj2, freqs2, coi2, signal_ft2, ftfreqs2 = cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W2, sj2, freqs, coi, dj, s0, J = cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
 
 
     scales1 = np.ones([1, y1.size]) * sj[:, None]
@@ -824,12 +827,12 @@ def wct(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1, wav
     # confidence as a function of scale.
     a1, _, _ = ar1(y1)
     a2, _, _ = ar1(y2)
-    sig = wct_significance(a1, a2, significance_level=0.95,dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet, significance_level=0.95)
 
     return WCT, coi, freqs, sig[0], aWCT
     
     
-def wct_significance(a1, a2, dt, dj, s0, J, wavelet, significance_level=0.95, mc_count=300, verbose=False):
+def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level=0.95, mc_count=300, verbose=True):
     """
     Calculates wavelet coherence significance using Monte Carlo
     simulations with 95% confidence.
@@ -855,25 +858,14 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet, significance_level=0.95, mc
     # is performed using the wavelet's default parameters.
     aa = np.round(np.arctanh(np.array([a1, a2]) * 4))
     aa = np.abs(aa) + 0.5 * (aa < 0)
-    cache = 'cache_%0.5f_%0.5f_%0.5f_%0.5f_%d_%s' % (aa[0], aa[1], dj,
-        s0/dt, J, wavelet.name)
-    cached = '%s/.klib/wavelet' % (expanduser("~"))
-    try:
-        dat = np.loadtxt('%s/%s.gz' % (cached, cache), unpack=True)
-        return dat[:, 0], dat[:, 1]
-    except:
-        pass
-    # Some output to the screen
-    if not verbose:
-        vS = 'Calculating wavelet coherence significance'
-        vs = '%s...' % (vS)
-        stdout.write(vs)
-        stdout.flush()
+
+    if verbose:
+        print 'Calculating wavelet coherence significance'
     # Choose N so that largest scale has at least some part outside the COI
     ms = s0 * (2 ** (J * dj)) / dt
-    N = np.ceil(ms * 6)
+    N = np.abs(np.ceil(ms * 6))
     noise1 = rednoise(N, a1, 1)
-    nW1, sj, freqs, coi, signal_ft, ftfreqs = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    nW1, sj, freqs, coi, dj, s0, J = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
     #
     period = np.ones([1, N]) / freqs[:, None]
     coi = np.ones([J+1, 1]) * coi[None, :]
@@ -886,16 +878,16 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet, significance_level=0.95, mc
     #
     nbins = 1000
     wlc = np.ma.zeros([J+1, nbins])
-    t1 = time()
+    t1 = time.time()
     for i in range(mc_count):
-        t2 = time()
+        t2 = time.time()
         # Generates two red-noise signals with lag-1 autoregressive 
         # coefficients given by a1 and a2
         noise1 = rednoise(N, a1, 1)
         noise2 = rednoise(N, a2, 1)
         # Calculate the cross wavelet transform of both red-noise signals
-        nW1, sj, freqs, coi, signal_ft, ftfreqs = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-        nW2, sj2, freqs2, coi2, signal_ft2, ftfreqs2 = cwt(noise2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+        nW1, sj, freqs, coi, dj, s0, J = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+        nW2, sj2, freqs, coi, dj, s0, J = cwt(noise2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
         nW12 = nW1 * nW2.conj()
         # Smooth wavelet wavelet transforms and calculate wavelet coherence
         # between both signals.
@@ -907,17 +899,18 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet, significance_level=0.95, mc
         R2 = np.ma.array(np.abs(S12) ** 2 / (S1 * S2), mask=~outsidecoi)
         # Walks through each scale outside the cone of influence and builds a
         # coherence coefficient counter.
+
+#        for i in xrange(0,bound.shape[0]):
+#            pore[i] = (bound[i] <= lim_inten[i])
+#        for k in xrange(0,bound.shape[0]):
+#            area[k] = len(pore[k].nonzero()[0])
+#            inten[k] = np.sum(bound[k][pore[k].nonzero()])
         for s in range(maxscale):
             cd = np.floor(R2[s, :] * nbins)
-            for j, t in enumerate(cd[~cd.mask]):
+            for j, t in enumerate(cd[~cd.mask]):            
                 wlc[s, t] += 1
-        # Outputs some text to screen if desired
-        if not verbose:
-            stdout.write(len(vs) * '\b')
-            vs = '%s... %s ' % (vS, profiler(mc_count, i + 1, 0, t1, t2))
-            stdout.write(vs)
-            stdout.flush()
-    
+        if verbose:
+            print profiler(mc_count, i + 1, 0, t1, t2)       
     # After many, many, many Monte Carlo simulations, determine the 
     # significance using the coherence coefficient counter percentile.
     wlc.mask = (wlc.data == 0.)
@@ -927,15 +920,7 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet, significance_level=0.95, mc
         P = wlc[s, sel].data.cumsum()
         P = (P - 0.5) / P[-1]
         sig95[s] = np.interp(significance_level, P, R2y[s:, sel])
-    
-    # Save the results on cache to avoid to many computations in the future
-    try:
-        makedirs(cached)
-    except:
-        pass
-    np.savetxt('%s/%s.gz' % (cached, cache), [sig95, nW1['sj']])
-    
-    # And returns the results
+
     return sig95, sj
 
 
@@ -958,9 +943,9 @@ def profiler(N, n, t0, t1, t2):
     """
     n, N = float(n), float(N)
     perc = n / N * 100.
-    elap0 = s2hms(time() - t0)[3]
-    elap1 = s2hms(time() - t1)[3]
-    elap2 = s2hms(time() - t2)[3]
+    elap0 = s2hms(time.time() - t0)[3]
+    elap1 = s2hms(time.time() - t1)[3]
+    elap2 = s2hms(time.time() - t2)[3]
     try:
         togo = s2hms(-(N - n) / n * (time()-t1))[3]
     except:
