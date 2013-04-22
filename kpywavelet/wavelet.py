@@ -766,7 +766,7 @@ def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1,
     return W12, sj, freqs, coi, dj, s0, J, signif
     
 
-def wct(signal, signal2, dt, dj, s0, J, significance_level=0.95, wavelet=Morlet(), normalize=True):
+def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.95, wavelet=Morlet(), normalize=True):
     """
     Calculate the wavelet coherence (WTC). The WTC finds regions in time
     frequency space where the two time seris co-vary, but do not necessarily have
@@ -839,18 +839,18 @@ def wct(signal, signal2, dt, dj, s0, J, significance_level=0.95, wavelet=Morlet(
     scales = np.ones([1, y1.size]) * sj[:, None]
     S12 = wavelet.smooth(W12 / scales, dt, dj, sj)
     WCT = abs(S12) ** 2 / (S1 * S2)
-    aWCT = np.angle(W12)
-
+    aWCT = np.angle(W12, deg=True)
+    
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
     a1, _, _ = ar1(y1)
     a2, _, _ = ar1(y2)
     sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet, significance_level=0.95)
 
-    return WCT, coi, freqs, sig[0], aWCT
+    return WCT, coi, freqs, sig, aWCT
     
     
-def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level=0.95, mc_count=300, verbose=True):
+def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level=0.88, mc_count=300):
     """
     Calculates wavelet coherence significance using Monte Carlo
     simulations with 95% confidence.
@@ -862,13 +862,7 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level
             Significance level to use. Default is 0.95.
         count (integer, optional) :
             Number of Monte Carlo simulations. Default is 300.
-        verbose (boolean, optional) :
-            If set to true, does not print anything on screen.
-        kwargs (dictionary) :
-            List of parameters like dt, dj, s0, J=-1 and wavelet.
-            Please refer to the wavelet.cwt function documentation for
-            further details.
-    
+   
     RETURNS
     
     """
@@ -877,8 +871,6 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level
     aa = np.round(np.arctanh(np.array([a1, a2]) * 4))
     aa = np.abs(aa) + 0.5 * (aa < 0)
 
-    if verbose:
-        print 'Calculating wavelet coherence significance'
     # Choose N so that largest scale has at least some part outside the COI
     ms = s0 * (2 ** (J * dj)) / dt
     N = np.abs(np.ceil(ms * 6))
@@ -896,9 +888,7 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level
     #
     nbins = 1000
     wlc = np.ma.zeros([J+1, nbins])
-    t1 = time.time()
     for i in range(mc_count):
-        t2 = time.time()
         # Generates two red-noise signals with lag-1 autoregressive 
         # coefficients given by a1 and a2
         noise1 = rednoise(N, a1, 1)
@@ -918,106 +908,18 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level
         # Walks through each scale outside the cone of influence and builds a
         # coherence coefficient counter.
 
-#        for i in xrange(0,bound.shape[0]):
-#            pore[i] = (bound[i] <= lim_inten[i])
-#        for k in xrange(0,bound.shape[0]):
-#            area[k] = len(pore[k].nonzero()[0])
-#            inten[k] = np.sum(bound[k][pore[k].nonzero()])
-        for s in range(maxscale):
+        for s in xrange(maxscale):
             cd = np.floor(R2[s, :] * nbins)
-            for j, t in enumerate(cd[~cd.mask]):            
-                wlc[s, t] += 1
-        if verbose:
-            print profiler(mc_count, i + 1, 0, t1, t2)       
+            t_inds = np.array(cd[~cd.mask],dtype=np.int)
+            wlc[s, t_inds] += 1
     # After many, many, many Monte Carlo simulations, determine the 
     # significance using the coherence coefficient counter percentile.
     wlc.mask = (wlc.data == 0.)
     R2y = (np.arange(nbins) + 0.5) / nbins
-    for s in range(maxscale):
+    for s in xrange(maxscale):
         sel = ~wlc[s, :].mask
         P = wlc[s, sel].data.cumsum()
         P = (P - 0.5) / P[-1]
         sig95[s] = np.interp(significance_level, P, R2y[s:, sel])
 
     return sig95, sj
-
-
-def profiler(N, n, t0, t1, t2):
-    """Profiles the module usage.
-
-    PARAMETERS
-        N, n (int) :
-            Number of total elements (N) and number of overall elements
-            completed (n).
-        t0, t1, t2 (float) :
-            Time since the Epoch in seconds for the current module
-            (t0), subroutine (t1) and step (t2).
-    RETURNS
-        s (string) :
-            String containing the analysis result.
-
-    EXAMPLE
-
-    """
-    n, N = float(n), float(N)
-    perc = n / N * 100.
-    elap0 = s2hms(time.time() - t0)[3]
-    elap1 = s2hms(time.time() - t1)[3]
-    elap2 = s2hms(time.time() - t2)[3]
-    try:
-        togo = s2hms(-(N - n) / n * (time()-t1))[3]
-    except:
-        togo = '?h??m??s'
-
-    if t0 == 0:
-        s = '%.1f%%, %s (%s, %s)\n' % (perc, elap1, togo, elap2)
-    elif (t1 == 0) and (t2 == 0):
-        s = '%.1f%%, %s\n' % (perc, elap0)
-    else:
-        s = '%.1f%%, %s (%s, %s, %s)\n' % (perc, elap1, togo, elap0, elap2)
-    return s
-
-
-def s2hms(t) :
-    """Converts seconds to hour, minutes and seconds.
-
-PARAMETERS
-t (float) :
-Seconds value to convert
-
-RETURNS
-hh, mm, ss (float) :
-Calculated hour, minute and seconds
-s (string) :
-Formated output string.
-
-EXAMPLE
-hh, mm, ss, s = s2hms(123.45)
-
-"""
-    if t < 0:
-        sign = -1
-        t = -t
-    else:
-        sign = 1
-    hh = int(t / 3600.)
-    t -= hh * 3600.
-    mm = int(t / 60)
-    ss = t - (mm * 60.)
-    dd = int(hh / 24.)
-    HH = hh - dd * 24.
-
-    if (hh > 0) | (mm > 0):
-        s = '%04.1fs' % (ss)
-        if hh > 0:
-            s = '%dh%02dm%s' % (HH, mm, s)
-            if dd > 0:
-                s = '%dd%s' % (dd, s)
-        else:
-            s = '%dm%s' % (mm, s)
-    else:
-        s = '%.1fs' % (ss)
-    if sign == -1:
-        s = '-%s' % (s)
-    #
-    return (hh, mm, ss, s)
