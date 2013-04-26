@@ -15,7 +15,6 @@ from scipy.stats import chi2
 from scipy.special import gamma
 from scipy.signal import convolve2d, lfilter
 from scipy.special.orthogonal import hermitenorm
-import time
 
 class Morlet:
     """
