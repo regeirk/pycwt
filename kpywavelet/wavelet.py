@@ -401,6 +401,36 @@ def rednoise(N, g, a=1.):
     
     return yr.flatten()
 
+def boxpdf(x):
+    """
+    Forces the probability density function of the input data to have
+    a boxed distribution.
+    PARAMETERS
+    x (array like) :
+    Input data
+    RETURNS
+    X (array like) :
+    Boxed data varying between zero and one.
+    Bx, By (array like) :
+    Data lookup table
+    
+    #TODO: THE FUCK?
+    """
+    x = np.asarray(x)
+    n = x.size
+    
+    # Kind of 'unique'
+    i = np.argsort(x)
+    d = (np.diff(x[i]) != 0)
+    I = find(np.concatenate([d, [True]]))
+    X = x[i][I]
+    
+    I = np.concatenate([[0], I+1])
+    Y = 0.5 * (I[0:-1] + I[1:]) / n
+    bX = np.interp(x, X, Y)
+    
+    return bX, X, Y
+    
 def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
     """
     Continuous wavelet transform of the signal at specified scales.
