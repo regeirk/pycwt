@@ -1,8 +1,10 @@
+from __future__ import division
+
 import numpy as np
 import kpywavelet as wavelet
 import matplotlib.pyplot as plt
 
-sample = 'JBALTIC' # Either NINO3, MAUNA, MONSOON, SUNSPOTS, SOI, JAO or JBALTIC
+sample = 'NINO3' # Either NINO3, MAUNA, MONSOON, SUNSPOTS, SOI, JAO or JBALTIC
 if sample == 'NINO3':
     title = 'NINO3 Sea Surface Temperature (seasonal)'
     fname = 'sst_nino3.dat'
@@ -56,15 +58,19 @@ else:
     raise Warning, 'No valid dataset chosen.'
 
 data = np.loadtxt(fname)
-if data.shape[1] == 2: # For the last two data sets which contain time and data
-    data = np.asarray(zip(*data)[1])  
+try:
+    if data.shape[1] == 2: # For the last two data sets which contain time and data
+        data = np.asarray(zip(*data)[1])  
+except: 
+    pass
 
-data = (data - data.mean()) / data.std # Calculating anomaly and normalizing
+std2 = data.std() ** 2
+data = (data - data.mean()) / data.std() # Calculating anomaly and normalizing
 time = np.arange(0, data.size) * dt + t0 # Time array in time units of your choice 
 alpha, _, _ = wavelet.ar1(data) # Lag-1 autocorrelation for white noise
 mother = wavelet.Morlet(6.) # Morlet mother wavelet with wavenumber=6
 
-wave, scales, freqs, coi, dj, s0, J = wavelet.cwt(data, mother)
+wave, scales, freqs, coi, dj, s0, J = wavelet.cwt(data, dt, dj=1./12, s0=-1, J=-1, wavelet=mother)
 power = (np.abs(wave)) ** 2 # Normalized wavelet power spectrum
 period = 1. / freqs
 
@@ -73,9 +79,9 @@ sig95 = np.ones([1, data.size]) * signif[:, None]
 sig95 = power / sig95 # Where ratio > 1, power is significant
 
 # Calculates the global wavelet spectrum and determines its significance level.
-glbl_power = data.std ** 2  * power.mean(axis=1)
+glbl_power = std2  * power.mean(axis=1)
 dof = data.size - scales # Correction for padding at edges
-glbl_signif, tmp = wavelet.significance(data.std ** 2 , dt, scales, 1, alpha, 
+glbl_signif, tmp = wavelet.significance(std2 , dt, scales, 1, alpha, 
                                         dof=dof, wavelet=mother)
 
 # First sub-plot, the original time series anomaly.
@@ -89,49 +95,49 @@ else:
 
 # Second sub-plot, the normalized wavelet power spectrum and significance level
 # contour lines and cone of influece hatched area.
-bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
+bx = plt.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
 levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
-bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
+bx.contourf(time, np.log2(period), np.log2(power), np.log2(levels),
             extend='both')
-bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
+bx.contour(time, np.log2(period), sig95, [-99, 1], colors='k',
            linewidths=2.)
-bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
-        time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
+bx.fill(np.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
+        time[:1]-dt, time[:1]-dt]), np.log2(np.concatenate([[1e-9], coi,
         [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3',
         hatch='x')
 bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
 bx.set_ylabel('Period (years)')
-Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
-                           numpy.ceil(numpy.log2(period.max())))
-bx.set_yticks(numpy.log2(Yticks))
+Yticks = 2 ** np.arange(np.ceil(np.log2(period.min())),
+                           np.ceil(np.log2(period.max())))
+bx.set_yticks(np.log2(Yticks))
 bx.set_yticklabels(Yticks)
 bx.invert_yaxis()
 
 # Third sub-plot, the global wavelet and Fourier power spectra and theoretical
 # noise spectra.
-cx = pylab.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
-cx.plot(glbl_signif, numpy.log2(period), 'k--')
-cx.plot(fft_power, numpy.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
-        linewidth=1.)
-cx.plot(glbl_power, numpy.log2(period), 'k-', linewidth=1.5)
+cx = plt.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
+cx.plot(glbl_signif, np.log2(period), 'k--')
+#cx.plot(fft_power, np.log2(1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
+#        linewidth=1.)
+cx.plot(glbl_power, np.log2(period), 'k-', linewidth=1.5)
 cx.set_title('c) Global Wavelet Spectrum')
 if units != '':
   cx.set_xlabel(r'Power [$%s^2$]' % (units, ))
 else:
   cx.set_xlabel(r'Power')
-#cx.set_xlim([0, glbl_power.max() + std2])
-cx.set_ylim(numpy.log2([period.min(), period.max()]))
-cx.set_yticks(numpy.log2(Yticks))
+cx.set_xlim([0, glbl_power.max() + std2])
+cx.set_ylim(np.log2([period.min(), period.max()]))
+cx.set_yticks(np.log2(Yticks))
 cx.set_yticklabels(Yticks)
-pylab.setp(cx.get_yticklabels(), visible=False)
+plt.setp(cx.get_yticklabels(), visible=False)
 cx.invert_yaxis()
 
 # Fourth sub-plot, the scale averaged wavelet spectrum as determined by the
 # avg1 and avg2 parameters
-dx = pylab.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
-dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
-dx.plot(time, scale_avg, 'k-', linewidth=1.5)
-dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
+dx = plt.axes([0.1, 0.07, 0.65, 0.2], sharex=ax)
+#dx.axhline(scale_avg_signif, color='k', linestyle='--', linewidth=1.)
+#dx.plot(time, scale_avg, 'k-', linewidth=1.5)
+#dx.set_title('d) $%d$-$%d$ year scale-averaged power' % (avg1, avg2))
 dx.set_xlabel('Time (year)')
 if units != '':
   dx.set_ylabel(r'Average variance [$%s$]' % (units, ))
@@ -139,3 +145,5 @@ else:
   dx.set_ylabel(r'Average variance')
 #
 ax.set_xlim([time.min(), time.max()])
+
+plt.show()

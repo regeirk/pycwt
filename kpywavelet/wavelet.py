@@ -325,7 +325,7 @@ def ar1(x):
     return g, a, mu2
 
 
-def ar1_spectrum(freqs, ar1=0., fourier=False) :
+def ar1_spectrum(freqs, ar1=0):
     """
     Lag-1 autoregressive theoretical power spectrum.
     
@@ -348,8 +348,6 @@ def ar1_spectrum(freqs, ar1=0., fourier=False) :
             spectrum.
         ar1 : float
             Lag-1 autoregressive correlation coefficient.
-        fourier : bool
-            Returns the theoretical power spectrum for FFT
     Returns
     -------
         Pk : numpy.ndarray
@@ -362,11 +360,7 @@ def ar1_spectrum(freqs, ar1=0., fourier=False) :
     """
     
     freqs = np.asarray(freqs)
-    
-    if fourier:
-        Pk = (1 - ar1 ** 2) / (1 + ar1 ** 2 - 2 * ar1 * np.cos(2 * np.pi * freqs / len(freqs)))
-    else:
-        Pk = (1 - ar1 ** 2) / abs(1 - ar1 * np.exp(-2 * np.pi * 1j * freqs)) ** 2
+    Pk = (1 - ar1 ** 2) / abs(1 - ar1 * np.exp(-2 * np.pi * 1j * freqs)) ** 2
     
     return Pk
 
@@ -490,8 +484,8 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
     signal_ft = fft.fft(signal, N)                    # Signal Fourier transform
     ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)             # Fourier angular frequencies
 
-    sj = s0 * 2. ** (np.arange(0, J+1.) * dj)         # The scales
-    freqs = 1. / (wavelet.flambda() * sj)         # As of Mallat 1999
+    sj = s0 * 2 ** (np.arange(0, J+1) * dj)         # The scales
+    freqs = 1 / (wavelet.flambda() * sj)         # As of Mallat 1999
 
     # Creates an empty wavlet transform matrix and fills it for every discrete
     # scale using the convolution theorem.
@@ -563,9 +557,9 @@ def icwt(W, sj, dt, dj=0.25, w=Morlet()):
 
 
 def significance(signal, dt, scales, sigma_test=0, alpha=None,
-                 significance_level=0.95, dof=-1, wavelet=Morlet()):
+                 significance_level=0.8646, dof=-1, wavelet=Morlet()):
     """
-    Significance testing for the onde dimensional wavelet transform.
+    Significance testing for the one dimensional wavelet transform.
 
     Parameters
     ----------
@@ -619,7 +613,6 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     except:
       n0 = 1
     J = len(scales) - 1
-#    s0 = min(scales) # This is unused, not sure if thats a good thing or not.
     dj = np.log2(scales[1] / scales[0])
 
     if n0 == 1:
@@ -632,7 +625,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
 
     period = scales * wavelet.flambda()  # Fourier equivalent periods
     freq = dt / period                   # Normalized frequency
-    dofmin = wavelet.dofmin              # Degrees of freedom with no smoothing
+    dofmin = wavelet.dofmin             # Degrees of freedom with no smoothing
     Cdelta = wavelet.cdelta              # Reconstruction factor
     gamma_fac = wavelet.gamma            # Time-decorrelation factor
     dj0 = wavelet.deltaj0                # Scale-decorrelation factor
@@ -700,7 +693,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     return (signif, fft_theor)
 
 
-def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1,
+def xwt(signal, signal2, dt, significance_level=0.8646, dj=1./12, s0=-1, J=-1,
         wavelet=Morlet(), normalize=True):
     """
     Calculate the cross wavelet transform (XWT). The XWT finds regions in time
@@ -795,7 +788,7 @@ def xwt(signal, signal2, dt, significance_level=0.95, dj=1./12, s0=-1, J=-1,
     return W12, sj, freqs, coi, dj, s0, J, signif
     
 
-def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.95, wavelet=Morlet(), normalize=True):
+def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.8646, wavelet=Morlet(), normalize=True):
     """
     Calculate the wavelet coherence (WTC). The WTC finds regions in time
     frequency space where the two time seris co-vary, but do not necessarily have
@@ -874,12 +867,12 @@ def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.95, wav
     # confidence as a function of scale.
     a1, _, _ = ar1(y1)
     a2, _, _ = ar1(y2)
-    sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet, significance_level=0.95)
+    sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet, significance_level=0.8646)
 
     return WCT, coi, freqs, sig, aWCT
     
     
-def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level=0.88, mc_count=300):
+def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level=0.8646, mc_count=300):
     """
     Calculates wavelet coherence significance using Monte Carlo
     simulations with 95% confidence.
