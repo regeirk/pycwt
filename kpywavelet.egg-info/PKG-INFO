@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: kpywavelet
+Version: 0.4
+Summary: Continuous wavelet transform module for Python.
+Home-page: https://github.com/regeirk/kPyWavelet
+Author: Sebastian
+Author-email: sebastian@nublia.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

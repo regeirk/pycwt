@@ -33,11 +33,11 @@ class Morlet:
 
     def psi_ft(self, f):
         """Fourier transform of the approximate Morlet wavelet."""
-        return (np.pi ** -.25) * np.exp(-0.5 * (f - self.f0) ** 2.)
+        return (np.pi ** -0.25) * np.exp(-0.5 * (f - self.f0) ** 2.)
 
     def psi(self, t):
         """Morlet wavelet as described in Torrence and Compo (1998)."""
-        return (np.pi ** -.25) * np.exp(1j * self.f0 * t - t ** 2. / 2.)
+        return (np.pi ** -0.25) * np.exp(1j * self.f0 * t - t ** 2. / 2.)
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
@@ -254,14 +254,13 @@ def rect(x, normalize=False) :
     
 def fftconv(x, y):
     """ Convolution of x and y using the FFT convolution theorem. """
-    N = len(x)
-    n = int(2 ** np.ceil(np.log2(N))) + 1
+    n = int(2 ** np.ceil(np.log2(len(x)))) + 1
     X, Y, x_y = fft(x, n), fft(y, n), []
     for i in range(n):
         x_y.append(X[i] * Y[i])
 
     # Returns the inverse Fourier transform with padding correction
-    return fft.ifft(x_y)[4:N+4]
+    return fft.ifft(x_y)[4:len(x)+4]
 
 
 def ar1(x):
