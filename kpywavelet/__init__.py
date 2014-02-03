@@ -2,7 +2,7 @@
 kPyWavelet
 ==========
 
-Continuous wavelet transform module for Python. 
+Continuous wavelet transform module for Python.
 
 Web Links
 ---------
@@ -26,7 +26,7 @@ wavelet
 
 """
 
-__version__ = '0.4'
+__version__ = '0.4a'
 
 from wavelet import *
 #from wavelet import (ar1, ar1_spectrum, cwt, icwt, significance, xwt, wct, Morlet,

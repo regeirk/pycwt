@@ -2,6 +2,9 @@ README
 setup.py
 kpywavelet/2d.py
 kpywavelet/__init__.py
+kpywavelet/helpers.py
+kpywavelet/mothers.py
+kpywavelet/plot.py
 kpywavelet/wavelet.py
 kpywavelet.egg-info/PKG-INFO
 kpywavelet.egg-info/SOURCES.txt

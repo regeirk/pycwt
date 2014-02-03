@@ -3,428 +3,42 @@ Continuous wavelet transform module for Python. Includes a collection
 of routines for wavelet transform and statistical analysis via FFT
 algorithm. This module references to the numpy, scipy and pylab Python
 packages.
+
+REFERENCES
+[1] Mallat, S. (2008). A wavelet tour of signal processing: The
+sparse way. Academic Press, 2008, 805.
+[2] Addison, P. S. (2002). The illustrated wavelet transform
+handbook: introductory theory and applications in science,
+engineering, medicine and finance. IOP Publishing.
+[3] Torrence, C. and Compo, G. P. (1998). A Practical Guide to
+Wavelet Analysis. Bulletin of the American Meteorological
+Society, American Meteorological Society, 1998, 79, 61-78.
+[4] Torrence, C. and Webster, P. J. (1999). Interdecadal changes in
+the ENSO-Monsoon system, Journal of Climate, 12(8), 2679-2690.
+[5] Grinsted, A.; Moore, J. C. & Jevrejeva, S. (2004). Application
+of the cross wavelet transform and wavelet coherence to
+geophysical time series. Nonlinear Processes in Geophysics, 11,
+561-566.
+[6] Liu, Y.; Liang, X. S. and Weisberg, R. H. (2007). Rectification
+of the bias in the wavelet power spectrum. Journal of
+Atmospheric and Oceanic Technology, 24(12), 2093-2102.
 """
-from __future__ import division
+from __future__ import division, absolute_import
 
 import numpy as np
 import numpy.fft as fft
-from numpy.random import randn
-from numpy.lib.polynomial import polyval
-from pylab import find
 from scipy.stats import chi2
-from scipy.special import gamma
-from scipy.signal import convolve2d, lfilter
-from scipy.special.orthogonal import hermitenorm
 
-class Morlet:
-    """
-    Implements the Morlet wavelet class.
+from .helpers import find, ar1, ar1_spectrum, rednoise
+from .mothers import Morlet, Paul, DOG, MexicanHat
 
-    Note that the input parameters f and f0 are angular frequencies.
-    f0 should be more than 0.8 for this function to be correct, its
-    default value is f0=6.
+mothers = {'morlet': Morlet,
+           'paul': Paul,
+           'dog': DOG,
+           'mexicanhat': MexicanHat
+}
 
-    #TODO: Implenment arbitarty order
-    """
-
-    def __init__(self, f0=6.0):
-        self._set_f0(f0)
-        self.name = 'Morlet'
-
-    def psi_ft(self, f):
-        """Fourier transform of the approximate Morlet wavelet."""
-        return (np.pi ** -0.25) * np.exp(-0.5 * (f - self.f0) ** 2.)
-
-    def psi(self, t):
-        """Morlet wavelet as described in Torrence and Compo (1998)."""
-        return (np.pi ** -0.25) * np.exp(1j * self.f0 * t - t ** 2. / 2.)
-
-    def flambda(self):
-        """Fourier wavelength as of Torrence and Compo (1998)."""
-        return (4 * np.pi) / (self.f0 + np.sqrt(2 + self.f0 ** 2))
-
-    def coi(self):
-        """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1. / np.sqrt(2.)
-
-    def sup(self):
-        """Wavelet support defined by the e-Folding time."""
-        return 1. / self.coi
-
-    def _set_f0(self, f0):
-        # Sets the Morlet wave number, the degrees ofFalse freedom and the
-        # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
-        # \delta j_0 (Torrence and Compo, 1998, Table 2)
-        self.f0 = f0             # Wave number
-        self.dofmin = 2          # Minimum degrees of freedom
-        if self.f0 == 6.:
-            self.cdelta = 0.776  # Reconstruction factor
-            self.gamma = 2.32    # Decorrelation factor for time averaging
-            self.deltaj0 = 0.60  # Factor for scale averaging
-        else:
-            self.cdelta = -1
-            self.gamma = -1
-            self.deltaj0 = -1
-    
-    def smooth(self, W, dt, dj, scales):
-        """
-        Smoothing function used in coherence analysis.
-        
-        The smoothing is performed by using a filter given by the absolute
-        value of the wavelet function at each scale, normalized to have a 
-        total weight of unity, according to suggestions by Torrence & 
-        Webster (1999) and by Grinsted et al. (2004).
-
-        #TODO: Implenment arbitarty order 
-        """
-
-        m, n = W.shape
-        T = np.zeros([m, n])
-        
-        # Filter in time.
-        npad = int(2 ** np.ceil(np.log2(n)))
-        k = 2 * np.pi * fft.fftfreq(npad)
-        k2 = k ** 2
-        snorm = scales / dt
-        
-        for i in range(m):
-            F = np.exp(-0.5 * (snorm[i] ** 2) * k2)
-            smooth = fft.ifft(F * fft.fft(W[i, :], npad))
-            T[i, :] = smooth[0:n]
-        
-        if np.isreal(W).all():
-            T = T.real
-        
-        # Filter in scale. For the Morlet wavelet it's simply a boxcar with
-        # 0.6 width.
-        wsize = self.deltaj0 / dj * 2
-        win = rect(int(round(wsize)), normalize=True)
-        T = convolve2d(T, win[:, None], 'same')
-        
-        return T
-
-class Paul:
-    """
-    Implements the Paul wavelet class.
-
-    Note that the input parameter f is the angular frequency and that
-    the default order for this wavelet is m=4.
-
-    #TODO: Implenment arbitarty order
-    """
-
-    def __init__(self, m=4):
-        self._set_m(m)
-        self.name = 'Paul'
-
-    def psi_ft(self, f):
-        """Fourier transform of the Paul wavelet."""
-        return (2 ** self.m / np.sqrt(self.m * np.prod(range(2, 2 * self.m))) *
-                f ** self.m * np.exp(-f) * (f > 0))
-
-    def psi(self, t):
-        """Paul wavelet as described in Torrence and Compo (1998)."""
-        return (2 ** self.m * 1j ** self.m * np.prod(range(2, self.m - 1)) /
-                np.sqrt(np.pi * np.prod(range(2, 2 * self.m + 1))) * (1 - 1j * t) **
-                (-(self.m + 1)))
-
-    def flambda(self):
-        """Fourier wavelength as of Torrence and Compo (1998)."""
-        return 4 * np.pi / (2 * self.m + 1)
-
-    def coi(self):
-        """e-Folding Time as of Torrence and Compo (1998)."""
-        return np.sqrt(2.)
-
-    def sup(self):
-        """Wavelet support defined by the e-Folding time."""
-        return 1. / self.coi
-
-    def _set_m(self, m):
-        # Sets the m derivative of a Gaussian, the degrees of freedom and the
-        # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
-        # \delta j_0 (Torrence and Compo, 1998, Table 2)
-        self.m = m               # Wavelet order
-        self.dofmin =  2         # Minimum degrees of freedom
-        if self.m == 4:
-            self.cdelta = 1.132  # Reconstruction factor
-            self.gamma = 1.17    # Decorrelation factor for time averaging
-            self.deltaj0 = 1.50  # Factor for scale averaging
-        else:
-            self.cdelta = -1
-            self.gamma = -1
-            self.deltaj0 = -1
-
-
-class DOG:
-    """
-    Implements the derivative of a Guassian wavelet class.
-
-    Note that the input parameter f is the angular frequency and that
-    for m=2 the DOG becomes the Mexican hat wavelet and that
-    the default order for this wavelet is m=6.
-
-    #TODO: Implenment arbitarty order
-    """
-    def __init__(self, m=6):
-        self._set_m(m)
-        self.name = 'DOG'
-
-    def psi_ft(self, f):
-        """Fourier transform of the DOG wavelet."""
-        return (- 1j ** self.m / np.sqrt(gamma(self.m + 0.5)) * f ** self.m *
-                np.exp(- 0.5 * f ** 2))
-
-    def psi(self, t):
-        """DOG wavelet as described in Torrence and Compo (1998)
-
-        The derivative of a Gaussian of order n can be determined using
-        the probabilistic Hermite polynomials. They are explicitly
-        written as:
-            Hn(x) = 2 ** (-n / s) * n! * sum ((-1) ** m) * (2 ** 0.5 *
-                x) ** (n - 2 * m) / (m! * (n - 2*m)!)
-        or in the recursive form:
-            Hn(x) = x * Hn(x) - nHn-1(x)
-
-        Source: http://www.ask.com/wiki/Hermite_polynomials
-
-        """
-        p = hermitenorm(self.m)
-        return ((-1) ** (self.m + 1) * polyval(p, t) * np.exp(-t ** 2 / 2) /
-                np.sqrt(gamma(self.m + 0.5)))
-
-    def flambda(self):
-        """Fourier wavelength as of Torrence and Compo (1998)."""
-        return (2 * np.pi / np.sqrt(self.m + 0.5))
-
-    def coi(self):
-        """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1. / np.sqrt(2.)
-
-    def sup(self):
-        """Wavelet support defined by the e-Folding time."""
-        return 1. / self.coi
-
-    def _set_m(self, m):
-        # Sets the m derivative of a Gaussian, the degrees of freedom and the
-        # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
-        # \delta j_0 (Torrence and Compo, 1998, Table 2)
-        self.m = m               # m-derivative
-        self.dofmin = 1          # Minimum degrees of freedom
-        if self.m == 2:
-            self.cdelta = 3.541  # Reconstruction factor
-            self.gamma = 1.43    # Decorrelation factor for time averaging
-            self.deltaj0 = 1.40  # Factor for scale averaging
-        elif self.m == 6:
-            self.cdelta = 1.966
-            self.gamma = 1.37
-            self.deltaj0 = 0.97
-        else:
-            self.cdelta = -1
-            self.gamma = -1
-            self.deltaj0 = -1
-
-
-class Mexican_hat(DOG):
-    """
-    Implements the Mexican hat wavelet class.
-
-    This class inherits the DOG class using m=2.
-
-    """
-    def __init__(self):
-        self._set_m(2)
-        self.name = 'Mexican Hat'
-
-def rect(x, normalize=False) :
-    if type(x) in [int, float]:
-        shape = [x, ]
-    elif type(x) in [list, dict]:
-        shape = x
-    elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
-        shape = x.shape
-    X = np.zeros(shape)
-    X[0] = X[-1] = 0.5
-    X[1:-1] = 1
-    
-    if normalize:
-        X /= X.sum()
-    
-    return X
-    
-def fftconv(x, y):
-    """ Convolution of x and y using the FFT convolution theorem. """
-    n = int(2 ** np.ceil(np.log2(len(x)))) + 1
-    X, Y, x_y = fft(x, n), fft(y, n), []
-    for i in range(n):
-        x_y.append(X[i] * Y[i])
-
-    # Returns the inverse Fourier transform with padding correction
-    return fft.ifft(x_y)[4:len(x)+4]
-
-
-def ar1(x):
-    """
-    Allen and Smith autoregressive lag-1 autocorrelation alpha. In a AR(1) model
-    
-        x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,
-    
-    where <x> is the process mean, \gamma and \alpha are process 
-    parameters and z(t) is a Gaussian unit-variance white noise.
-        
-    Parameters
-    ----------
-        x : numpy.ndarray, list
-            Univariate time series
-    
-    Return
-    ------
-        g : float
-            Estimate of the lag-one autocorrelation.
-        a : float
-            Estimate of the noise variance [var(x) ~= a**2/(1-g**2)]
-        mu2 : float
-            Estimated square on the mean of a finite segment of AR(1) 
-            noise, mormalized by the process variance.
-    
-    References
-    ----------
-        [1] Allen, M. R. and Smith, L. A. (1996). Monte Carlo SSA: 
-            detecting irregular oscillations in the presence of colored 
-            noise. Journal of Climate, 9(12), 3373-3404.
-            http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
-    """
-    x = np.asarray(x)
-    N = x.size
-    xm = x.mean()
-    x = x - xm
-    
-    # Estimates the lag zero and one covariance
-    c0 = x.transpose().dot(x) / N
-    c1 = x[0:N-1].transpose().dot(x[1:N]) / (N - 1)
-    
-    # According to A. Grinsteds' substitutions
-    B = -c1 * N - c0 * N**2 - 2 * c0 + 2 * c1 - c1 * N**2 + c0 * N
-    A = c0 * N**2
-    C = N * (c0 + c1 * N - c1)
-    D = B**2 - 4 * A * C
-    
-    if D > 0:
-        g = (-B - D**0.5) / (2 * A)
-    else:
-        raise Warning ('Cannot place an upperbound on the unbiased AR(1). '
-            'Series is too short or trend is to large.')
-    
-    # According to Allen & Smith (1996), footnote 4
-    mu2 = -1 / N + (2 / N**2) * ((N - g**N) / (1 - g) -
-        g * (1 - g**(N - 1)) / (1 - g)**2)
-    c0t = c0 / (1 - mu2)
-    a = ((1 - g**2) * c0t) ** 0.5
-
-    return g, a, mu2
-
-
-def ar1_spectrum(freqs, ar1=0):
-    """
-    Lag-1 autoregressive theoretical power spectrum.
-    
-    According to a post from the MadSci Network, the time-series spectrum for 
-    an auto-regressive model can be represented as
-     
-    P_k = \frac{E}{\left|1- \sum\limits_{k=1}^{K} a_k \, e^{2 i \pi 
-       \frac{k f}{f_s} } \right|^2}
-    
-    which for an AR1 model can be reduced and is used here.
-    
-    The theoretical discrete fourier power spectrum of the noise signal
-    following Gilman et al. (1963) and Torrence and Compo (1998), equation 16
-    is available.
-
-    Parameters
-    ----------
-        freqs : numpy.ndarray, list
-            Frequencies at which to calculate the theoretical power 
-            spectrum.
-        ar1 : float
-            Lag-1 autoregressive correlation coefficient.
-    Returns
-    -------
-        Pk : numpy.ndarray
-            Theoretical discrete Fourier power spectrum of noise signal.
-    
-    References
-    ----------
-        [1] http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
-        
-    """
-    
-    freqs = np.asarray(freqs)
-    Pk = (1 - ar1 ** 2) / abs(1 - ar1 * np.exp(-2 * np.pi * 1j * freqs)) ** 2
-    
-    return Pk
-
-
-def rednoise(N, g, a=1.):
-    """
-    Red noise generator using filter.
-    
-    Parameters
-    ----------    
-        N : int
-            Length of the desired time series.
-        g : float
-            Lag-1 autocorrelation coefficient.
-        a : float, optional
-            Noise innovation variance parameter.
-    
-    Returns
-    -------
-        y : numpy.ndarray
-            Red noise time series.
-    
-    """
-    
-    if g == 0:
-        yr = randn(N, 1) * a;
-    else:
-        # Twice the decorrelation time.
-        tau = np.ceil(-2 / np.log(abs(g)))
-        yr = lfilter([1, 0], [1, -g], randn(N + tau, 1) * a)
-        yr = yr[tau:]
-    
-    return yr.flatten()
-
-def boxpdf(x):
-    """
-    Forces the probability density function of the input data to have
-    a boxed distribution.
-    PARAMETERS
-    x (array like) :
-    Input data
-    RETURNS
-    X (array like) :
-    Boxed data varying between zero and one.
-    Bx, By (array like) :
-    Data lookup table
-    
-    #TODO: THE FUCK?
-    """
-    x = np.asarray(x)
-    n = x.size
-    
-    # Kind of 'unique'
-    i = np.argsort(x)
-    d = (np.diff(x[i]) != 0)
-    I = find(np.concatenate([d, [True]]))
-    X = x[i][I]
-    
-    I = np.concatenate([[0], I+1])
-    Y = 0.5 * (I[0:-1] + I[1:]) / n
-    bX = np.interp(x, X, Y)
-    
-    return bX, X, Y
-    
-def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
+def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet='morlet'):
     """
     Continuous wavelet transform of the signal at specified scales.
 
@@ -432,7 +46,7 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
     ----------
         signal : numpy.ndarray, list
             Input signal array
-        dt : float 
+        dt : float
             Sample spacing.
         dj : float, optional
             Spacing between discrete scales. Default value is 0.25.
@@ -444,7 +58,7 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
             Number of scales less one. Scales range from s0 up to
             s0 * 2**(J * dj), which gives a total of (J + 1) scales.
             Default is J = (log2(N*dt/so))/dj.
-        wavelet : instance of a wavelet class, optional 
+        wavelet : instance of a wavelet class, or string
             Mother wavelet class. Default is Morlet wavelet.
 
     Returns
@@ -476,6 +90,9 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
             0.25, 0.25, 0.5, 28, mother)
 
     """
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
     n0 = len(signal)                              # Original signal length.
     if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale:
     if J == -1: J = int(np.log2(n0 * dt / s0) / dj)  # Number of scales
@@ -490,7 +107,7 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
     # scale using the convolution theorem.
     W = np.zeros((len(sj), N), 'complex')
     for n, s in enumerate(sj):
-        psi_ft_bar = ((s * ftfreqs[1] * N) ** .5 * 
+        psi_ft_bar = ((s * ftfreqs[1] * N) ** .5 *
             np.conjugate(wavelet.psi_ft(s * ftfreqs)))
         W[n, :] = fft.ifft(signal_ft * psi_ft_bar, N)
 
@@ -507,10 +124,10 @@ def cwt(signal, dt, dj=1./12, s0=-1, J=-1, wavelet=Morlet()):
     coi = (n0 / 2. - abs(np.arange(0, n0) - (n0 - 1) / 2))
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
     #
-    return W[:, :n0], sj, freqs, coi, dj, s0, J
-    
+    return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
+                ftfreqs[1:N/2] / (2. * np.pi))
 
-def icwt(W, sj, dt, dj=0.25, w=Morlet()):
+def icwt(W, sj, dt, dj=0.25, wavelet='morlet'):
     """
     Inverse continuous wavelet transform.
 
@@ -525,7 +142,7 @@ def icwt(W, sj, dt, dj=0.25, w=Morlet()):
         dj : float, optional
             Spacing between discrete scales as used in the cwt
             function. Default value is 0.25.
-        w : instance of wavelet class, optional
+        wavelet : instance of wavelet class, or string
             Mother wavelet class. Default is Morlet
 
     Returns
@@ -541,6 +158,9 @@ def icwt(W, sj, dt, dj=0.25, w=Morlet()):
         iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
 
     """
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
     a, b = W.shape
     c = sj.size
     if a == c:
@@ -548,15 +168,15 @@ def icwt(W, sj, dt, dj=0.25, w=Morlet()):
     elif b == c:
         sj = np.ones([a, 1]) * sj
     else:
-        raise Warning, 'Input array dimensions do not match.'
+        raise ValueError('Input array dimensions do not match.')
 
     # As of Torrence and Compo (1998), eq. (11)
-    iW = dj * np.sqrt(dt) / w.cdelta * w.psi(0) * (np.real(W) / sj).sum(axis=0)
+    iW = dj * np.sqrt(dt) / wavelet.cdelta * wavelet.psi(0) * (np.real(W) / sj).sum(axis=0)
     return iW
 
 
 def significance(signal, dt, scales, sigma_test=0, alpha=None,
-                 significance_level=0.8646, dof=-1, wavelet=Morlet()):
+                 significance_level=0.8646, dof=-1, wavelet='morlet'):
     """
     Significance testing for the one dimensional wavelet transform.
 
@@ -607,6 +227,9 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
             Theoretical red-noise spectrum as a function of period.
 
     """
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
     try:
       n0 = len(signal)
     except:
@@ -618,7 +241,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
         variance = signal
     else:
         variance = signal.std() ** 2
-      
+
     if alpha == None:
         alpha, _, _ = ar1(signal)
 
@@ -662,17 +285,17 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
             signif[n] = fft_theor[n] * chisquare
     elif sigma_test == 2:  # Time-averaged significance
         if len(dof) != 2:
-            raise Exception, ('DOF must be set to [s1, s2], '
+            raise Exception('DOF must be set to [s1, s2], '
                               'the range of scale-averages')
         if Cdelta == -1:
-            raise Exception, ('Cdelta and dj0 not defined for %s with f0=%f' %
+            raise Exception('Cdelta and dj0 not defined for %s with f0=%f' %
                              (wavelet.name, wavelet.f0))
 
         s1, s2 = dof
         sel = find((scales >= s1) & (scales <= s2));
         navg = sel.size
         if navg == 0:
-            raise Exception, 'No valid scales between %d and %d.' % (s1, s2)
+            raise Exception('No valid scales between %d and %d.' % (s1, s2))
 
         # As in Torrence and Compo (1998), equation 25
         Savg = 1 / sum(1. / scales[sel])
@@ -687,13 +310,13 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
         # As in Torrence and Compo (1998), equation 26
         signif = (dj * dt / Cdelta / Savg) * fft_theor * chisquare
     else:
-        raise Exception, 'sigma_test must be either 0, 1, or 2.'
+        raise Exception('sigma_test must be either 0, 1, or 2.')
 
     return (signif, fft_theor)
 
 
 def xwt(signal, signal2, dt, significance_level=0.8646, dj=1./12, s0=-1, J=-1,
-        wavelet=Morlet(), normalize=True):
+        wavelet='morlet', normalize=True):
     """
     Calculate the cross wavelet transform (XWT). The XWT finds regions in time
     frequency space where the time series show high common power. Torrence and
@@ -702,12 +325,12 @@ def xwt(signal, signal2, dt, significance_level=0.8646, dj=1./12, s0=-1, J=-1,
     confidence and two degrees of freedom is Z2(95%)=3.999. However, calculating
     the PPF using chi2.ppf gives Z2(95%)=5.991. To ensure similar significance
     intervals as in Grinsted et al. (2004), one has to use confidence of 86.46%.
-    
+
     Parameters
     ----------
         signal, signal2 : numpy.ndarray, list
             Input signal array to calculate cross wavelet transform.
-        dt : float 
+        dt : float
             Sample spacing.
         dj : float, optional
             Spacing between discrete scales. Default value is 0.25.
@@ -719,18 +342,18 @@ def xwt(signal, signal2, dt, significance_level=0.8646, dj=1./12, s0=-1, J=-1,
             Number of scales less one. Scales range from s0 up to
             s0 * 2**(J * dj), which gives a total of (J + 1) scales.
             Default is J = (log2(N*dt/so))/dj.
-        wavelet : instance of a wavelet class, optional 
+        wavelet : instance of a wavelet class, optional
             Mother wavelet class. Default is Morlet wavelet.
         significance_level : float, optional
             Significance level to use. Default is 0.95.
         normalize : bool, optional
             If set to true, normalizes CWT by the standard deviation of
             the signals.
-    
+
     Returns
     -------
         xwt (array like) :
-            Cross wavelet transform according to the selected mother 
+            Cross wavelet transform according to the selected mother
             wavelet.
         x (array like) :
             Intersected independent variable.
@@ -744,32 +367,35 @@ def xwt(signal, signal2, dt, significance_level=0.8646, dj=1./12, s0=-1, J=-1,
             that correspond to the wavelet scales.
         signif (array like) :
             Significance levels as a function of scale.
-    
+
     """
-    y1 = np.asarray(signal) 
-    y2 = np.asarray(signal2) 
-      
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
+    y1 = np.asarray(signal)
+    y2 = np.asarray(signal2)
+
     if normalize:
         std1 = y1.std()
         std2 = y2.std()
     else:
         std1 = std2 = 1.
-    
+
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
     W1, sj, freqs, coi, dj, s0, J = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
 
     W2, sj, freqs2, coi, dj, s0, J =  cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    
+
     # Now the cross correlation of y1 and y2
     W12 = W1*W2.conj()
-    
+
     # And the significance tests. Note that the confidence level is calculated
     # using the percent point function (PPF) of the chi-squared cumulative
-    # distribution function (CDF) instead of using Z1(95%) = 2.182 and 
-    # Z2(95%)=3.999 as suggested by Torrence & Compo (1998) and Grinsted et 
+    # distribution function (CDF) instead of using Z1(95%) = 2.182 and
+    # Z2(95%)=3.999 as suggested by Torrence & Compo (1998) and Grinsted et
     # al. (2004). If the CWT has been normalized, then std1 and std2 should
-    # be reset to unity, otherwise the standard deviation of both series have 
+    # be reset to unity, otherwise the standard deviation of both series have
     # to be calculated.
     if not normalize:
         std1 = y1.std()
@@ -783,21 +409,22 @@ def xwt(signal, signal2, dt, significance_level=0.8646, dj=1./12, s0=-1, J=-1,
     dof = wavelet.dofmin
     PPF = chi2.ppf(significance_level, dof)
     signif = (std1 * std2 * (Pk1 * Pk2) ** 0.5 * PPF / dof)
-    
-    return W12, sj, freqs, coi, dj, s0, J, signif
-    
 
-def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.8646, wavelet=Morlet(), normalize=True):
+    return W12, sj, freqs, coi, dj, s0, J, signif
+
+
+def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.8646,
+        wavelet='morlet', normalize=True):
     """
     Calculate the wavelet coherence (WTC). The WTC finds regions in time
     frequency space where the two time seris co-vary, but do not necessarily have
     high power.
-    
+
     Parameters
     ----------
         signal, signal2 : numpy.ndarray, list
             Input signal array to calculate cross wavelet transform.
-        dt : float 
+        dt : float
             Sample spacing.
         dj : float, optional
             Spacing between discrete scales. Default value is 0.25.
@@ -814,38 +441,35 @@ def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.8646, w
         normalize (boolean, optional) :
             If set to true, normalizes CWT by the standard deviation of
             the signals.
-        result (string, optional) :
-            If 'full' also returns intersected time-series. If set to
-            'dictionary' returns the result arrays as itens of a 
-            dictionary.
-        kwargs (dictionary) :
-            List of parameters like dt, dj, s0, J=-1 and wavelet.
-            Please refer to the wavelet.cwt function documentation for
-            further details.
-    
+
     Returns
     -------
         Something : TBA and TBC
-    
+
     See also
     --------
         wavelet.cwt, wavelet.xwt
-    
-    """ 
-    y1 = np.asarray(signal) 
-    y2 = np.asarray(signal2) 
-      
+
+    """
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
+    y1 = np.asarray(signal)
+    y2 = np.asarray(signal2)
+
     if normalize:
         std1 = y1.std()
         std2 = y2.std()
     else:
         std1 = std2 = 1.
-    
+
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    W1, sj, freqs, coi, dj, s0, J = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freqs, coi, dj, s0, J = cwt(y1/std1, dt=dt, dj=dj, s0=s0, J=J,
+                                        wavelet=wavelet)
 
-    W2, sj2, freqs, coi, dj, s0, J = cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W2, sj2, freqs, coi, dj, s0, J = cwt(y2/std2, dt=dt, dj=dj, s0=s0, J=J,
+                                         wavelet=wavelet)
 
 
     scales1 = np.ones([1, y1.size]) * sj[:, None]
@@ -854,39 +478,45 @@ def wct(signal, signal2, dt, dj=1./12, s0=-1, J=-1, significance_level=0.8646, w
     # Smooth the wavelet spectra before truncating.
     S1 = wavelet.smooth(abs(W1) ** 2 / scales1, dt, dj, sj)
     S2 = wavelet.smooth(abs(W2) ** 2 / scales2, dt, dj, sj2)
-      
+
     # Now the wavelet transform coherence
     W12 = W1 * W2.conj()
     scales = np.ones([1, y1.size]) * sj[:, None]
     S12 = wavelet.smooth(W12 / scales, dt, dj, sj)
-    WCT = abs(S12) ** 2 / (S1 * S2)
+    WCT = np.abs(S12) ** 2 / (S1 * S2)
     aWCT = np.angle(W12, deg=True)
-    
+
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
     a1, _, _ = ar1(y1)
     a2, _, _ = ar1(y2)
-    sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet, significance_level=0.8646)
+    sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet,
+                           significance_level=0.8646)
 
     return WCT, coi, freqs, sig, aWCT
-    
-    
-def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level=0.8646, mc_count=300):
+
+
+def wct_significance(a1, a2, dt, dj, s0, J, wavelet='morlet',
+                     significance_level=0.8646, mc_count=300):
     """
     Calculates wavelet coherence significance using Monte Carlo
     simulations with 95% confidence.
-    
-    PARAMETERS
+
+    Parameters
+    ----------
         a1, a2 (float) :
             Lag-1 autoregressive coeficients of both time series.
         significance_level (float, optional) :
             Significance level to use. Default is 0.95.
         count (integer, optional) :
             Number of Monte Carlo simulations. Default is 300.
-   
-    RETURNS
-    
+
+    Returns
+    -------
     """
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
     # Load cache if previously calculated. It is assumed that wavelet analysis
     # is performed using the wavelet's default parameters.
     aa = np.round(np.arctanh(np.array([a1, a2]) * 4))
@@ -897,20 +527,20 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level
     N = np.abs(np.ceil(ms * 6))
     noise1 = rednoise(N, a1, 1)
     nW1, sj, freqs, coi, dj, s0, J = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    #
+
     period = np.ones([1, N]) / freqs[:, None]
     coi = np.ones([J+1, 1]) * coi[None, :]
     outsidecoi = (period <= coi)
     scales = np.ones([1, N]) * sj[:, None]
-    #
+
     sig95 = np.zeros(J+1)
     maxscale = find(outsidecoi.any(axis=1))[-1]
     sig95[outsidecoi.any(axis=1)] = np.nan
-    #
+
     nbins = 1000
     wlc = np.ma.zeros([J+1, nbins])
     for i in range(mc_count):
-        # Generates two red-noise signals with lag-1 autoregressive 
+        # Generates two red-noise signals with lag-1 autoregressive
         # coefficients given by a1 and a2
         noise1 = rednoise(N, a1, 1)
         noise2 = rednoise(N, a2, 1)
@@ -920,24 +550,24 @@ def wct_significance(a1, a2, dt, dj, s0, J, wavelet=Morlet(), significance_level
         nW12 = nW1 * nW2.conj()
         # Smooth wavelet wavelet transforms and calculate wavelet coherence
         # between both signals.
-        S1 =wavelet.smooth(np.abs(nW1) ** 2 / scales, 
+        S1 =wavelet.smooth(np.abs(nW1) ** 2 / scales,
             dt, dj, sj)
-        S2 = wavelet.smooth(np.abs(nW2) ** 2 / scales, 
+        S2 = wavelet.smooth(np.abs(nW2) ** 2 / scales,
             dt, dj, sj2)
         S12 = wavelet.smooth(nW12 / scales, dt, dj, sj)
         R2 = np.ma.array(np.abs(S12) ** 2 / (S1 * S2), mask=~outsidecoi)
         # Walks through each scale outside the cone of influence and builds a
         # coherence coefficient counter.
 
-        for s in xrange(maxscale):
+        for s in range(maxscale):
             cd = np.floor(R2[s, :] * nbins)
             t_inds = np.array(cd[~cd.mask],dtype=np.int)
             wlc[s, t_inds] += 1
-    # After many, many, many Monte Carlo simulations, determine the 
+    # After many, many, many Monte Carlo simulations, determine the
     # significance using the coherence coefficient counter percentile.
     wlc.mask = (wlc.data == 0.)
     R2y = (np.arange(nbins) + 0.5) / nbins
-    for s in xrange(maxscale):
+    for s in range(maxscale):
         sel = ~wlc[s, :].mask
         P = wlc[s, sel].data.cumsum()
         P = (P - 0.5) / P[-1]
