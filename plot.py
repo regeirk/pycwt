@@ -188,9 +188,9 @@ def cwt(t, f, cwt, sig, rectify=False, **kwargs):
         numpy.log2(levels), extend=extend)
     ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k', 
         linewidths=2.)
-    ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
-        t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
-        period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
+    ax.fill(numpy.concatenate([t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
+        t[:1]-dt]), numpy.log2(numpy.concatenate([coi, [1e-9], 
+        period[-1:], period[-1:], [1e-9]])), 'k', alpha=0.3, hatch='x')
     Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
         numpy.ceil(numpy.log2(period.max())))
     ax.set_yticks(numpy.log2(Yticks))
@@ -317,7 +317,7 @@ def xwt(*args, **kwargs):
         headaxislength=5, minshaft=2, minlength=5)
     ax.fill(numpy.concatenate([t[:1]-dt, t, t[-1:]+dt, t[-1:]+dt, t[:1]-dt, 
         t[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi, [1e-9], 
-        period[-1:], period[-1:], [1e-9]])), 'k', alpha='0.3', hatch='x')
+        period[-1:], period[-1:], [1e-9]])), 'k', alpha=0.3, hatch='x')
     Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())), 
         numpy.ceil(numpy.log2(period.max())))
     ax.set_yticks(numpy.log2(Yticks))
