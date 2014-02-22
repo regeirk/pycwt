@@ -43,11 +43,10 @@ import numpy
 import pylab
 try:
     reload(wavelet)
-    reload(wavelet.wav)
-    reload(wavelet.plot)
+    reload(wavplot)
 except:
     import wav as wavelet
-
+    import plot as wavplot
 # Important parameters
 data1 = dict(
     name = 'Arctic Oscillation',
@@ -139,31 +138,30 @@ xwt = wavelet.xwt(t1, s1, t2, s2, significance_level=0.8646, normalize=True)
 # frequency space where the two time seris co-vary, but do not necessarily have
 # high power.
 wct = wavelet.wct(t1, s1, t2, s2, significance_level=0.8646, normalize=True)
-
 # Do the plotting!
 pylab.close('all')
 
-fig = wavelet.plot.figure(ap=dict(left=0.07, bottom=0.06, right=0.95, 
+fig = wavplot.figure(ap=dict(left=0.07, bottom=0.06, right=0.95, 
     top=0.95, wspace=0.05, hspace=0.10))
 ax = fig.add_subplot(2, 1, 1)
-fig, ax = wavelet.plot.cwt(t1, s1, cwt1, sig1, fig=fig, ax=ax, extend='both')
+fig, ax = wavplot.cwt(t1, s1, cwt1, sig1, fig=fig, ax=ax, extend='both')
 bx = fig.add_subplot(2, 1, 2, sharex=ax)
-fig, bx = wavelet.plot.cwt(t2, s2, cwt2, sig2, fig=fig, ax=bx, extend='both')
+fig, bx = wavplot.cwt(t2, s2, cwt2, sig2, fig=fig, ax=bx, extend='both')
 ax.set_xlim = ([t2.min(), t1.max()])
 if save:
     fig.savefig('sample_ao-bmi_cwt.png')
 
-fig = wavelet.plot.figure(fp=dict())
+fig = wavplot.figure(fp=dict())
 ax = fig.add_subplot(1, 1, 1)
-fig, ax = wavelet.plot.xwt(*xwt, fig=fig, ax=ax, extend='both')
+fig, ax = wavplot.xwt(*xwt, fig=fig, ax=ax, extend='both')
 ax.set_xlim = ([xwt[1].min(), xwt[1].max()])
 if save:
     fig.savefig('sample_ao-bmi_xwt.png')
     
 
-fig = wavelet.plot.figure(fp=dict())
+fig = wavplot.figure(fp=dict())
 ax = fig.add_subplot(1, 1, 1)
-fig, ax = wavelet.plot.xwt(*wct, fig=fig, ax=ax, extend='neither',
+fig, ax = wavplot.xwt(*wct, fig=fig, ax=ax, extend='neither',
     crange=numpy.arange(0, 1.1, 0.1), scale='linear', angle=wct[5])
 ax.set_xlim = ([wct[1].min(), wct[1].max()])
 if save:
