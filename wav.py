@@ -945,7 +945,6 @@ def wct(x1, y1, x2, y2, significance_level=0.95, normalize=True, result=None,
     else:
         coi = W2['coi']
         freqs = W2['freqs']
-    
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
     a1, _, _ = ar1(y1)
@@ -1069,7 +1068,7 @@ def wct_significance(a1, a2, significance_level=0.95, mc_count=300,
         sel = ~wlc[s, :].mask
         P = wlc[s, sel].data.cumsum()
         P = (P - 0.5) / P[-1]
-        sig95[s] = interp(significance_level, P, R2y[s:, sel])
+        sig95[s] = interp(significance_level, P, R2y[sel])
     
     # Save the results on cache to avoid to many computations in the future
     try:
