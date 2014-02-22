@@ -172,10 +172,10 @@ bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
             extend='both')
 bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
            linewidths=2.)
-bx.fill(numpy.concatenate([time[:1]-dt, time, time[-1:]+dt, time[-1:]+dt,
-        time[:1]-dt, time[:1]-dt]), numpy.log2(numpy.concatenate([[1e-9], coi,
-        [1e-9], period[-1:], period[-1:], [1e-9]])), 'k', alpha=0.3,
-        hatch='x')
+bx.fill(numpy.concatenate([time, time[-1:]+dt, time[-1:]+dt,time[:1]-dt, time[:1]-dt]),
+        numpy.log2(numpy.concatenate([coi,[1e-9], period[-1:], period[-1:], [1e-9]])),
+        'k', alpha=0.3,hatch='x')
+
 bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))
 bx.set_ylabel('Period (years)')
 Yticks = 2 ** numpy.arange(numpy.ceil(numpy.log2(period.min())),
