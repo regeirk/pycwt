@@ -46,7 +46,7 @@ try:
     reload(wavelet.wav)
     reload(wavelet.plot)
 except:
-    import wavelet
+    import wav as wavelet
 
 # Important parameters
 data1 = dict(
