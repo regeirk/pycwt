@@ -1001,6 +1001,7 @@ def wct_significance(a1, a2, significance_level=0.95, mc_count=300,
     cached = '%s/.klib/wavelet' % (expanduser("~"))
     try:
         dat = loadtxt('%s/%s.gz' % (cached, cache), unpack=True)
+        stdout.write ("\n\n NOTE: Loading from cache\n\n")
         return dat[:, 0], dat[:, 1]
     except:
         pass
