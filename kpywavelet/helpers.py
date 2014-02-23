@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb  3 09:54:25 2014
-
-@author: nabobalis
-"""
-
 import numpy as np
 
 import scipy.fftpack as fft

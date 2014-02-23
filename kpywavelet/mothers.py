@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb  3 09:51:33 2014
-
-@author: nabobalis
-"""
+from __future__ import division, absolute_import
 
 import numpy as np
 import scipy.fftpack as fft
@@ -49,7 +44,7 @@ class Morlet(object):
         return 1. / self.coi
 
     def _set_f0(self, f0):
-        # Sets the Morlet wave number, the degrees ofFalse freedom and the
+        # Sets the Morlet wave number, the degrees of False freedom and the
         # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
         # \delta j_0 (Torrence and Compo, 1998, Table 2)
         self.f0 = f0             # Wave number

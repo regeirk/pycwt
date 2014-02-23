@@ -1,5 +1,5 @@
 """
-Bi-dimensional continuous wavelet transform module for Python. Includes a 
+Bi-dimensional continuous wavelet transform module for Python. Includes a
 collection of routines for wavelet transform and statistical analysis via
 FFT algorithm. This module references to the numpy, scipy and pylab Python
 packages.
@@ -22,11 +22,9 @@ class Morlet:
     default value is f0=6.
 
     """
-
-    name = 'Morlet'
-
     def __init__(self, f0=6.0):
         self._set_f0(f0)
+        self.__name__ = 'Morlet'
 
     def psi_ft(self, f):
         """Fourier transform of the approximate Morlet wavelet."""
