@@ -1,10 +1,9 @@
-Continuous wavelet transform module for Python. Includes a collection of 
+A continuous wavelet transform module for Python. Includes a collection of 
 routines for wavelet transform and statistical analysis via FFT algorithm. 
 Most recently cross-wavelet tranforms, wavelet coherence tests and plotting 
 functions were added to the module.
 
-This module references to the numpy, scipy, pylab and maybe other Python 
-packages.
+This module requires NumPy and SciPy.
 
 The sample scripts (sample.py, sample_xwt.py) illustrate the use of the 
 wavelet and inverse wavelet transforms, cross-wavelet transform and wavelet 
@@ -25,10 +24,8 @@ DISCLAIMER
     warranties whatsoever.
 
 INSTALLATION
-    Copy all the contents into a location included in the Python search
-    path. On Linux distribution one such option is
-
-        ~/.local/lib/python2.x/site-packages/kPyWavelet
+	Download the code and run the below line within the top level folder.
+    	python setup.py install
 
 COMMENTS
     There is an errata page at the wavelet website maintaned at the Program 

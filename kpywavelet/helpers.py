@@ -1,5 +1,6 @@
-import numpy as np
+from __future__ import division, absolute_import
 
+import numpy as np
 import scipy.fftpack as fft
 from scipy.signal import lfilter
 
@@ -8,25 +9,9 @@ def find(condition):
     res, = np.nonzero(np.ravel(condition))
     return res
 
-def rect(x, normalize=False) :
-    if type(x) in [int, float]:
-        shape = [x, ]
-    elif type(x) in [list, dict]:
-        shape = x
-    elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
-        shape = x.shape
-    X = np.zeros(shape)
-    X[0] = X[-1] = 0.5
-    X[1:-1] = 1
-
-    if normalize:
-        X /= X.sum()
-
-    return X
-
 def fftconv(x, y):
     """ Convolution of x and y using the FFT convolution theorem. """
-    n = int(2 ** np.ceil(np.log2(len(x)))) + 1
+    n = np.int(np.round(2 ** np.ceil(np.log2(len(x))))) + 1
     X, Y, x_y = fft(x, n), fft(y, n), []
     for i in range(n):
         x_y.append(X[i] * Y[i])
@@ -39,32 +24,32 @@ def ar1(x):
     """
     Allen and Smith autoregressive lag-1 autocorrelation alpha. In a AR(1) model
 
-        x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,
+    x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,
 
     where <x> is the process mean, \gamma and \alpha are process
     parameters and z(t) is a Gaussian unit-variance white noise.
 
     Parameters
     ----------
-        x : numpy.ndarray, list
-            Univariate time series
+    x : numpy.ndarray, list
+    Univariate time series
 
     Return
     ------
-        g : float
-            Estimate of the lag-one autocorrelation.
-        a : float
-            Estimate of the noise variance [var(x) ~= a**2/(1-g**2)]
-        mu2 : float
-            Estimated square on the mean of a finite segment of AR(1)
-            noise, mormalized by the process variance.
+    g : float
+    Estimate of the lag-one autocorrelation.
+    a : float
+    Estimate of the noise variance [var(x) ~= a**2/(1-g**2)]
+    mu2 : float
+    Estimated square on the mean of a finite segment of AR(1)
+    noise, mormalized by the process variance.
 
     References
     ----------
-        [1] Allen, M. R. and Smith, L. A. (1996). Monte Carlo SSA:
-            detecting irregular oscillations in the presence of colored
-            noise. Journal of Climate, 9(12), 3373-3404.
-            http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
+    [1] Allen, M. R. and Smith, L. A. (1996). Monte Carlo SSA:
+    detecting irregular oscillations in the presence of colored
+    noise. Journal of Climate, 9(12), 3373-3404.
+    http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
     """
     x = np.asarray(x)
     N = x.size
@@ -96,36 +81,36 @@ def ar1(x):
     return g, a, mu2
 
 
-def ar1_spectrum(freqs, ar1=0):
+def ar1_spectrum(freqs, ar1=0.) :
     """
     Lag-1 autoregressive theoretical power spectrum.
 
 
     Parameters
     ----------
-        freqs : numpy.ndarray, list
-            Frequencies at which to calculate the theoretical power
-            spectrum.
-        ar1 : float
-            Lag-1 autoregressive correlation coefficient.
+    freqs : numpy.ndarray, list
+    Frequencies at which to calculate the theoretical power
+    spectrum.
+    ar1 : float
+    Lag-1 autoregressive correlation coefficient.
+
     Returns
     -------
-        Pk : numpy.ndarray
-            Theoretical discrete Fourier power spectrum of noise signal.
+    Pk : numpy.ndarray
+    Theoretical discrete Fourier power spectrum of noise signal.
 
     References
     ----------
-        [1] http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
+    [1] http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
 
     """
-
     # According to a post from the MadSci Network available at
     # http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html,
     # the time-series spectrum for an auto-regressive model can be
     # represented as
     #
     # P_k = \frac{E}{\left|1- \sum\limits_{k=1}^{K} a_k \, e^{2 i \pi
-    # \frac{k f}{f_s} } \right|^2}
+    #   \frac{k f}{f_s} } \right|^2}
     #
     # which for an AR1 model reduces to
     #
@@ -139,44 +124,65 @@ def ar1_spectrum(freqs, ar1=0):
 
     return Pk
 
-def rednoise(N, g, a=1.):
+
+def rednoise(N, g, a=1.) :
     """
     Red noise generator using filter.
 
     Parameters
     ----------
-        N : int
-            Length of the desired time series.
-        g : float
-            Lag-1 autocorrelation coefficient.
-        a : float, optional
-            Noise innovation variance parameter.
+    N : int
+    Length of the desired time series.
+    g : float
+    Lag-1 autocorrelation coefficient.
+    a : float, optional
+    Noise innovation variance parameter.
 
     Returns
     -------
-        y : numpy.ndarray
-            Red noise time series.
+    y : numpy.ndarray
+    Red noise time series.
 
     """
-
     if g == 0:
-        yr = np.random.randn(N, 1) * a;
+        yr = np.randn(N, 1) * a;
     else:
         # Twice the decorrelation time.
-        tau = np.ceil(-2 / np.log(abs(g)))
+        tau = np.ceil(-2 / np.log(np.abs(g)))
         yr = lfilter([1, 0], [1, -g], np.random.randn(N + tau, 1) * a)
         yr = yr[tau:]
 
     return yr.flatten()
 
+
+def rect(x, normalize=False) :
+    if type(x) in [int, float]:
+        shape = [x, ]
+    elif type(x) in [list, dict]:
+        shape = x
+    elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
+        shape = x.shape
+    X = np.zeros(shape)
+    X[0] = X[-1] = 0.5
+    X[1:-1] = 1
+
+    if normalize:
+        X /= X.sum()
+
+    return X
+
 def boxpdf(x):
     """
     Forces the probability density function of the input data to have
     a boxed distribution.
-    PARAMETERS
+
+    Parameters
+    ----------
     x (array like) :
     Input data
-    RETURNS
+
+    Returns
+    -------
     X (array like) :
     Boxed data varying between zero and one.
     Bx, By (array like) :

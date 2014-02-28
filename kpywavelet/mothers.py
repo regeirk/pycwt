@@ -14,22 +14,20 @@ class Morlet(object):
 
     Note that the input parameters f and f0 are angular frequencies.
     f0 should be more than 0.8 for this function to be correct, its
-    default value is f0=6.
-
-    #TODO: Implenment arbitarty order
+    default value is f0 = 6
     """
 
-    def __init__(self, f0=6.0):
+    def __init__(self, f0=6):
         self._set_f0(f0)
         self.name = 'Morlet'
 
     def psi_ft(self, f):
         """Fourier transform of the approximate Morlet wavelet."""
-        return (np.pi ** -0.25) * np.exp(-0.5 * (f - self.f0) ** 2.)
+        return (np.pi ** -.25) * np.exp(-0.5 * (f - self.f0) ** 2)
 
     def psi(self, t):
         """Morlet wavelet as described in Torrence and Compo (1998)."""
-        return (np.pi ** -0.25) * np.exp(1j * self.f0 * t - t ** 2. / 2.)
+        return (np.pi ** -.25) * np.exp(1j * self.f0 * t - t ** 2 / 2)
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
@@ -37,19 +35,19 @@ class Morlet(object):
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1. / np.sqrt(2.)
+        return 1. / np.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""
         return 1. / self.coi
 
     def _set_f0(self, f0):
-        # Sets the Morlet wave number, the degrees of False freedom and the
+        # Sets the Morlet wave number, the degrees of freedom and the
         # empirically derived factors for the wavelet bases C_{\delta}, \gamma,
         # \delta j_0 (Torrence and Compo, 1998, Table 2)
         self.f0 = f0             # Wave number
         self.dofmin = 2          # Minimum degrees of freedom
-        if self.f0 == 6.:
+        if self.f0 == 6:
             self.cdelta = 0.776  # Reconstruction factor
             self.gamma = 2.32    # Decorrelation factor for time averaging
             self.deltaj0 = 0.60  # Factor for scale averaging
@@ -59,16 +57,11 @@ class Morlet(object):
             self.deltaj0 = -1
 
     def smooth(self, W, dt, dj, scales):
-        """
-        Smoothing function used in coherence analysis.
-
-        The smoothing is performed by using a filter given by the absolute
-        value of the wavelet function at each scale, normalized to have a
-        total weight of unity, according to suggestions by Torrence &
-        Webster (1999) and by Grinsted et al. (2004).
-
-        #TODO: Implenment arbitarty order
-        """
+        """Smoothing function used in coherence analysis."""
+        # The smoothing is performed by using a filter given by the absolute
+        # value of the wavelet function at each scale, normalized to have a
+        # total weight of unity, according to suggestions by Torrence &
+        # Webster (1999) and bry Grinsted et al. (2004).
 
         m, n = W.shape
         T = np.zeros([m, n])
@@ -90,21 +83,19 @@ class Morlet(object):
         # Filter in scale. For the Morlet wavelet it's simply a boxcar with
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
-        win = rect(int(round(wsize)), normalize=True)
+        win = rect(np.int(np.round(wsize)), normalize=True)
         T = convolve2d(T, win[:, None], 'same')
 
         return T
 
+
 class Paul(object):
-    """
-    Implements the Paul wavelet class.
+    """Implements the Paul wavelet class.
 
     Note that the input parameter f is the angular frequency and that
     the default order for this wavelet is m=4.
 
-    #TODO: Implenment arbitarty order
     """
-
     def __init__(self, m=4):
         self._set_m(m)
         self.name = 'Paul'
@@ -126,11 +117,11 @@ class Paul(object):
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return np.sqrt(2.)
+        return np.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""
-        return 1. / self.coi
+        return 1 / self.coi
 
     def _set_m(self, m):
         # Sets the m derivative of a Gaussian, the degrees of freedom and the
@@ -149,16 +140,17 @@ class Paul(object):
 
 
 class DOG(object):
-    """
-    Implements the derivative of a Guassian wavelet class.
+    """Implements the derivative of a Guassian wavelet class.
 
     Note that the input parameter f is the angular frequency and that
-    for m=2 the DOG becomes the Mexican hat wavelet and that
-    the default order for this wavelet is m=6.
+    for m=2 the DOG becomes the Mexican hat wavelet, which is then
+    default.
 
-    #TODO: Implenment arbitarty order
     """
-    def __init__(self, m=6):
+
+
+
+    def __init__(self, m=2):
         self._set_m(m)
         self.name = 'DOG'
 
@@ -191,11 +183,11 @@ class DOG(object):
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1. / np.sqrt(2.)
+        return 1 / np.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""
-        return 1. / self.coi
+        return 1 / self.coi
 
     def _set_m(self, m):
         # Sets the m derivative of a Gaussian, the degrees of freedom and the
@@ -218,12 +210,11 @@ class DOG(object):
 
 
 class MexicanHat(DOG):
-    """
-    Implements the Mexican hat wavelet class.
+    """Implements the Mexican hat wavelet class.
 
     This class inherits the DOG class using m=2.
 
     """
     def __init__(self):
-        self._set_m(2)
         self.name = 'Mexican Hat'
+        self._set_m(2)
