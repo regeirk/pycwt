@@ -67,55 +67,56 @@ mothers = {'morlet': Morlet,
            'mexicanhat': MexicanHat
            }
 
-def cwt(signal, dt=1, dj=1/12, s0=-1, J=-1, wavelet='morlet', result=None):
-    """Continuous wavelet transform of the signal at specified scales.
+def cwt(signal, dt=1, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
+    """
+    Continuous wavelet transform of the signal at specified scales.
 
-    PARAMETERS
-        signal (array like) :
-            Input signal array
-        dt (float) :
-            Sample spacing.
-        dj (float, optional) :
-            Spacing between discrete scales. Default value is 0.25.
-            Smaller values will result in better scale resolution, but
-            slower calculation and plot.
-        s0 (float, optional) :
-            Smallest scale of the wavelet. Default value is 2*dt.
-        J (float, optional) :
-            Number of scales less one. Scales range from s0 up to
-            s0 * 2**(J * dj), which gives a total of (J + 1) scales.
-            Default is J = (log2(N*dt/so))/dj.
-        wavelet (class, optional) :
-            Mother wavelet class. Default is Morlet()
-        result (string, optional) :
-            If set to 'dictionary' returns the result arrays as itens
-            of a dictionary.
+    Parameters
+    ----------
+    signal : numpy.ndarray, list
+    Input signal array
+    dt : float
+    Sample spacing.
+    dj : float, optional
+    Spacing between discrete scales. Default value is 0.25.
+    Smaller values will result in better scale resolution, but
+    slower calculation and plot.
+    s0 : float, optional
+    Smallest scale of the wavelet. Default value is 2*dt.
+    J : float, optional
+    Number of scales less one. Scales range from s0 up to
+    s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+    Default is J = (log2(N*dt/so))/dj.
+    wavelet : instance of a wavelet class, or string
+    Mother wavelet class. Default is Morlet wavelet.
 
-    RETURNS
-        W (array like) :
-            Wavelet transform according to the selected mother wavelet.
-            Has (J+1) x N dimensions.
-        sj (array like) :
-            Vector of scale indices given by sj = s0 * 2**(j * dj),
-            j={0, 1, ..., J}.
-        freqs (array like) :
-            Vector of Fourier frequencies (in 1 / time units) that
-            corresponds to the wavelet scales.
-        coi (array like) :
-            Returns the cone of influence, which is a vector of N
-            points containing the maximum Fourier period of useful
-            information at that particular time. Periods greater than
-            those are subject to edge effects.
-        fft (array like) :
-            Normalized fast Fourier transform of the input signal.
-        fft_freqs (array like):
-            Fourier frequencies (in 1/time units) for the calculated
-            FFT spectrum.
+    Returns
+    -------
+    W : numpy.ndarray
+    Wavelet transform according to the selected mother wavelet.
+    Has (J+1) x N dimensions.
+    sj : numpy.ndarray
+    Vector of scale indices given by sj = s0 * 2**(j * dj),
+    j={0, 1, ..., J}.
+    freqs : array like
+    Vector of Fourier frequencies (in 1 / time units) that
+    corresponds to the wavelet scales.
+    coi : numpy.ndarray
+    Returns the cone of influence, which is a vector of N
+    points containing the maximum Fourier period of useful
+    information at that particular time. Periods greater than
+    those are subject to edge effects.
+    fft : numpy.ndarray
+    Normalized fast Fourier transform of the input signal.
+    fft_freqs : numpy.ndarray
+    Fourier frequencies (in 1/time units) for the calculated
+    FFT spectrum.
 
-    EXAMPLE
-        mother = wavelet.Morlet(6.)
-        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
-            0.25, 0.25, 0.5, 28, mother)
+    Example
+    -------
+    mother = wavelet.Morlet(6.)
+    wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+    0.25, 0.25, 0.5, 28, mother)
 
     """
     if isinstance(wavelet, str):
@@ -149,57 +150,47 @@ def cwt(signal, dt=1, dj=1/12, s0=-1, J=-1, wavelet='morlet', result=None):
     # Determines the cone-of-influence. Note that it is returned as a function
     # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
     # end-points.
-    coi = (n0 / 2. - np.abs(np.arange(0, n0) - (n0 - 1) / 2))
+    coi = (n0 / 2 - np.abs(np.arange(0, n0) - (n0 - 1) / 2))
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
     #
-    if result == 'dictionary':
-        result = dict(
-            W = W[:, :n0],
-            sj = sj,
-            freqs = freqs,
-            #period = 1. / freqs,
-            coi = coi,
-            signal_ft = signal_ft[1:N/2] / N ** 0.5,
-            ftfreqs = ftfreqs[1:N/2] / (2. * np.pi),
-            dt = dt,
-            dj = dj,
-            s0 = s0,
-            J = J,
-            wavelet = wavelet
-        )
-        return result
-    else:
-        return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
+    return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,
                 ftfreqs[1:N/2] / (2 * np.pi))
 
 
-def icwt(W, sj, dt, dj=1/12, w=Morlet()):
-    """Inverse continuous wavelet transform.
+def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
+    """
+    Inverse continuous wavelet transform.
 
-    PARAMETERS
-        W (array like):
-            Wavelet transform, the result of the cwt function.
-        sj (array like):
-            Vector of scale indices as returned by the cwt function.
-        dt (float) :
-            Sample spacing.
-        dj (float, optional) :
-            Spacing between discrete scales as used in the cwt
-            function. Default value is 0.25.
-        w (class, optional) :
-            Mother wavelet class. Default is Morlet()
+    Parameters
+    ----------
+    W : numpy.ndarray
+    Wavelet transform, the result of the cwt function.
+    sj : numpy.ndarray
+    Vector of scale indices as returned by the cwt function.
+    dt : float
+    Sample spacing.
+    dj : float, optional
+    Spacing between discrete scales as used in the cwt
+    function. Default value is 0.25.
+    wavelet : instance of wavelet class, or string
+    Mother wavelet class. Default is Morlet
 
-    RETURNS
-        iW (array like) :
-            Inverse wavelet transform.
+    Returns
+    -------
+    iW : numpy.ndarray
+    Inverse wavelet transform.
 
-    EXAMPLE
-        mother = wavelet.Morlet(6.)
-        wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
-            0.25, 0.25, 0.5, 28, mother)
-        iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
+    Example
+    -------
+    mother = wavelet.Morlet()
+    wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+    0.25, 0.25, 0.5, 28, mother)
+    iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
 
     """
+    if isinstance(wavelet, str):
+        wavelet = mothers[wavelet]()
+
     a, b = W.shape
     c = sj.size
     if a == c:
@@ -210,58 +201,60 @@ def icwt(W, sj, dt, dj=1/12, w=Morlet()):
         raise Warning, 'Input array dimensions do not match.'
 
     # As of Torrence and Compo (1998), eq. (11)
-    iW = dj * np.sqrt(dt) / w.cdelta * w.psi(0) * (np.real(W) / sj).sum(axis=0)
+    iW = dj * np.sqrt(dt) / wavelet.cdelta * wavelet.psi(0) * (np.real(W) / sj).sum(axis=0)
     return iW
 
 
 def significance(signal, dt, scales, sigma_test=0, alpha=None,
                  significance_level=0.95, dof=-1, wavelet='morlet'):
     """
-    Significance testing for the onde dimensional wavelet transform.
+    Significance testing for the one dimensional wavelet transform.
 
-    PARAMETERS
-        signal (array like or float) :
-            Input signal array. If a float number is given, then the
-            variance is assumed to have this value. If an array is
-            given, then its variance is automatically computed.
-        dt (float, optional) :
-            Sample spacing. Default is 1.0.
-        scales (array like) :
-            Vector of scale indices given returned by cwt function.
-        sigma_test (int, optional) :
-            Sets the type of significance test to be performed.
-            Accepted values are 0, 1 or 2. If omitted assume 0.
+    Parameters
+    ----------
+    signal : array like, float
+    Input signal array. If a float number is given, then the
+    variance is assumed to have this value. If an array is
+    given, then its variance is automatically computed.
+    dt : float, optional
+    Sample spacing. Default is 1.0.
+    scales : array like
+    Vector of scale indices given returned by cwt function.
+    sigma_test : int, optional
+    Sets the type of significance test to be performed.
+    Accepted values are 0, 1 or 2. If omitted assume 0.
 
-            If set to 0, performs a regular chi-square test, according
-            to Torrence and Compo (1998) equation 18.
+    If set to 0, performs a regular chi-square test, according
+    to Torrence and Compo (1998) equation 18.
 
-            If set to 1, performs a time-average test (equation 23). In
-            this case, dof should be set to the number of local wavelet
-            spectra that where averaged together. For the global
-            wavelet spectra it would be dof=N, the number of points in
-            the time-series.
+    If set to 1, performs a time-average test (equation 23). In
+    this case, dof should be set to the number of local wavelet
+    spectra that where averaged together. For the global
+    wavelet spectra it would be dof=N, the number of points in
+    the time-series.
 
-            If set to 2, performs a scale-average test (equations 25 to
-            28). In this case dof should be set to a two element vector
-            [s1, s2], which gives the scale range that were averaged
-            together. If, for example, the average between scales 2 and
-            8 was taken, then dof=[2, 8].
-        alpha (float, optional) :
-            Lag-1 autocorrelation, used for the significance levels.
-            Default is 0.0.
-        significance_level (float, optional) :
-            Significance level to use. Default is 0.95.
-        dof (variant, optional) :
-            Degrees of freedom for significance test to be set
-            according to the type set in sigma_test.
-        wavelet (class, optional) :
-            Mother wavelet class. Default is Morlet().
+    If set to 2, performs a scale-average test (equations 25 to
+    28). In this case dof should be set to a two element vector
+    [s1, s2], which gives the scale range that were averaged
+    together. If, for example, the average between scales 2 and
+    8 was taken, then dof=[2, 8].
+    alpha : float, optional
+    Lag-1 autocorrelation, used for the significance levels.
+    Default is 0.0.
+    significance_level :float, optional
+    Significance level to use. Default is 0.95.
+    dof : variant, optional
+    Degrees of freedom for significance test to be set
+    according to the type set in sigma_test.
+    wavelet : instance of a wavelet class, optional
+    Mother wavelet class. Default is Morlet().
 
-    RETURNS
-        signif (array like) :
-            Significance levels as a function of scale.
-        fft_theor (array like):
-            Theoretical red-noise spectrum as a function of period.
+    Returns
+    -------
+    signif : array like
+    Significance levels as a function of scale.
+    fft_theor (array like):
+    Theoretical red-noise spectrum as a function of period.
 
     """
     if isinstance(wavelet, str):
@@ -350,53 +343,65 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     else:
         raise Exception, 'sigma_test must be either 0, 1, or 2.'
 
-    return (signif, fft_theor)
+    return [signif, fft_theor]
 
 
-def xwt(x1, y1, x2, y2, significance_level=0.95, wavelet='morlet', normalize=True, result=None,
-    **kwargs):
-    """Cross wavelet transform.
+def xwt(x1, y1, x2, y2, significance_level=0.95, wavelet='morlet', normalize=True, **kwargs):
+    """
+    Calculate the cross wavelet transform (XWT). The XWT finds regions in time
+    frequency space where the time series show high common power. Torrence and
+    Compo (1998) state that the percent point function -- PPF (inverse of the
+    cumulative distribution function) of a chi-square distribution at 95%
+    confidence and two degrees of freedom is Z2(95%)=3.999. However, calculating
+    the PPF using chi2.ppf gives Z2(95%)=5.991. To ensure similar significance
+    intervals as in Grinsted et al. (2004), one has to use confidence of 86.46%.
 
-    PARAMETERS
-        x[1, 2], y[1, 2] (array like) :
-            Input data arrays to calculate cross wavelet transform.
-        significance_level (float, optional) :
-            Significance level to use. Default is 0.95.
-        normalize (boolean, optional) :
-            If set to true, normalizes CWT by the standard deviation of
-            the signals.
-        result (string, optional) :
-            If 'full' also returns intersected time-series. If set to
-            'dictionary' returns the result arrays as itens of a
-            dictionary.
-        kwargs (list) :
-            List of parameters like dt, dj, s0, J=-1 and wavelet.
-            Please refer to the wavelet.cwt function documentation for
-            further details.
+    Parameters
+    ----------
+    signal, signal2 : numpy.ndarray, list
+    Input signal array to calculate cross wavelet transform.
+    dt : float
+    Sample spacing.
+    dj : float, optional
+    Spacing between discrete scales. Default value is 0.25.
+    Smaller values will result in better scale resolution, but
+    slower calculation and plot.
+    s0 : float, optional
+    Smallest scale of the wavelet. Default value is 2*dt.
+    J : float, optional
+    Number of scales less one. Scales range from s0 up to
+    s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+    Default is J = (log2(N*dt/so))/dj.
+    wavelet : instance of a wavelet class, optional
+    Mother wavelet class. Default is Morlet wavelet.
+    significance_level : float, optional
+    Significance level to use. Default is 0.95.
+    normalize : bool, optional
+    If set to true, normalizes CWT by the standard deviation of
+    the signals.
 
-    RETURNS
-        xwt (array like) :
-            Cross wavelet transform according to the selected mother
-            wavelet.
-        x (array like) :
-            Intersected independent variable.
-        coi (array like) :
-            Cone of influence, which is a vector of N points containing
-            the maximum Fourier period of useful information at that
-            particular time. Periods greater than those are subject to
-            edge effects.
-        freqs (array like) :
-            Vector of Fourier equivalent frequencies (in 1 / time units)
-            that correspond to the wavelet scales.
-        signif (array like) :
-            Significance levels as a function of scale.
-
-    SEE ALSO
-        wavelet.cwt, wavelet.wct
+    Returns
+    -------
+    xwt (array like) :
+    Cross wavelet transform according to the selected mother
+    wavelet.
+    x (array like) :
+    Intersected independent variable.
+    coi (array like) :
+    Cone of influence, which is a vector of N points containing
+    the maximum Fourier period of useful information at that
+    particular time. Periods greater than those are subject to
+    edge effects.
+    freqs (array like) :
+    Vector of Fourier equivalent frequencies (in 1 / time units)
+    that correspond to the wavelet scales.
+    signif (array like) :
+    Significance levels as a function of scale.
 
     """
     if isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
+
     # Precision error
     e = 1e-5
     # Defines some parameters like length of both time-series, time step
@@ -420,7 +425,6 @@ def xwt(x1, y1, x2, y2, significance_level=0.95, wavelet='morlet', normalize=Tru
 
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    kwargs['result'] = 'dictionary'
     W1 = cwt(y1 / std1, **kwargs)
     kwargs['dt'] = W1['dt']
     kwargs['dj'] = W1['dj']
@@ -474,48 +478,45 @@ def xwt(x1, y1, x2, y2, significance_level=0.95, wavelet='morlet', normalize=Tru
     signif = (std1 * std2 * (Pk1 * Pk2) ** 0.5 * PPF / dof)
 
     # The resuts:
-    if result == 'dictionary':
-        result = dict(
-            XWT = W12,
-            coi = coi,
-            freqs = freqs,
-            signif = signif,
-            t = x,
-            y1 = y1,
-            y2 = y2
-        )
-        return result
-    elif result == 'full' :
-        return W12, x, coi, freqs, signif, y1, y2
-    else:
-        return W12, x, coi, freqs, signif
+    return W12, x, coi, freqs, signif
 
 
 def wct(x1, y1, x2, y2, significance_level=0.95, normalize=True, result=None,
     **kwargs):
-    """Wavelet transform coherence.
+    """
+    Calculate the wavelet coherence (WTC). The WTC finds regions in time
+    frequency space where the two time seris co-vary, but do not necessarily have
+    high power.
 
-    PARAMETERS
-        x[1, 2], y[1, 2] (array like) :
-            Input data arrays to calculate cross wavelet transform.
-        significance_level (float, optional) :
-            Significance level to use. Default is 0.95.
-        normalize (boolean, optional) :
-            If set to true, normalizes CWT by the standard deviation of
-            the signals.
-        result (string, optional) :
-            If 'full' also returns intersected time-series. If set to
-            'dictionary' returns the result arrays as itens of a
-            dictionary.
-        kwargs (dictionary) :
-            List of parameters like dt, dj, s0, J=-1 and wavelet.
-            Please refer to the wavelet.cwt function documentation for
-            further details.
+    Parameters
+    ----------
+    signal, signal2 : numpy.ndarray, list
+    Input signal array to calculate cross wavelet transform.
+    dt : float
+    Sample spacing.
+    dj : float, optional
+    Spacing between discrete scales. Default value is 0.25.
+    Smaller values will result in better scale resolution, but
+    slower calculation and plot.
+    s0 : float, optional
+    Smallest scale of the wavelet. Default value is 2*dt.
+    J : float, optional
+    Number of scales less one. Scales range from s0 up to
+    s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+    Default is J = (log2(N*dt/so))/dj.
+    significance_level (float, optional) :
+    Significance level to use. Default is 0.95.
+    normalize (boolean, optional) :
+    If set to true, normalizes CWT by the standard deviation of
+    the signals.
 
-    RETURNS
+    Returns
+    -------
+    Something : TBA and TBC
 
-    SEE ALSO
-        wavelet.cwt, wavelet.xwt
+    See also
+    --------
+    wavelet.cwt, wavelet.xwt
 
     """
     # Precision error
@@ -618,22 +619,19 @@ def wct_significance(a1, a2, significance_level=0.95, mc_count=300,
     Calculates wavelet coherence significance using Monte Carlo
     simulations with 95% confidence.
 
-    PARAMETERS
-        a1, a2 (float) :
-            Lag-1 autoregressive coeficients of both time series.
-        significance_level (float, optional) :
-            Significance level to use. Default is 0.95.
-        count (integer, optional) :
-            Number of Monte Carlo simulations. Default is 300.
-        verbose (boolean, optional) :
-            If set to true, does not print anything on screen.
-        kwargs (dictionary) :
-            List of parameters like dt, dj, s0, J=-1 and wavelet.
-            Please refer to the wavelet.cwt function documentation for
-            further details.
+    TODO: Make it work
 
-    RETURNS
+    Parameters
+    ----------
+    a1, a2 (float) :
+    Lag-1 autoregressive coeficients of both time series.
+    significance_level (float, optional) :
+    Significance level to use. Default is 0.95.
+    count (integer, optional) :
+    Number of Monte Carlo simulations. Default is 300.
 
+    Returns
+    -------
     """
     # Load cache if previously calculated. It is assumed that wavelet analysis
     # is performed using the wavelet's default parameters.

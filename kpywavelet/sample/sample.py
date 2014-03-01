@@ -647,7 +647,6 @@ wct = wavelet.wct(t1, s1, t2, s2, wavelet=mother, significance_level=0.8646, nor
 pylab.close('all')
 
 wavplot = wavplot()
-save = False
 fig = wavplot.figure(ap=dict(left=0.07, bottom=0.06, right=0.95,
     top=0.95, wspace=0.05, hspace=0.10))
 ax = fig.add_subplot(2, 1, 1)
