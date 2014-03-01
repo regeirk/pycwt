@@ -17,67 +17,7 @@ DISCLAIMER
 AUTHOR
     Sebastian Krieger
     email: sebastian@nublia.com
-
-REVISION
-    2 (2011-01-11 15:21)
-    1 (2010-12-25 20:09)
-
-REFERENCES
-    [1] Torrence, Christopher and Compo, Gilbert P. (1998). A Practical
-        Guide to Wavelet Analysis
-
 """
-
-
-## -*- coding: iso-8859-1 -*-
-#"""
-#Continuous wavelet transform plot module for Python.
-#
-#DISCLAIMER
-#    This module is based on routines provided by C. Torrence and G.
-#    Compo available at http://paos.colorado.edu/research/wavelets/, on
-#    routines provided by Aslak Grinsted, John Moore and Svetlana
-#    Jevrejeva and available at
-#    http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence, and
-#    on routines provided by A. Brazhe available at
-#    http://cell.biophys.msu.ru/static/swan/.
-#
-#    This software may be used, copied, or redistributed as long as it
-#    is not sold and this copyright notice is reproduced on each copy
-#    made. This routine is provided as is without any express or implied
-#    warranties whatsoever.
-#
-#AUTHOR
-#    Sebastian Krieger
-#    email: sebastian@nublia.com
-#
-#REVISION
-#    1 (2013-02-15 17:51 -0300)
-#
-#REFERENCES
-#    [1] Mallat, S. (2008). A wavelet tour of signal processing: The
-#        sparse way. Academic Press, 2008, 805.
-#    [2] Addison, P. S. (2002). The illustrated wavelet transform
-#        handbook: introductory theory and applications in science,
-#        engineering, medicine and finance. IOP Publishing.
-#    [3] Torrence, C. and Compo, G. P. (1998). A Practical Guide to
-#        Wavelet Analysis. Bulletin of the American Meteorological
-#        Society, American Meteorological Society, 1998, 79, 61-78.
-#    [4] Torrence, C. and Webster, P. J. (1999). Interdecadal changes in
-#        the ENSO-Monsoon system, Journal of Climate, 12(8), 2679-2690.
-#    [5] Grinsted, A.; Moore, J. C. & Jevrejeva, S. (2004). Application
-#        of the cross wavelet transform and wavelet coherence to
-#        geophysical time series. Nonlinear Processes in Geophysics, 11,
-#        561-566.
-#    [6] Liu, Y.; Liang, X. S. and Weisberg, R. H. (2007). Rectification
-#        of the bias in the wavelet power spectrum. Journal of
-#        Atmospheric and Oceanic Technology, 24(12), 2093-2102.
-#
-#"""
-#
-#__version__ = '$Revision: 1 $'
-## $Source$
-#
 from __future__ import division, absolute_import
 import numpy
 import pylab
@@ -169,15 +109,15 @@ class wavplot(object):
         wave, scales, freqs, coi, fft, fftfreqs = cwt
         signif, fft_theor = sig
         #
-        if 'std' in kwargs.keys():
-            std = kwargs['std']
-        else:
-            std = f.std() # calculates standard deviation ...
-        std2 = std ** 2   # ... and variance
+#        if 'std' in kwargs.keys():
+#            std = kwargs['std']
+#        else:
+#            std = f.std() # calculates standard deviation ...
+#        std2 = std ** 2   # ... and variance
         #
         period = 1. / freqs
         power = (abs(wave)) ** 2 # normalized wavelet power spectrum
-        fft_power = std2 * abs(fft) ** 2 # FFT power spectrum
+#        fft_power = std2 * abs(fft) ** 2 # FFT power spectrum
         sig95 = numpy.ones([1, N]) * signif[:, None]
         sig95 = power / sig95 # power is significant where ratio > 1
         if rectify:
@@ -242,7 +182,7 @@ class wavplot(object):
 
         return result
 
-    def xwt(self, *args, **kwargs):
+    def xwt(self, t, xwt, coi, freqs, signif, **kwargs):
         """Plots the cross wavelet power spectrum and phase arrows.
         function.
 
@@ -278,7 +218,6 @@ class wavplot(object):
 
         """
         # Sets some parameters and renames some of the input variables.
-        xwt, t, coi, freqs, signif = args[:5]
         if 'scale' in kwargs.keys():
             scale = kwargs['scale']
         else:
@@ -286,8 +225,11 @@ class wavplot(object):
 
         N = len(t)
         dt = t[1] - t[0]
-        period = 1. / freqs
-        power = abs(xwt)
+        try:
+            period = 1 / freqs
+        except:
+            print freqs
+        power = numpy.abs(xwt)
         sig95 = numpy.ones([1, N]) * signif[:, None]
         sig95 = power / sig95 # power is significant where ratio > 1
 
@@ -346,7 +288,7 @@ class wavplot(object):
         cf = ax.contourf(t, numpy.log2(period), Power, Levels, extend=extend)
         ax.contour(t, numpy.log2(period), sig95, [-99, 1], colors='k',
             linewidths=2.)
-        q = ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
+        ax.quiver(t[::da[1]], numpy.log2(period)[::da[0]], u[::da[0], ::da[1]],
             v[::da[0], ::da[1]], units='width', angles='uv', pivot='mid',
             linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
             headaxislength=5, minshaft=2, minlength=5)
@@ -370,7 +312,6 @@ class wavplot(object):
 # and uncomment the respective fname, title, label, t0, dt and units variables
 # to see the different results. t0 is the starting time, dt is the temporal
 # sampling step
-#
 sample = 'NINO3' # Either NINO3, MAUNA, MONSOON, SUNSPOTS or SOI
 if sample == 'NINO3':
     title = 'NINO3 Sea Surface Temperature (seasonal)'
@@ -422,14 +363,14 @@ var = (var - var.mean()) / std       # Calculating anomaly and normalizing
 N = var.size                         # Number of measurements
 time = numpy.arange(0, N) * dt + t0  # Time array in years
 
-dj = 0.25                            # Four sub-octaves per octaves
+dj = 1/12                            # Four sub-octaves per octaves
 s0 = -1 #2 * dt                      # Starting scale, here 6 months
 J = -1  #7 / dj                      # Seven powers of two with dj sub-octaves
 alpha = 0.0                          # Lag-1 autocorrelation for white noise
 #alpha, _, _ = wavelet.ar1(var)
 
-mother = wavelet.Morlet(6.)          # Morlet mother wavelet with wavenumber=6
-#mother = wavelet.Mexican_hat()       # Mexican hat wavelet, or DOG with m=2
+mother = wavelet.Morlet(6) #i.e Morlet mother wavelet with wavenumber=6
+#mother = 'wavelet.Mexican_hat()'MexicanHat'       # Mexican hat wavelet, or DOG with m=2
 #mother = wavelet.Paul(4)             # Paul wavelet with order m=4
 #mother = wavelet.DOG(6)              # Derivative of the Gaussian, with m=6
 
@@ -438,8 +379,8 @@ mother = wavelet.Morlet(6.)          # Morlet mother wavelet with wavenumber=6
 wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
                                                       mother)
 iwave = wavelet.icwt(wave, scales, dt, dj, mother)
-power = (abs(wave)) ** 2             # Normalized wavelet power spectrum
-fft_power = std2 * abs(fft) ** 2     # FFT power spectrum
+power = (numpy.abs(wave)) ** 2             # Normalized wavelet power spectrum
+fft_power = std2 * numpy.abs(fft) ** 2     # FFT power spectrum
 period = 1. / freqs
 
 signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
@@ -548,10 +489,7 @@ ax.set_xlim([time.min(), time.max()])
 pylab.draw()
 pylab.show()
 
-###
-###
-"""
-"""
+### XWT and CWT
 # Important parameters
 data1 = dict(
     name = 'Arctic Oscillation',
@@ -630,6 +568,26 @@ cwt2 = wavelet.cwt(s2 / std2, dt, wavelet=mother)
 sig2 = wavelet.significance(1.0, dt, cwt2[1], 0, data1['alpha'],
     wavelet=mother)
 
+
+# If both time series are different, determines the intersection of both
+# to ensure same data length.
+#x = numpy.intersect1d(t1, t2)
+#idx = dict((k, i) for i, k in enumerate(s1))
+#sel1 = [idx[i] for i in x]
+#idx = dict((k, i) for i, k in enumerate(s2))
+#sel2 = [idx[i] for i in x]
+
+s2 = s2[numpy.argwhere(t2==min(t1)):-2]
+
+#
+#y1 = y1[sel1[0]:sel1[-1]+1]
+#W1['W'] = W1['W'][:, sel1[0]:sel1[-1]+1]
+#W1['coi'] = W1['coi'][sel1[0]:sel1[-1]+1]
+#y2 = y2[sel2[0]:sel2[-1]+1]
+#W2['W'] = W2['W'][:, sel2[0]:sel2[-1]+1]
+#W2['coi'] = W2['coi'][sel2[0]:sel2[-1]+1]
+
+
 # Calculate the cross wavelet transform (XWT). The XWT finds regions in time
 # frequency space where the time series show high common power. Torrence and
 # Compo (1998) state that the percent point function -- PPF (inverse of the
@@ -637,12 +595,16 @@ sig2 = wavelet.significance(1.0, dt, cwt2[1], 0, data1['alpha'],
 # confidence and two degrees of freedom is Z2(95%)=3.999. However, calculating
 # the PPF using chi2.ppf gives Z2(95%)=5.991. To ensure similar significance
 # intervals as in Grinsted et al. (2004), one has to use confidence of 86.46%.
-xwt = wavelet.xwt(t1, s1, t2, s2, wavelet=mother, significance_level=0.8646, normalize=True)
+xwt = wavelet.xwt(s1, s2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.8646,
+        wavelet='morlet', normalize=True)
+
+#t1, s1, t2, s2, wavelet=mother, significance_level=0.8646, normalize=True)
 
 # Calculate the wavelet coherence (WTC). The WTC finds regions in time
 # frequency space where the two time seris co-vary, but do not necessarily have
 # high power.
-wct = wavelet.wct(t1, s1, t2, s2, wavelet=mother, significance_level=0.8646, normalize=True)
+wct = wavelet.wct(s1, s2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.8646,
+        wavelet='morlet', normalize=True)
 # Do the plotting!
 pylab.close('all')
 
@@ -659,7 +621,7 @@ if save:
 
 fig = wavplot.figure(fp=dict())
 ax = fig.add_subplot(1, 1, 1)
-fig, ax = wavplot.xwt(*xwt, fig=fig, ax=ax, extend='both')
+fig, ax = wavplot.xwt(t1, xwt[0], xwt[1], xwt[2], xwt[3], fig=fig, ax=ax, extend='both')
 ax.set_xlim = ([xwt[1].min(), xwt[1].max()])
 if save:
     fig.savefig('sample_ao-bmi_xwt.png')
@@ -667,8 +629,8 @@ if save:
 
 fig = wavplot.figure(fp=dict())
 ax = fig.add_subplot(1, 1, 1)
-fig, ax = wavplot.xwt(*wct, fig=fig, ax=ax, extend='neither',
-    crange=numpy.arange(0, 1.1, 0.1), scale='linear', angle=wct[5])
+fig, ax = wavplot.xwt(t1, wct[0], wct[1], wct[2], wct[3], fig=fig, ax=ax, extend='neither',
+    crange=numpy.arange(0, 1.1, 0.1), scale='linear', angle=numpy.angle(xwt[0]))
 ax.set_xlim = ([wct[1].min(), wct[1].max()])
 if save:
     fig.savefig('sample_ao-bmi_wct.png')
