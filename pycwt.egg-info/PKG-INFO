@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
-Name: kpywavelet
-Version: 0.4a
+Name: pycwt
+Version: 0.1
 Summary: Continuous wavelet transform module for Python.
 Home-page: https://github.com/regeirk/kPyWavelet
 Author: Sebastian

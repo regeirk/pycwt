@@ -1,5 +1,5 @@
 """
-kPyWavelet
+PyCWT
 ==========
 
 Continuous wavelet transform module for Python.
@@ -17,6 +17,6 @@ sample
 TBA
 
 """
-__version__ = '0.4a'
+__version__ = '0.1'
 
 from . wavelet import *

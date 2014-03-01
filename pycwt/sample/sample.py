@@ -410,7 +410,7 @@ scale_avg_signif, tmp = wavelet.significance(std2, dt, scales, 2, alpha,
 # and Fourier spectra and finally the range averaged wavelet spectrum. In all
 # sub-plots the significance levels are either included as dotted lines or as
 # filled contour lines.
-pylab.close('all')
+#pylab.close('all')
 pylab.ion()
 fontsize = 'medium'
 params = {'text.fontsize': fontsize,
