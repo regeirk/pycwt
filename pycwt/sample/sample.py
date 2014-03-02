@@ -22,7 +22,7 @@ from __future__ import division, absolute_import
 import numpy
 import pylab
 from matplotlib import pyplot
-import kpywavelet as wavelet
+import pycwt as wavelet
 
 class wavplot(object):
     def __init__(self,show=False):
