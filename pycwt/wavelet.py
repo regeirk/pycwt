@@ -47,12 +47,14 @@ REFERENCES
         Atmospheric and Oceanic Technology, 24(12), 2093-2102.
 
 """
-from __future__ import division, absolute_import
+from __future__ import division, absolute_import, print_function
 
-from os import makedirs
-from os.path import expanduser
-from sys import stdout
-from time import time
+import os
+
+try:
+    import progressbar as pg
+except ImportError:
+    pg = None
 
 import numpy as np
 import scipy.fftpack as fft
@@ -448,7 +450,7 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
 
 def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
-        wavelet='morlet', normalize=True):
+        wavelet='morlet', normalize=True, **kwargs):
     """
     Calculate the wavelet coherence (WTC). The WTC finds regions in time
     frequency space where the two time seris co-vary, but do not necessarily have
@@ -521,7 +523,7 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     scales = np.ones([1, signal.size]) * sj[:, None]
     S12 = wavelet.smooth(W12 / scales, dt, dj, sj)
     WCT = np.abs(S12) ** 2 / (S1 * S2)
-#    aWCT = np.angle(W12)
+    aWCT = np.angle(W12)
 
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
@@ -529,13 +531,14 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     a2, _, _ = ar1(signal)
     sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
                            significance_level=significance_level,
-                           wavelet=wavelet, mc_count=300, verbose=False)
+                           wavelet=wavelet, **kwargs)
 
-    return WCT, coi, freq, sig#, aWCT
+    return WCT, aWCT, coi, freq, sig
 
 
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
-                     mc_count=300, verbose=False):
+                     mc_count=300, progress=True, cache=True,
+                     cache_dir='~/.pycwt/'):
     """
     Calculates wavelet coherence significance using Monte Carlo
     simulations with 95% confidence.
@@ -553,45 +556,50 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
     Returns
     -------
     """
-    # Load cache if previously calculated. It is assumed that wavelet analysis
-    # is performed using the wavelet's default parameters.
-    aa = np.round(np.arctanh(np.array([al1, al2]) * 4))
-    aa = np.abs(aa) + 0.5 * (aa < 0)
-    cache = 'cache_%0.5f_%0.5f_%0.5f_%0.5f_%d_%s' % (aa[0], aa[1], dj,
-        s0/dt, J, wavelet.name)
-    cached = '%s/.klib/wavelet' % (expanduser("~"))
-    try:
-        dat = np.loadtxt('%s/%s.gz' % (cached, cache), unpack=True)
-        stdout.write ("\n\n NOTE: Loading from cache\n\n")
-        return dat[:, 0]
-    except:
-        pass
+    if progress and pg is None:
+        raise ImportError('Progressbar is not installed')
+
+    if cache:
+        # Load cache if previously calculated. It is assumed that wavelet analysis
+        # is performed using the wavelet's default parameters.
+        aa = np.round(np.arctanh(np.array([al1, al2]) * 4))
+        aa = np.abs(aa) + 0.5 * (aa < 0)
+        cache = 'cache_{:0.5f}_{:0.5f}_{:0.5f}_{:0.5f}_{:d}_{}'.format(aa[0],
+                                                 aa[1], dj, s0/dt, J, wavelet.name)
+        cached = os.path.expanduser(os.path.join(cache_dir,'wct_sig'))
+        try:
+            dat = np.loadtxt('%s/%s.gz' % (cached, cache), unpack=True)
+            print("\n\nNOTE: Loading from cache\n\n")
+#            import pdb; pdb.set_trace()
+            return dat
+        except IOError:
+            pass
+
     # Some output to the screen
-    if not verbose:
-        vS = 'Calculating wavelet coherence significance'
-        vs = '%s...' % (vS)
-        stdout.write(vs)
-        stdout.flush()
+    if progress:
+        print('Calculating wavelet coherence significance')
+        widgets = [pg.Percentage(), ' ', pg.Bar(), ' ', pg.ETA()]
+        pbar = pg.ProgressBar(widgets=widgets, maxval=mc_count)
+        pbar.start()
+
     # Choose N so that largest scale has at least some part outside the COI
     ms = s0 * (2 ** (J * dj)) / dt
     N = np.ceil(ms * 6)
     noise1 = rednoise(N, al1, 1)
     nW1, sj, freq, coi, sig_fft, fft_freq  = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    #
+
     period = np.ones([1, N]) / freq[:, None]
     coi = np.ones([J+1, 1]) * coi[None, :]
     outsidecoi = (period <= coi)
     scales = np.ones([1, N]) * sj[:, None]
-    #
+
     sig95 = np.zeros(J + 1)
     maxscale = find(outsidecoi.any(axis=1))[-1]
     sig95[outsidecoi.any(axis=1)] = np.nan
-    #
+
     nbins = 1000
     wlc = np.ma.zeros([J+1, nbins])
-    t1 = time()
     for i in range(mc_count):
-        t2 = time()
         # Generates two red-noise signals with lag-1 autoregressive
         # coefficients given by a1 and a2
         noise1 = rednoise(N, al1, 1)
@@ -615,11 +623,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
             for j, t in enumerate(cd[~cd.mask]):
                 wlc[s, t] += 1
         # Outputs some text to screen if desired
-        if not verbose:
-            stdout.write(len(vs) * '\b')
-            vs = '%s... %s ' % (vS, profiler(mc_count, i + 1, 0, t1, t2))
-            stdout.write(vs)
-            stdout.flush()
+        if progress:
+            pbar.update(i + 1)
 
     # After many, many, many Monte Carlo simulations, determine the
     # significance using the coherence coefficient counter percentile.
@@ -631,93 +636,13 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
         P = (P - 0.5) / P[-1]
         sig95[s] = np.interp(significance_level, P, R2y[sel])
 
-    # Save the results on cache to avoid to many computations in the future
-    try:
-        makedirs(cached)
-    except:
-        pass
-    np.savetxt('%s/%s.gz' % (cached, cache), sig95)
+    if cache:
+        # Save the results on cache to avoid to many computations in the future
+        try:
+            os.makedirs(cached)
+        except OSError:
+            pass
+        np.savetxt('%s/%s.gz' % (cached, cache), sig95)
 
     # And returns the results
     return sig95
-
-
-def profiler(N, n, t0, t1, t2):
-    """Profiles the module usage.
-
-    PARAMETERS
-        N, n (int) :
-            Number of total elements (N) and number of overall elements
-            completed (n).
-        t0, t1, t2 (float) :
-            Time since the Epoch in seconds for the current module
-            (t0), subroutine (t1) and step (t2).
-    RETURNS
-        s (string) :
-            String containing the analysis result.
-
-    EXAMPLE
-
-    """
-    n, N = float(n), float(N)
-    perc = n / N * 100.
-    elap0 = s2hms(time() - t0)[3]
-    elap1 = s2hms(time() - t1)[3]
-    elap2 = s2hms(time() - t2)[3]
-    try:
-        togo = s2hms(-(N - n) / n * (time()-t1))[3]
-    except:
-        togo = '?h??m??s'
-
-    if t0 == 0:
-        s = '%.1f%%, %s (%s, %s)' % (perc, elap1, togo, elap2)
-    elif (t1 == 0) and (t2 == 0):
-        s = '%.1f%%, %s' % (perc, elap0)
-    else:
-        s = '%.1f%%, %s (%s, %s, %s)' % (perc, elap1, togo, elap0, elap2)
-    return s
-
-
-def s2hms(t) :
-    """Converts seconds to hour, minutes and seconds.
-
-    PARAMETERS
-        t (float) :
-            Seconds value to convert
-
-    RETURNS
-        hh, mm, ss (float) :
-            Calculated hour, minute and seconds
-        s (string) :
-            Formated output string.
-
-    EXAMPLE
-        hh, mm, ss, s = s2hms(123.45)
-
-    """
-    if t < 0:
-        sign = -1
-        t = -t
-    else:
-        sign = 1
-    hh = int(t / 3600.)
-    t -= hh * 3600.
-    mm = int(t / 60)
-    ss = t - (mm * 60.)
-    dd = int(hh / 24.)
-    HH = hh - dd * 24.
-
-    if (hh > 0) | (mm > 0):
-        s = '%04.1fs' % (ss)
-        if hh > 0:
-            s = '%dh%02dm%s' % (HH, mm, s)
-            if dd > 0:
-                s = '%dd%s' % (dd, s)
-        else:
-            s = '%dm%s' % (mm, s)
-    else:
-        s = '%.1fs' % (ss)
-    if sign == -1:
-        s = '-%s' % (s)
-    #
-    return (hh, mm, ss, s)
