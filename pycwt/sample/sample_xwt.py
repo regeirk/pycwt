@@ -164,8 +164,8 @@ WCT, aWCT, corr_coi, freq, sig = wavelet.wct(s1, s2, dt, dj=1/12, s0=-1, J=-1,
                                         significance_level=0.8646, wavelet='morlet',
                                         normalize=True)
 
-cor_sig = np.ones([1, n]) * signif[:, None]
-cor_sig = cross_power / cross_sig # power is significant where ratio > 1
+cor_sig = np.ones([1, n]) * sig[:, None]
+cor_sig = np.abs(WCT) / cor_sig # power is significant where ratio > 1
 cor_period = 1/freq
 
 # Calculates the phase between both time series. The phase arrows in the

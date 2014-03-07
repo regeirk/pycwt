@@ -215,18 +215,20 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     Parameters
     ----------
     signal : array like, float
-    Input signal array. If a float number is given, then the
-    variance is assumed to have this value. If an array is
-    given, then its variance is automatically computed.
+        Input signal array. If a float number is given, then the
+        variance is assumed to have this value. If an array is
+        given, then its variance is automatically computed.
     dt : float, optional
-    Sample spacing. Default is 1.0.
+        Sample spacing. Default is 1.0.
     scales : array like
-    Vector of scale indices given returned by cwt function.
+        Vector of scale indices given returned by cwt function.
     sigma_test : int, optional
-    Sets the type of significance test to be performed.
-    Accepted values are 0, 1 or 2. If omitted assume 0.
+        Sets the type of significance test to be performed.
+        Accepted values are 0, 1 or 2. If omitted assume 0.
 
-    If set to 0, performs a regular chi-square test, according
+    Notes
+    -----
+    If sigma_test is set to 0, performs a regular chi-square test, according
     to Torrence and Compo (1998) equation 18.
 
     If set to 1, performs a time-average test (equation 23). In
@@ -361,44 +363,43 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     Parameters
     ----------
     signal, signal2 : numpy.ndarray, list
-    Input signal array to calculate cross wavelet transform.
+        Input signal array to calculate cross wavelet transform.
     dt : float
-    Sample spacing.
+        Sample spacing.
     dj : float, optional
-    Spacing between discrete scales. Default value is 0.25.
-    Smaller values will result in better scale resolution, but
-    slower calculation and plot.
+        Spacing between discrete scales. Default value is 0.25.
+        Smaller values will result in better scale resolution, but
+        slower calculation and plot.
     s0 : float, optional
-    Smallest scale of the wavelet. Default value is 2*dt.
+        Smallest scale of the wavelet. Default value is 2*dt.
     J : float, optional
-    Number of scales less one. Scales range from s0 up to
-    s0 * 2**(J * dj), which gives a total of (J + 1) scales.
-    Default is J = (log2(N*dt/so))/dj.
+        Number of scales less one. Scales range from s0 up to
+        s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+        Default is J = (log2(N*dt/so))/dj.
     wavelet : instance of a wavelet class, optional
-    Mother wavelet class. Default is Morlet wavelet.
-    significance_level : float, optional
-    Significance level to use. Default is 0.95.
+        Mother wavelet class. Default is Morlet wavelet.
+        significance_level : float, optional
+        Significance level to use. Default is 0.95.
     normalize : bool, optional
-    If set to true, normalizes CWT by the standard deviation of
-    the signals.
+        If set to true, normalizes CWT by the standard deviation of
+        the signals.
 
     Returns
     -------
-    xwt (array like) :
-    Cross wavelet transform according to the selected mother
-    wavelet.
-    x (array like) :
-    Intersected independent variable.
-    coi (array like) :
-    Cone of influence, which is a vector of N points containing
-    the maximum Fourier period of useful information at that
-    particular time. Periods greater than those are subject to
-    edge effects.
-    freqs (array like) :
-    Vector of Fourier equivalent frequencies (in 1 / time units)
-    that correspond to the wavelet scales.
-    signif (array like) :
-    Significance levels as a function of scale.
+    xwt (array like):
+        Cross wavelet transform according to the selected mother wavelet.
+    x (array like):
+        Intersected independent variable.
+    coi (array like):
+        Cone of influence, which is a vector of N points containing
+        the maximum Fourier period of useful information at that
+        particular time. Periods greater than those are subject to
+        edge effects.
+    freqs (array like):
+        Vector of Fourier equivalent frequencies (in 1 / time units)
+        that correspond to the wavelet scales.
+    signif (array like):
+        Significance levels as a function of scale.
 
     """
     if isinstance(wavelet, str):
@@ -459,24 +460,24 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     Parameters
     ----------
     signal, signal2 : numpy.ndarray, list
-    Input signal array to calculate cross wavelet transform.
+        Input signal array to calculate cross wavelet transform.
     dt : float
-    Sample spacing.
+        Sample spacing.
     dj : float, optional
-    Spacing between discrete scales. Default value is 0.25.
-    Smaller values will result in better scale resolution, but
-    slower calculation and plot.
+        Spacing between discrete scales. Default value is 0.25.
+        Smaller values will result in better scale resolution, but
+        slower calculation and plot.
     s0 : float, optional
-    Smallest scale of the wavelet. Default value is 2*dt.
+        Smallest scale of the wavelet. Default value is 2*dt.
     J : float, optional
-    Number of scales less one. Scales range from s0 up to
-    s0 * 2**(J * dj), which gives a total of (J + 1) scales.
-    Default is J = (log2(N*dt/so))/dj.
+        Number of scales less one. Scales range from s0 up to
+        s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+        Default is J = (log2(N*dt/so))/dj.
     significance_level (float, optional) :
-    Significance level to use. Default is 0.95.
+        Significance level to use. Default is 0.95.
     normalize (boolean, optional) :
-    If set to true, normalizes CWT by the standard deviation of
-    the signals.
+        If set to true, normalizes CWT by the standard deviation of
+        the signals.
 
     Returns
     -------
@@ -546,12 +547,12 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
 
     Parameters
     ----------
-    a1, a2 (float) :
-    Lag-1 autoregressive coeficients of both time series.
-    significance_level (float, optional) :
-    Significance level to use. Default is 0.95.
-    count (integer, optional) :
-    Number of Monte Carlo simulations. Default is 300.
+    a1, a2: float
+        Lag-1 autoregressive coeficients of both time series.
+    significance_level (optional): float
+        Significance level to use. Default is 0.95.
+    count (optional): integer
+        Number of Monte Carlo simulations. Default is 300.
 
     Returns
     -------
@@ -568,9 +569,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
                                                  aa[1], dj, s0/dt, J, wavelet.name)
         cached = os.path.expanduser(os.path.join(cache_dir,'wct_sig'))
         try:
-            dat = np.loadtxt('%s/%s.gz' % (cached, cache), unpack=True)
+            dat = np.loadtxt('{}/{}.gz'.format(cached, cache), unpack=True)
             print("\n\nNOTE: Loading from cache\n\n")
-#            import pdb; pdb.set_trace()
             return dat
         except IOError:
             pass
@@ -586,7 +586,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
     ms = s0 * (2 ** (J * dj)) / dt
     N = np.ceil(ms * 6)
     noise1 = rednoise(N, al1, 1)
-    nW1, sj, freq, coi, sig_fft, fft_freq  = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    nW1, sj, freq, coi, sig_fft, fft_freq  = cwt(noise1, dt=dt, dj=dj, s0=s0,
+                                                 J=J, wavelet=wavelet)
 
     period = np.ones([1, N]) / freq[:, None]
     coi = np.ones([J+1, 1]) * coi[None, :]
@@ -605,8 +606,10 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
         noise1 = rednoise(N, al1, 1)
         noise2 = rednoise(N, al2, 1)
         # Calculate the cross wavelet transform of both red-noise signals
-        nW1, sj, freq, coi, sig_fft, fft_freq = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-        nW2, sj, freq, coi, sig_fft, fft_freq = cwt(noise2, dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+        nW1, sj, freq, coi, sig_fft, fft_freq = cwt(noise1, dt=dt, dj=dj,
+                                                    s0=s0, J=J, wavelet=wavelet)
+        nW2, sj, freq, coi, sig_fft, fft_freq = cwt(noise2, dt=dt, dj=dj,
+                                                    s0=s0, J=J, wavelet=wavelet)
         nW12 = nW1 * nW2.conj()
         # Smooth wavelet wavelet transforms and calculate wavelet coherence
         # between both signals.
@@ -642,7 +645,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
             os.makedirs(cached)
         except OSError:
             pass
-        np.savetxt('%s/%s.gz' % (cached, cache), sig95)
+        np.savetxt('{}/{}.gz'.format(cached, cache), sig95)
 
     # And returns the results
     return sig95
