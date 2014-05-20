@@ -28,7 +28,7 @@ INSTALLATION
     Copy all the contents into a location included in the Python search
     path. On Linux distribution one such option is
 
-        ~/.local/lib/python2.x/site-packages/kPyWavelet
+        ~/.local/lib/python2.x/site-packages/pycwt
 
 COMMENTS
     There is an errata page at the wavelet website maintaned at the Program 
