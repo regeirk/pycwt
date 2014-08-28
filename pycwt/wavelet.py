@@ -536,7 +536,7 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
     return WCT, aWCT, coi, freq, sig
 
-
+@profile
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
                      mc_count=300, progress=True, cache=True,
                      cache_dir='~/.pycwt/'):
@@ -621,6 +621,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
         R2 = np.ma.array(np.abs(S12) ** 2 / (S1 * S2), mask=~outsidecoi)
         # Walks through each scale outside the cone of influence and builds a
         # coherence coefficient counter.
+        ## THIS LOOP IS THE SLOWEST PART OF THIS CODE!
         for s in range(maxscale):
             cd = np.floor(R2[s, :] * nbins)
             for j, t in enumerate(cd[~cd.mask]):
