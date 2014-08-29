@@ -128,6 +128,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
     if J == -1: J = np.int(np.round(np.log2(n0 * dt / s0) / dj))  # Number of scales
     N = 2 ** (np.int(np.round(np.log2(n0)) + 1))                  # Next higher power of 2.
+    ## CALLS TO THE FFT ARE ALSO SLOW.
     signal_ft = fft.fft(signal, N)                    # Signal Fourier transform
     ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)             # Fourier angular frequencies
 
@@ -137,6 +138,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     # Creates an empty wavlet transform matrix and fills it for every discrete
     # scale using the convolution theorem.
     W = np.zeros((len(sj), N), 'complex')
+    ##THIS IS THE SLOWEST PART OF THIS CODE.
     for n, s in enumerate(sj):
         psi_ft_bar = ((s * ftfreqs[1] * N) ** .5 *
             np.conjugate(wavelet.psi_ft(s * ftfreqs)))
@@ -147,7 +149,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     sel = np.invert(np.isnan(W).all(axis=1))
     sj = sj[sel]
     freqs = freqs[sel]
-    W = W[sel, :]
+    W = W[sel, :] ##SLOW
 
     # Determines the cone-of-influence. Note that it is returned as a function
     # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
@@ -156,7 +158,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
 
     return W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,\
-           ftfreqs[1:N/2] / (2 * np.pi)
+           ftfreqs[1:N/2] / (2 * np.pi) ##SLOW HERE AS WELL
 
 
 def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
@@ -536,7 +538,6 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
     return WCT, aWCT, coi, freq, sig
 
-@profile
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
                      mc_count=300, progress=True, cache=True,
                      cache_dir='~/.pycwt/'):
