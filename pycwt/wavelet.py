@@ -200,7 +200,7 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
     elif b == c:
         sj = np.ones([a, 1]) * sj
     else:
-        raise Warning, 'Input array dimensions do not match.'
+        raise Warning('Input array dimensions do not match.')
 
     # As of Torrence and Compo (1998), eq. (11)
     iW = dj * np.sqrt(dt) / wavelet.cdelta * wavelet.psi(0) * (np.real(W) / sj).sum(axis=0)
@@ -319,17 +319,17 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
             signif[n] = fft_theor[n] * chisquare
     elif sigma_test == 2:  # Time-averaged significance
         if len(dof) != 2:
-            raise Exception, ('DOF must be set to [s1, s2], '
+            raise Exception('DOF must be set to [s1, s2], '
                               'the range of scale-averages')
         if Cdelta == -1:
-            raise Exception, ('Cdelta and dj0 not defined for %s with f0=%f' %
+            raise Exception('Cdelta and dj0 not defined for %s with f0=%f' %
                              (wavelet.name, wavelet.f0))
 
         s1, s2 = dof
         sel = find((scales >= s1) & (scales <= s2));
         navg = sel.size
         if navg == 0:
-            raise Exception, 'No valid scales between %d and %d.' % (s1, s2)
+            raise Exception('No valid scales between %d and %d.' % (s1, s2))
 
         # As in Torrence and Compo (1998), equation 25
         Savg = 1 / sum(1. / scales[sel])
@@ -344,7 +344,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
         # As in Torrence and Compo (1998), equation 26
         signif = (dj * dt / Cdelta / Savg) * fft_theor * chisquare
     else:
-        raise Exception, 'sigma_test must be either 0, 1, or 2.'
+        raise Exception('sigma_test must be either 0, 1, or 2.')
 
     return signif, fft_theor
 
@@ -450,7 +450,7 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     return W12, coi, freq, signif
 
 
-def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
+def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, sig=True, significance_level=0.95,
         wavelet='morlet', normalize=True, **kwargs):
     """
     Calculate the wavelet coherence (WTC). The WTC finds regions in time
@@ -528,11 +528,14 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
-    a1, _, _ = ar1(signal)
-    a2, _, _ = ar1(signal)
-    sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
+    a1, b1, c1 = ar1(signal)
+    a2, b2, c2 = ar1(signal)
+    if sig:
+        sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
                            significance_level=significance_level,
                            wavelet=wavelet, **kwargs)
+    else:
+        sig = np.asarray([0])
 
     return WCT, aWCT, coi, freq, sig
 

@@ -162,7 +162,7 @@ cross_period = 1/freq
 # high power.
 WCT, aWCT, corr_coi, freq, sig = wavelet.wct(s1, s2, dt, dj=1/12, s0=-1, J=-1,
                                         significance_level=0.8646, wavelet='morlet',
-                                        normalize=True)
+                                        normalize=True, cache=True)
 
 cor_sig = np.ones([1, n]) * sig[:, None]
 cor_sig = np.abs(WCT) / cor_sig # power is significant where ratio > 1
@@ -180,6 +180,10 @@ angle = 0.5 * np.pi - aWCT
 u, v = np.cos(angle), np.sin(angle)
 
 fig, (ax1, ax2) = plt.subplots(nrows=2,ncols=1, sharex=True, sharey=True)
+fig.subplots_adjust(right=0.8)
+cbar_ax = fig.add_axes([0.85, 0.55, 0.05, 0.35])
+cbar_ax_1 = fig.add_axes([0.85, 0.05, 0.05, 0.35])
+
 
 extent_cross = [t1.min(),t1.max(),0,max(cross_period)]
 extent_corr =  [t1.min(),t1.max(),0,max(cor_period)]
@@ -195,6 +199,7 @@ ax1.quiver(t1[::3], cross_period[::3], u[::3, ::3],
           v[::3, ::3], units='width', angles='uv', pivot='mid',
           linewidth=1.5, edgecolor='k', headwidth=10, headlength=10,
           headaxislength=5, minshaft=2, minlength=5)
+fig.colorbar(im1, cax=cbar_ax)
 
 im2 = NonUniformImage(ax2, interpolation='bilinear', extent=extent_corr)
 im2.set_data(t1, cor_period, WCT)
@@ -208,4 +213,5 @@ ax2.quiver(t1[::3], cor_period[::3], u[::3,::3], v[::3,::3],
            units='height', angles='uv', pivot='mid',linewidth=1.5, edgecolor='k',
            headwidth=10, headlength=10, headaxislength=5, minshaft=2, minlength=5)
 ax2.set_ylim(2,35)
+fig.colorbar(im2, cax=cbar_ax_1)
 plt.show()
