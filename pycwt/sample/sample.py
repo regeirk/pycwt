@@ -90,17 +90,17 @@ mother = wavelet.Morlet(6)           # Morlet mother wavelet with m=6
 
 # The following routines perform the wavelet transform and siginificance
 # analysis for the chosen data set.
-wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var, dt, dj, s0, J,
+wave, scales, freqs, coi, = wavelet.cwt(var, dt, dj, s0, J,
                                                       mother)
 iwave = wavelet.icwt(wave, scales, dt, dj, mother)
-power = (np.abs(wave)) ** 2             # Normalized wavelet power spectrum
-fft_power = std2 * np.abs(fft) ** 2     # FFT power spectrum
-period = 1. / freqs
+power = (np.abs(wave)) ** 2  # Normalized wavelet power spectrum
+period = 1/ freqs
 
 signif, fft_theor = wavelet.significance(1.0, dt, scales, 0, alpha,
                         significance_level=slevel, wavelet=mother)
 sig95 = np.ones([1, N]) * signif[:, None]
 sig95 = power / sig95                # Where ratio > 1, power is significant
+power /= scales[:, None]
 
 # Calculates the global wavelet spectrum and determines its significance level.
 glbl_power = std2 * power.mean(axis=1)
@@ -141,7 +141,7 @@ extent = [time.min(),time.max(),0,max(period)]
 # contour lines and cone of influece hatched area.
 bx = plt.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
 im = NonUniformImage(bx, interpolation='bilinear', extent=extent)
-im.set_data(time, period, power)
+im.set_data(time, period, power/scales[:, None])
 bx.images.append(im)
 bx.contour(time, period, sig95, [-99, 1], colors='k', linewidths=2, extent=extent)
 bx.fill(np.concatenate([time, time[-1:]+dt, time[-1:]+dt,time[:1]-dt, time[:1]-dt]),
@@ -155,8 +155,6 @@ bx.set_ylabel('Period (years)')
 # noise spectra.
 cx = plt.axes([0.77, 0.37, 0.2, 0.28], sharey=bx)
 cx.plot(glbl_signif, (period), 'k--')
-cx.plot(fft_power, (1./fftfreqs), '-', color=[0.7, 0.7, 0.7],
-        linewidth=1.)
 cx.plot(glbl_power, (period), 'k-', linewidth=1.5)
 cx.set_title('c) Global Wavelet Spectrum')
 if units != '':

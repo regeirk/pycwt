@@ -11,7 +11,6 @@ except ImportError:
 import numpy as np
 import scipy.fftpack as fft
 from scipy.stats import chi2
-
 from .helpers import find, ar1, ar1_spectrum, rednoise
 from .mothers import Morlet, Paul, DOG, MexicanHat
 
@@ -73,7 +72,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     0.25, 0.25, 0.5, 28, mother)
 
     """
-    if isinstance(wavelet, str):
+    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
 
     n0 = len(signal)                              # Original signal length.
@@ -109,8 +108,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     coi = (n0 / 2 - np.abs(np.arange(0, n0) - (n0 - 1) / 2))
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
 
-    return W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5,\
-           ftfreqs[1:N/2] / (2 * np.pi) ##SLOW HERE AS WELL
+    return W[:, :n0], sj, freqs, coi
 
 
 def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
@@ -144,7 +142,7 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
     iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
 
     """
-    if isinstance(wavelet, str):
+    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
 
     a, b = W.shape
@@ -215,7 +213,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     Theoretical red-noise spectrum as a function of period.
 
     """
-    if isinstance(wavelet, str):
+    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
 
     try:
@@ -356,7 +354,7 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
         Significance levels as a function of scale.
 
     """
-    if isinstance(wavelet, str):
+    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
 
     # Defines some parameters like length of both time-series, time step
@@ -374,8 +372,8 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
 
-    W1, sj, freq, coi, sig_fft, fft_freq = cwt(signal/std1, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    W2, sj, freq, coi, sig_fft, fft_freq = cwt(signal2/std2, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freq, coi = cwt(signal/std1, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W2, sj, freq, coi = cwt(signal2/std2, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
 
     # Now the cross correlation of y1 and y2
     W12 = W1 * W2.conj()
@@ -442,7 +440,7 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, sig=True, significance_level=
     wavelet.cwt, wavelet.xwt
 
     """
-    if isinstance(wavelet, str):
+    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
 
     if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
@@ -463,8 +461,8 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, sig=True, significance_level=
 
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    W1, sj, freq, coi, sig_fft, fft_freq = cwt(signal/std1, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    W2, sj, freq, coi, sig_fft, fft_freq = cwt(signal2/std2, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freq, coi = cwt(signal/std1, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W2, sj, freq, coi = cwt(signal2/std2, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
 
     scales1 = np.ones([1, signal.size]) * sj[:, None]
     scales2 = np.ones([1, signal2.size]) * sj[:, None]
@@ -524,12 +522,12 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
         cache = 'cache_{:0.5f}_{:0.5f}_{:0.5f}_{:0.5f}_{:d}_{}'.format(aa[0],
                                                  aa[1], dj, s0/dt, J, wavelet.name)
         cached = os.path.expanduser(os.path.join(cache_dir,'wct_sig'))
-        try:
-            dat = np.loadtxt('{}/{}.gz'.format(cached, cache), unpack=True)
-            print("\n\nNOTE: Loading from cache\n\n")
-            return dat
-        except IOError:
-            pass
+#        try:
+#            dat = np.loadtxt('{}/{}.gz'.format(cached, cache), unpack=True)
+#            print("\n\nNOTE: Loading from cache\n\n")
+#            return dat
+#        except IOError:
+#            pass
 
     # Some output to the screen
     if progress:
@@ -542,7 +540,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
     ms = s0 * (2 ** (J * dj)) / dt
     N = np.ceil(ms * 6)
     noise1 = rednoise(N, al1, 1)
-    nW1, sj, freq, coi, sig_fft, fft_freq  = cwt(noise1, dt=dt, dj=dj, s0=s0,
+    nW1, sj, freq, coi = cwt(noise1, dt=dt, dj=dj, s0=s0,
                                                  J=J, wavelet=wavelet)
 
     period = np.ones([1, N]) / freq[:, None]
@@ -562,9 +560,9 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
         noise1 = rednoise(N, al1, 1)
         noise2 = rednoise(N, al2, 1)
         # Calculate the cross wavelet transform of both red-noise signals
-        nW1, sj, freq, coi, sig_fft, fft_freq = cwt(noise1, dt=dt, dj=dj,
+        nW1, sj, freq, coi = cwt(noise1, dt=dt, dj=dj,
                                                     s0=s0, J=J, wavelet=wavelet)
-        nW2, sj, freq, coi, sig_fft, fft_freq = cwt(noise2, dt=dt, dj=dj,
+        nW2, sj, freq, coi = cwt(noise2, dt=dt, dj=dj,
                                                     s0=s0, J=J, wavelet=wavelet)
         nW12 = nW1 * nW2.conj()
         # Smooth wavelet wavelet transforms and calculate wavelet coherence
