@@ -23,8 +23,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pycwt as wavelet
 
+<<<<<<< HEAD:pycwt/sample/sample.py
 from pycwt.helpers import find
 from matplotlib.image import NonUniformImage
+=======
+__version__ = '$Revision: 2 $'
+# $Source$
+
+import numpy
+import pylab
+try:
+    reload(wavelet)
+except:
+    import wav as wavelet
+>>>>>>> fa1f0b0e653323e09a9ce342983ab7f0e43849d5:sample.py
 
 # This script allows different sample data sets to be analysed. Simply comment
 # and uncomment the respective fname, title, label, t0, dt and units variables
@@ -139,6 +151,7 @@ else:
 extent = [time.min(),time.max(),0,max(period)]
 # Second sub-plot, the normalized wavelet power spectrum and significance level
 # contour lines and cone of influece hatched area.
+<<<<<<< HEAD:pycwt/sample/sample.py
 bx = plt.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
 im = NonUniformImage(bx, interpolation='bilinear', extent=extent)
 im.set_data(time, period, power/scales[:, None])
@@ -146,6 +159,16 @@ bx.images.append(im)
 bx.contour(time, period, sig95, [-99, 1], colors='k', linewidths=2, extent=extent)
 bx.fill(np.concatenate([time, time[-1:]+dt, time[-1:]+dt,time[:1]-dt, time[:1]-dt]),
         (np.concatenate([coi,[1e-9], period[-1:], period[-1:], [1e-9]])),
+=======
+bx = pylab.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
+levels = [0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8, 16]
+bx.contourf(time, numpy.log2(period), numpy.log2(power), numpy.log2(levels),
+            extend='both')
+bx.contour(time, numpy.log2(period), sig95, [-99, 1], colors='k',
+           linewidths=2.)
+bx.fill(numpy.concatenate([time, time[-1:]+dt, time[-1:]+dt,time[:1]-dt, time[:1]-dt]),
+        numpy.log2(numpy.concatenate([coi,[1e-9], period[-1:], period[-1:], [1e-9]])),
+>>>>>>> fa1f0b0e653323e09a9ce342983ab7f0e43849d5:sample.py
         'k', alpha=0.3,hatch='x')
 
 bx.set_title('b) %s Wavelet Power Spectrum (%s)' % (label, mother.name))

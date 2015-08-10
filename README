@@ -24,8 +24,15 @@ DISCLAIMER
     warranties whatsoever.
 
 INSTALLATION
+<<<<<<< HEAD
 	Download the code and run the below line within the top level folder.
     	python setup.py install
+=======
+    Copy all the contents into a location included in the Python search
+    path. On Linux distribution one such option is
+
+        ~/.local/lib/python2.x/site-packages/pycwt
+>>>>>>> fa1f0b0e653323e09a9ce342983ab7f0e43849d5
 
 COMMENTS
     There is an errata page at the wavelet website maintaned at the Program 
