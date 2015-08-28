@@ -22,7 +22,6 @@ from __future__ import division, absolute_import
 import numpy as np
 import matplotlib.pyplot as plt
 import pycwt as wavelet
-
 from pycwt.helpers import find
 from matplotlib.image import NonUniformImage
 
@@ -139,6 +138,7 @@ else:
 extent = [time.min(),time.max(),0,max(period)]
 # Second sub-plot, the normalized wavelet power spectrum and significance level
 # contour lines and cone of influece hatched area.
+<<<<<<< HEAD:pycwt/sample/sample.py
 bx = plt.axes([0.1, 0.37, 0.65, 0.28], sharex=ax)
 im = NonUniformImage(bx, interpolation='bilinear', extent=extent)
 im.set_data(time, period, power/scales[:, None])
