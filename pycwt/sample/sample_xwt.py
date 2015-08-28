@@ -91,12 +91,12 @@ mother = wavelet.Morlet(6)           # Morlet mother wavelet with m=6
 # The following routines perform the wavelet transform and siginificance
 # analysis for two data sets.
 
-W1, scales1, freqs1, coi1, fft1, fftfreqs1 = wavelet.cwt(s1/std1, dt, dj, s0,
+W1, scales1, freqs1, coi1 = wavelet.cwt(s1/std1, dt, dj, s0,
                                                          J,mother)
 signif1, fft_theor1 = wavelet.significance(1.0, dt, scales1, 0, alpha1,
                                            significance_level=slevel,
                                            wavelet=mother)
-W2, scales2, freqs2, coi2, fft2, fftfreqs2 = wavelet.cwt(s2/std2, dt, dj, s0,
+W2, scales2, freqs2, coi2 = wavelet.cwt(s2/std2, dt, dj, s0,
                                                          J,mother)
 signif2, fft_theor2 = wavelet.significance(1.0, dt, scales2, 0, alpha2,
                                            significance_level=slevel,
