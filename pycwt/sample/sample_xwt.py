@@ -4,7 +4,9 @@ Created on Tue Mar  4 16:06:39 2014
 @author: nabobalis
 """
 
-from __future__ import division, absolute_import
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pycwt as wavelet
