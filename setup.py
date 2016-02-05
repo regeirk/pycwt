@@ -4,7 +4,8 @@ from setuptools import setup
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-AUTHORS = "Nabil Freij" # TODO: Add the rest.
+AUTHORS = ("Nabil Freij, Sebastian Krieger, Alexey Brazhe, Christopher "
+           "Torrence, Gilbert P. Compo and contributors")
 
 setup(
     name = "pycwt",
@@ -12,7 +13,7 @@ setup(
     author = AUTHORS,
     description = ("Continuous wavelet transform module for Python."),
     license = "BSD",
-    url = "https://github.com/nabobalis/pycwt",
+    url = "https://github.com/regeirk/pycwt",
     packages=['pycwt'],
     install_requires=['numpy','matplotlib','scipy'],
     long_description=read('README.md'),
