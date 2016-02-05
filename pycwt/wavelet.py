@@ -27,64 +27,73 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     Parameters
     ----------
     signal : numpy.ndarray, list
-    Input signal array
+        Input signal array
     dt : float
-    Sample spacing.
+        Sample spacing.
     dj : float, optional
-    Spacing between discrete scales. Default value is 0.25.
-    Smaller values will result in better scale resolution, but
-    slower calculation and plot.
+        Spacing between discrete scales. Default value is 0.25.
+        Smaller values will result in better scale resolution, but
+        slower calculation and plot.
     s0 : float, optional
-    Smallest scale of the wavelet. Default value is 2*dt.
+        Smallest scale of the wavelet. Default value is 2*dt.
     J : float, optional
-    Number of scales less one. Scales range from s0 up to
-    s0 * 2**(J * dj), which gives a total of (J + 1) scales.
-    Default is J = (log2(N*dt/so))/dj.
+        Number of scales less one. Scales range from s0 up to
+        s0 * 2**(J * dj), which gives a total of (J + 1) scales.
+        Default is J = (log2(N*dt/so))/dj.
     wavelet : instance of a wavelet class, or string
-    Mother wavelet class. Default is Morlet wavelet.
+        Mother wavelet class. Default is Morlet wavelet.
 
     Returns
     -------
     W : numpy.ndarray
-    Wavelet transform according to the selected mother wavelet.
-    Has (J+1) x N dimensions.
+        Wavelet transform according to the selected mother wavelet.
+        Has (J+1) x N dimensions.
     sj : numpy.ndarray
-    Vector of scale indices given by sj = s0 * 2**(j * dj),
-    j={0, 1, ..., J}.
+        Vector of scale indices given by sj = s0 * 2**(j * dj),
+        j={0, 1, ..., J}.
     freqs : array like
-    Vector of Fourier frequencies (in 1 / time units) that
-    corresponds to the wavelet scales.
+        Vector of Fourier frequencies (in 1 / time units) that
+        corresponds to the wavelet scales.
     coi : numpy.ndarray
-    Returns the cone of influence, which is a vector of N
-    points containing the maximum Fourier period of useful
-    information at that particular time. Periods greater than
-    those are subject to edge effects.
+        Returns the cone of influence, which is a vector of N
+        points containing the maximum Fourier period of useful
+        information at that particular time. Periods greater than
+        those are subject to edge effects.
     fft : numpy.ndarray
-    Normalized fast Fourier transform of the input signal.
+        Normalized fast Fourier transform of the input signal.
     fft_freqs : numpy.ndarray
-    Fourier frequencies (in 1/time units) for the calculated
-    FFT spectrum.
+        Fourier frequencies (in 1/time units) for the calculated
+        FFT spectrum.
 
     Example
     -------
-    mother = wavelet.Morlet(6.)
-    wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
-    0.25, 0.25, 0.5, 28, mother)
+    >> mother = wavelet.Morlet(6.)
+    >> wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+           0.25, 0.25, 0.5, 28, mother)
 
     """
     if isinstance(wavelet, unicode) or isinstance(wavelet, str):
         wavelet = mothers[wavelet]()
 
-    n0 = len(signal)                              # Original signal length.
-    if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
-    if J == -1: J = np.int(np.round(np.log2(n0 * dt / s0) / dj))  # Number of scales
-    N = 2 ** (np.int(np.round(np.log2(n0)) + 1))                  # Next higher power of 2.
+    # Original signal length.
+    n0 = len(signal)
+    # Smallest resolvable scale
+    if s0 == -1: 
+        s0 = 2 * dt / wavelet.flambda()
+    # Number of scales
+    if J == -1: 
+        J = np.int(np.round(np.log2(n0 * dt / s0) / dj))  
+    # Next higher power of 2.
+    N = 2 ** (np.int(np.round(np.log2(n0)) + 1))
     ## CALLS TO THE FFT ARE ALSO SLOW.
-    signal_ft = fft.fft(signal, N)                    # Signal Fourier transform
-    ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)             # Fourier angular frequencies
+    # Signal Fourier transform
+    signal_ft = fft.fft(signal, N)
+    # Fourier angular frequencies
+    ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)
 
-    sj = s0 * 2 ** (np.arange(0, J+1) * dj)         # The scales
-    freqs = 1 / (wavelet.flambda() * sj)         # As of Mallat 1999
+    # The scales as of Mallat 1999
+    sj = s0 * 2 ** (np.arange(0, J+1) * dj)
+    freqs = 1 / (wavelet.flambda() * sj)
 
     # Creates an empty wavlet transform matrix and fills it for every discrete
     # scale using the convolution theorem.
@@ -108,7 +117,8 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     coi = (n0 / 2 - np.abs(np.arange(0, n0) - (n0 - 1) / 2))
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
 
-    return W[:, :n0], sj, freqs, coi
+    return (W[:, :n0], sj, freqs, coi, signal_ft[1:N/2] / N ** 0.5, 
+            ftfreqs[1:N/2] / (2 * np.pi))
 
 
 def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
@@ -118,28 +128,28 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
     Parameters
     ----------
     W : numpy.ndarray
-    Wavelet transform, the result of the cwt function.
+        Wavelet transform, the result of the cwt function.
     sj : numpy.ndarray
-    Vector of scale indices as returned by the cwt function.
+        Vector of scale indices as returned by the cwt function.
     dt : float
-    Sample spacing.
+        Sample spacing.
     dj : float, optional
-    Spacing between discrete scales as used in the cwt
-    function. Default value is 0.25.
+        Spacing between discrete scales as used in the cwt
+        function. Default value is 0.25.
     wavelet : instance of wavelet class, or string
-    Mother wavelet class. Default is Morlet
+        Mother wavelet class. Default is Morlet
 
     Returns
     -------
     iW : numpy.ndarray
-    Inverse wavelet transform.
+        Inverse wavelet transform.
 
     Example
     -------
-    mother = wavelet.Morlet()
-    wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
-    0.25, 0.25, 0.5, 28, mother)
-    iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
+    >> mother = wavelet.Morlet()
+    >> wave, scales, freqs, coi, fft, fftfreqs = wavelet.cwt(var,
+           0.25, 0.25, 0.5, 28, mother)
+    >> iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
 
     """
     if isinstance(wavelet, unicode) or isinstance(wavelet, str):
@@ -155,7 +165,8 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
         raise Warning('Input array dimensions do not match.')
 
     # As of Torrence and Compo (1998), eq. (11)
-    iW = dj * np.sqrt(dt) / wavelet.cdelta * wavelet.psi(0) * (np.real(W) / sj).sum(axis=0)
+    iW = (dj * np.sqrt(dt) / wavelet.cdelta * wavelet.psi(0) * 
+          (np.real(W) / sj).sum(axis=0))
     return iW
 
 
@@ -194,23 +205,24 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
     [s1, s2], which gives the scale range that were averaged
     together. If, for example, the average between scales 2 and
     8 was taken, then dof=[2, 8].
+
     alpha : float, optional
-    Lag-1 autocorrelation, used for the significance levels.
-    Default is 0.0.
-    significance_level :float, optional
-    Significance level to use. Default is 0.95.
+        Lag-1 autocorrelation, used for the significance levels.
+        Default is 0.0.
+    significance_level : float, optional
+        Significance level to use. Default is 0.95.
     dof : variant, optional
-    Degrees of freedom for significance test to be set
-    according to the type set in sigma_test.
+        Degrees of freedom for significance test to be set
+        according to the type set in sigma_test.
     wavelet : instance of a wavelet class, optional
-    Mother wavelet class. Default is Morlet().
+        Mother wavelet class. Default is Morlet().
 
     Returns
     -------
     signif : array like
-    Significance levels as a function of scale.
+        Significance levels as a function of scale.
     fft_theor (array like):
-    Theoretical red-noise spectrum as a function of period.
+        Theoretical red-noise spectrum as a function of period.
 
     """
     if isinstance(wavelet, unicode) or isinstance(wavelet, str):

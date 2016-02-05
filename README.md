@@ -18,7 +18,7 @@ DISCLAIMER
 ----------
 
 This module is based on routines provided by C. Torrence and G. P. Compo
-Compo available at <http://paos.colorado.edu/research/wavelets/>, on routines 
+available at <http://paos.colorado.edu/research/wavelets/>, on routines 
 provided by A. Grinsted, J. Moore and S. Jevrejeva available at
 <http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence>, and
 on routines provided by A. Brazhe available at
@@ -42,14 +42,17 @@ COMMENTS
 
 There is an errata page at the wavelet website maintaned at the Program
 in Atmospheric and Oceanic Sciences, University of Colorado, Boulder,
-Colorado, wich is accessible throught the link 
+Colorado, which is accessible throught the link 
 <http://paos.colorado.edu/research/wavelets/errata.html>
 
 
 > ## A Practical Guide to Wavelet Analysis
 > **Christopher Torrence and Gilbert P. Compo**
 > 
->
+> _Program in Atmospheric and Oceanic Sciences, University of Colorado, 
+> Boulder, Colorado_
+> 
+> 
 > ### Errata
 > 
 > - Figure 3: N/(2 sigma^2) should just be N/sigma^2.
