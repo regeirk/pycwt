@@ -2,23 +2,31 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
-import scipy.fftpack as fft
+try:                            # pyfftw wrapper for FFTW
+    import pyfftw.interfaces.scipy_fftpack as fftmod
+    from multiprocessing import cpu_count
+    _FFTW_KWARGS_DEFAULT = {'planner_effort': 'FFTW_ESTIMATE', # fast planning
+                            'threads': cpu_count(), # use all available threads
+                            'n': None, # do not pad
+                            }
+    def fft_kwargs(signal, **kwargs):
+        '''Return optimized keyword arguments for FFTW'''
+        kwargs.update(_FFTW_KWARGS_DEFAULT)
+        return kwargs
+except ImportError:             # fall back to 2^n padded scipy FFTPACK
+    import scipy.fftpack as fftmod
+    _FFT_NEXT_POW2 = True       # can be turned off, e.g. for MKL optimizations
+    def fft_kwargs(signal, **kwargs):
+        '''Return next higher power of 2 for given signal to speed up FFT'''
+        if _FFT_NEXT_POW2:
+            return {'n': np.int(2**np.ceil(np.log2(len(signal))))}
 from scipy.signal import lfilter
+
 
 def find(condition):
     "Return the indices where ravel(condition) is true"
     res, = np.nonzero(np.ravel(condition))
     return res
-
-def fftconv(x, y):
-    """ Convolution of x and y using the FFT convolution theorem. """
-    n = np.int(np.round(2 ** np.ceil(np.log2(len(x))))) + 1
-    X, Y, x_y = fft(x, n), fft(y, n), []
-    for i in range(n):
-        x_y.append(X[i] * Y[i])
-
-    # Returns the inverse Fourier transform with padding correction
-    return fft.ifft(x_y)[4:len(x)+4]
 
 
 def ar1(x):

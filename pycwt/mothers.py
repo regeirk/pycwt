@@ -2,12 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
-import scipy.fftpack as fft
 from scipy.special import gamma
 from scipy.signal import convolve2d
 from scipy.special.orthogonal import hermitenorm
 
-from .helpers import rect
+from .helpers import rect, fftmod, fft_kwargs
 
 class Morlet(object):
     """
@@ -65,18 +64,19 @@ class Morlet(object):
         # Webster (1999) and bry Grinsted et al. (2004).
 
         m, n = W.shape
-        T = np.zeros([m, n])
 
         # Filter in time.
-        npad = int(2 ** np.ceil(np.log2(n)))
-        k = 2 * np.pi * fft.fftfreq(npad)
+        k = 2 * np.pi * fftmod.fftfreq(fft_kwargs(W[0,:]))
         k2 = k ** 2
         snorm = scales / dt
-
-        for i in range(m):
-            F = np.exp(-0.5 * (snorm[i] ** 2) * k2)
-            smooth = fft.ifft(F * fft.fft(W[i, :], npad))
-            T[i, :] = smooth[0:n]
+        # smoothing by Gaussian window (absolute value of wavelet function)
+        # using the convolution theorem: multiplication by Gaussian curve in
+        # Fourier domain for each scale, outer product of scale and frequency
+        F = np.exp(-0.5 * (snorm[:,np.newaxis] ** 2) * k2) # outer product
+        smooth = fftmod.ifft(F * fftmod.fft(W, axis=1, **fft_kwargs(W[0,:])),
+                             axis=1, # along Fourier frequencies
+                             **fft_kwargs(W[0,:], overwrite_x=True))
+        T = smooth[:,:n]        # remove possibly padded region due to FFT
 
         if np.isreal(W).all():
             T = T.real
@@ -85,7 +85,7 @@ class Morlet(object):
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
         win = rect(np.int(np.round(wsize)), normalize=True)
-        T = convolve2d(T, win[:, None], 'same')
+        T = convolve2d(T, win[:,np.newaxis], 'same') # scales are "vertical"
 
         return T
 
