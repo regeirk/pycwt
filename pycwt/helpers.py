@@ -7,11 +7,11 @@ try:                            # pyfftw wrapper for FFTW
     from multiprocessing import cpu_count
     _FFTW_KWARGS_DEFAULT = {'planner_effort': 'FFTW_ESTIMATE', # fast planning
                             'threads': cpu_count(), # use all available threads
-                            'n': None, # do not pad
                             }
     def fft_kwargs(signal, **kwargs):
         '''Return optimized keyword arguments for FFTW'''
         kwargs.update(_FFTW_KWARGS_DEFAULT)
+        kwargs['n'] = len(signal) # do not pad
         return kwargs
 except ImportError:             # fall back to 2^n padded scipy FFTPACK
     import scipy.fftpack as fftmod

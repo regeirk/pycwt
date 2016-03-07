@@ -66,7 +66,7 @@ class Morlet(object):
         m, n = W.shape
 
         # Filter in time.
-        k = 2 * np.pi * fftmod.fftfreq(fft_kwargs(W[0,:]))
+        k = 2 * np.pi * fftmod.fftfreq(fft_kwargs(W[0,:])['n'])
         k2 = k ** 2
         snorm = scales / dt
         # smoothing by Gaussian window (absolute value of wavelet function)
