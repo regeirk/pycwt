@@ -20,7 +20,7 @@ mothers = {'morlet': Morlet,
            'mexicanhat': MexicanHat
            }
 
-def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
+def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
     """
     Continuous wavelet transform of the signal at specified scales.
 
@@ -42,6 +42,10 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
         Default is J = (log2(N*dt/so))/dj.
     wavelet : instance of a wavelet class, or string
         Mother wavelet class. Default is Morlet wavelet.
+    freqs : numpy.ndarray, optional
+        Custom frequencies to use instead of the ones corresponding
+        to the scales described above. Corresponding scales are
+        calculated using the wavelet Fourier wavelength.
 
     Returns
     -------
@@ -91,9 +95,12 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     # Fourier angular frequencies
     ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)
 
-    # The scales as of Mallat 1999
-    sj = s0 * 2 ** (np.arange(0, J+1) * dj)
-    freqs = 1 / (wavelet.flambda() * sj)
+    if freqs is None:           # no custom freqs specified
+        # The scales as of Mallat 1999
+        sj = s0 * 2 ** (np.arange(0, J+1) * dj)
+        freqs = 1 / (wavelet.flambda() * sj)
+    else:                                    # custom freqs specified
+        sj = 1 / (wavelet.flambda() * freqs) # corresponding custom scales
 
     # Creates an empty wavlet transform matrix and fills it for every discrete
     # scale using the convolution theorem.
