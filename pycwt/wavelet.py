@@ -9,9 +9,8 @@ except ImportError:
     pg = None
 
 import numpy as np
-import scipy.fftpack as fft
 from scipy.stats import chi2
-from .helpers import find, ar1, ar1_spectrum, rednoise
+from .helpers import find, ar1, ar1_spectrum, rednoise, fftmod, fft_kwargs
 from .mothers import Morlet, Paul, DOG, MexicanHat
 
 mothers = {'morlet': Morlet,
@@ -82,34 +81,36 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
         s0 = 2 * dt / wavelet.flambda()
     # Number of scales
     if J == -1: 
-        J = np.int(np.round(np.log2(n0 * dt / s0) / dj))  
-    # Next higher power of 2.
-    N = 2 ** (np.int(np.round(np.log2(n0)) + 1))
+        J = np.int(np.round(np.log2(n0 * dt / s0) / dj))
     ## CALLS TO THE FFT ARE ALSO SLOW.
     # Signal Fourier transform
-    signal_ft = fft.fft(signal, N)
+    signal_ft = fftmod.fft(signal, **fft_kwargs(signal))
+    N = len(signal_ft)
     # Fourier angular frequencies
-    ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)
+    ftfreqs = 2 * np.pi * fftmod.fftfreq(N, dt)
 
     # The scales as of Mallat 1999
     sj = s0 * 2 ** (np.arange(0, J+1) * dj)
     freqs = 1 / (wavelet.flambda() * sj)
 
-    # Creates an empty wavlet transform matrix and fills it for every discrete
-    # scale using the convolution theorem.
-    W = np.zeros((len(sj), N), 'complex')
-    ##THIS IS THE SLOWEST PART OF THIS CODE.
-    for n, s in enumerate(sj):
-        psi_ft_bar = ((s * ftfreqs[1] * N) ** .5 *
-            np.conjugate(wavelet.psi_ft(s * ftfreqs)))
-        W[n, :] = fft.ifft(signal_ft * psi_ft_bar, N)
+    # Creates wavelet transform matrix as outer product of scaled transformed
+    # wavelets and transformed signal according to the convolution theorem.
+    sj_col = sj[:,np.newaxis]   # transform to column vector for outer product
+    # 2D matrix [s, f] for each scale s and Fourier angular frequency f
+    psi_ft_bar = ((sj_col * ftfreqs[1] * N) ** .5 *
+                  np.conjugate(wavelet.psi_ft(sj_col * ftfreqs)))
+    W = fftmod.ifft(signal_ft * psi_ft_bar,
+                    axis=1,  # transform along Fourier frequencies axis
+                    # input not needed later, can be destroyed by FFTW
+                    **fft_kwargs(signal_ft, overwrite_x=True))
 
     # Checks for NaN in transform results and removes them from the scales,
     # frequencies and wavelet transform.
     sel = np.invert(np.isnan(W).all(axis=1))
-    sj = sj[sel]
-    freqs = freqs[sel]
-    W = W[sel, :] ##SLOW
+    if np.any(sel):             # attempt removal only if needed
+        sj = sj[sel]
+        freqs = freqs[sel]
+        W = W[sel, :] ##SLOW
 
     # Determines the cone-of-influence. Note that it is returned as a function
     # of time in Fourier periods. Uses triangualr Bartlett window with non-zero
