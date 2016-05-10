@@ -384,8 +384,9 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
 
-    W1, sj, freq, coi = cwt(signal/std1, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    W2, sj, freq, coi = cwt(signal2/std2, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    cwt_kwargs = dict(dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freq, coi, _, _ = cwt(signal/std1, **cwt_kwargs)
+    W2, sj, freq, coi, _, _ = cwt(signal2/std2, **cwt_kwargs)
 
     # Now the cross correlation of y1 and y2
     W12 = W1 * W2.conj()
@@ -473,8 +474,9 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, sig=True, significance_level=
 
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    W1, sj, freq, coi = cwt(signal/std1, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-    W2, sj, freq, coi = cwt(signal2/std2, dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    cwt_kwargs = dict(dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freq, coi, _, _ = cwt(signal/std1, **cwt_kwargs)
+    W2, sj, freq, coi, _, _ = cwt(signal2/std2, **cwt_kwargs)
 
     scales1 = np.ones([1, signal.size]) * sj[:, None]
     scales2 = np.ones([1, signal2.size]) * sj[:, None]
@@ -495,9 +497,9 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, sig=True, significance_level=
     a1, b1, c1 = ar1(signal)
     a2, b2, c2 = ar1(signal)
     if sig:
-        sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
-                           significance_level=significance_level,
-                           wavelet=wavelet, **kwargs)
+        kwargs.update(cwt_kwargs)
+        sig = wct_significance(a1, a2, significance_level=significance_level,
+                               **kwargs)
     else:
         sig = np.asarray([0])
 
@@ -552,8 +554,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
     ms = s0 * (2 ** (J * dj)) / dt
     N = np.ceil(ms * 6)
     noise1 = rednoise(N, al1, 1)
-    nW1, sj, freq, coi = cwt(noise1, dt=dt, dj=dj, s0=s0,
-                                                 J=J, wavelet=wavelet)
+    cwt_kwargs = dict(dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
+    nW1, sj, freq, coi, _, _ = cwt(noise1, **cwt_kwargs)
 
     period = np.ones([1, N]) / freq[:, None]
     coi = np.ones([J+1, 1]) * coi[None, :]
@@ -572,17 +574,13 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level, wavelet,
         noise1 = rednoise(N, al1, 1)
         noise2 = rednoise(N, al2, 1)
         # Calculate the cross wavelet transform of both red-noise signals
-        nW1, sj, freq, coi = cwt(noise1, dt=dt, dj=dj,
-                                                    s0=s0, J=J, wavelet=wavelet)
-        nW2, sj, freq, coi = cwt(noise2, dt=dt, dj=dj,
-                                                    s0=s0, J=J, wavelet=wavelet)
+        nW1, sj, freq, coi, _, _ = cwt(noise1, **cwt_kwargs)
+        nW2, sj, freq, coi, _, _ = cwt(noise2, **cwt_kwargs)
         nW12 = nW1 * nW2.conj()
         # Smooth wavelet wavelet transforms and calculate wavelet coherence
         # between both signals.
-        S1 = wavelet.smooth(np.abs(nW1) ** 2 / scales,
-            dt, dj, sj)
-        S2 = wavelet.smooth(np.abs(nW2) ** 2 / scales,
-            dt, dj, sj)
+        S1 = wavelet.smooth(np.abs(nW1) ** 2 / scales, dt, dj, sj)
+        S2 = wavelet.smooth(np.abs(nW2) ** 2 / scales, dt, dj, sj)
         S12 = wavelet.smooth(nW12 / scales, dt, dj, sj)
         R2 = np.ma.array(np.abs(S12) ** 2 / (S1 * S2), mask=~outsidecoi)
         # Walks through each scale outside the cone of influence and builds a
