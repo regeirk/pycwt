@@ -94,7 +94,7 @@ elif sample == 'SOI':
     else:
         units2 = '{}^2'.format(units)
 else:
-    raise ValueError, 'No valid dataset chosen.'
+    raise ValueError('No valid dataset chosen.')
 
 var = np.loadtxt(fname)
 avg1, avg2 = (2, 8)                  # Range of periods to average
@@ -163,7 +163,7 @@ plt.ion()
 params = {
           'font.size': 13.0,
           'text.usetex': usetex,
-          'text.fontsize': 'medium',
+          #'text.fontsize': 'medium',
           'axes.grid': True,
          }
 plt.rcParams.update(params)          # Plot parameters
