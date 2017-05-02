@@ -1,0 +1,30 @@
+pycwt.sample package
+====================
+
+Submodules
+----------
+
+pycwt.sample.sample module
+--------------------------
+
+.. automodule:: pycwt.sample.sample
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+pycwt.sample.sample_xwt module
+------------------------------
+
+.. automodule:: pycwt.sample.sample_xwt
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pycwt.sample
+    :members:
+    :undoc-members:
+    :show-inheritance:

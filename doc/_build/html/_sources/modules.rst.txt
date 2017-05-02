@@ -1,0 +1,7 @@
+PyCWT
+=====
+
+.. toctree::
+   :maxdepth: 4
+
+   pycwt
