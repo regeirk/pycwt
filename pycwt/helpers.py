@@ -2,7 +2,32 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
-import scipy.fftpack as fft
+# Try to import the Python wrapper for FFTW.
+try:
+    import pyfftw.interfaces.scipy_fftpack as fft
+    from multiprocessing import cpu_count
+
+    # Fast planning, use all available threads.
+    _FFTW_KWARGS_DEFAULT = {'planner_effort': 'FFTW_ESTIMATE',
+                            'threads': cpu_count()}
+
+    def fft_kwargs(signal, **kwargs):
+        """Return optimized keyword arguments for FFTW"""
+        kwargs.update(_FFTW_KWARGS_DEFAULT)
+        kwargs['n'] = len(signal)  # do not pad
+        return kwargs
+
+# Otherwise, fall back to 2 ** n padded scipy FFTPACK
+except ImportError:
+    import scipy.fftpack as fft
+    # Can be turned off, e.g. for MKL optimizations
+    _FFT_NEXT_POW2 = True
+
+    def fft_kwargs(signal, **kwargs):
+        """Return next higher power of 2 for given signal to speed up FFT"""
+        if _FFT_NEXT_POW2:
+            return {'n': np.int(2 ** np.ceil(np.log2(len(signal))))}
+
 from scipy.signal import lfilter
 from os import makedirs
 from os.path import exists, expanduser
@@ -140,7 +165,7 @@ def rednoise(N, g, a=1.):
         yr = np.randn(N, 1) * a
     else:
         # Twice the decorrelation time.
-        tau = np.ceil(-2 / np.log(np.abs(g)))
+        tau = int(np.ceil(-2 / np.log(np.abs(g))))
         yr = lfilter([1, 0], [1, -g], np.random.randn(N + tau, 1) * a)
         yr = yr[tau:]
 
@@ -192,7 +217,7 @@ def boxpdf(x):
     j = find(np.concatenate([d, [True]]))
     X = x[i][j]
 
-    j = np.concatenate([[0], I+1])
+    j = np.concatenate([[0], j + 1])
     Y = 0.5 * (j[0:-1] + j[1:]) / n
     bX = np.interp(x, X, Y)
 

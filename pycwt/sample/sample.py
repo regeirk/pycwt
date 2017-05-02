@@ -37,7 +37,7 @@ from dataset import Dataset
 # NINO3, MAUNA, MONSOON, SUNSPOTS or SOI. If your `matplotlib` allows LaTeX
 # text formatting, change the `usetex` parameter to `True`.
 sample = 'NINO3'
-usetex = not True
+usetex = True
 ds = Dataset(sample, usetex=usetex)
 dat = ds.load()
 
@@ -126,7 +126,7 @@ fig = pyplot.figure(**figprops)
 # First sub-plot, the original time series anomaly and inverse wavelet
 # transform.
 ax = pyplot.axes([0.1, 0.75, 0.65, 0.2])
-ax.plot(time, iwave * std, '-', linewidth=1, color=[0.5, 0.5, 0.5])
+ax.plot(time, iwave, '-', linewidth=1, color=[0.5, 0.5, 0.5])
 ax.plot(time, dat, 'k', linewidth=1.5)
 ax.set_title('a) {}'.format(ds.title))
 if ds.units != '':

@@ -9,9 +9,9 @@ except ImportError:
     pg = None
 
 import numpy as np
-import scipy.fftpack as fft
 from scipy.stats import chi2
-from .helpers import find, ar1, ar1_spectrum, rednoise, get_cache_dir
+from .helpers import (ar1, ar1_spectrum, fft, fft_kwargs, find, get_cache_dir,
+                      rednoise)
 from .mothers import Morlet, Paul, DOG, MexicanHat
 
 
@@ -77,10 +77,10 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     # Number of scales
     if J == -1:
         J = np.int(np.round(np.log2(n0 * dt / s0) / dj))
-    # Next higher power of 2.
-    N = 2 ** (np.int(np.round(np.log2(n0)) + 1))
+
     # Signal Fourier transform
-    signal_ft = fft.fft(signal, N)
+    signal_ft = fft.fft(signal, **fft_kwargs(signal))
+    N = len(signal_ft)
     # Fourier angular frequencies
     ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)
 
@@ -88,21 +88,26 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     sj = s0 * 2 ** (np.arange(0, J + 1) * dj)
     freqs = 1 / (wavelet.flambda() * sj)
 
-    # Creates an empty wavlet transform matrix and fills it for every discrete
-    # scale using the convolution theorem.
-    W = np.zeros((len(sj), N), 'complex')
-    for n, s in enumerate(sj):
-        psi_ft_bar = ((s * ftfreqs[1] * N) ** 0.5 *
-                      np.conjugate(wavelet.psi_ft(s * ftfreqs)))
-        W[n, :] = fft.ifft(signal_ft * psi_ft_bar, N)
+    # Creates wavelet transform matrix as outer product of scaled transformed
+    # wavelets and transformed signal according to the convolution theorem.
+    # (i)   Transform scales to column vector for outer product;
+    # (ii)  Calculate 2D matrix [s, f] for each scale s and Fourier angular
+    #       frequency f;
+    # (iii) Calculate wavelet transform;
+    sj_col = sj[:, np.newaxis]
+    psi_ft_bar = ((sj_col * ftfreqs[1] * N) ** .5 *
+                  np.conjugate(wavelet.psi_ft(sj_col * ftfreqs)))
+    W = fft.ifft(signal_ft * psi_ft_bar, axis=1,
+                 **fft_kwargs(signal_ft, overwrite_x=True))
 
-    # Checks for NaN in transform results and removes them from the scales,
-    # frequencies and wavelet transform. Trims wavelet transform at length
-    # `n0`.
+    # Checks for NaN in transform results and removes them from the scales if
+    # needed, frequencies and wavelet transform. Trims wavelet transform at
+    # length `n0`.
     sel = np.invert(np.isnan(W).all(axis=1))
-    sj = sj[sel]
-    freqs = freqs[sel]
-    W = W[sel, :n0]
+    if np.any(sel):
+        sj = sj[sel]
+        freqs = freqs[sel]
+        W = W[sel, :]
 
     # Determines the cone-of-influence. Note that it is returned as a function
     # of time in Fourier periods. Uses triangualr Bartlett window with
@@ -110,7 +115,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     coi = (n0 / 2 - np.abs(np.arange(0, n0) - (n0 - 1) / 2))
     coi = wavelet.flambda() * wavelet.coi() * dt * coi
 
-    return (W, sj, freqs, coi, signal_ft[1:N//2] / N ** 0.5,
+    return (W[:, :n0], sj, freqs, coi, signal_ft[1:N//2] / N ** 0.5,
             ftfreqs[1:N//2] / (2 * np.pi))
 
 
@@ -308,7 +313,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
 def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
         wavelet='morlet', normalize=True):
     """
-    Calculates the cross wavelet transform (XWT) of two signals.
+    Cross wavelet transform (XWT) of two signals.
 
     The XWT finds regions in time frequency space where the time series
     show high common power.
@@ -357,8 +362,8 @@ def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
     Notes
     -----
-    Torrence and Compo (1998) state that the PPF -- percent point
-    function -- (inverse of the cumulative distribution function) of a
+    Torrence and Compo (1998) state that the percent point function
+    (PPF) -- inverse of the cumulative distribution function -- of a
     chi-square distribution at 95% confidence and two degrees of
     freedom is Z2(95%)=3.999. However, calculating the PPF using
     chi2.ppf gives Z2(95%)=5.991. To ensure similar significance
@@ -384,9 +389,9 @@ def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    kwargs = dict(dj=dj, s0=s0, J=J, wavelet=wavelet)
-    W1, sj, freq, coi = cwt(y1_normal, dt, **kwargs)
-    W2, sj, freq, coi = cwt(y2_normal, dt, **kwargs)
+    _kwargs = dict(dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freq, coi, _, _ = cwt(y1_normal, dt, **_kwargs)
+    W2, sj, freq, coi, _, _ = cwt(y2_normal, dt, **_kwargs)
 
     # Calculates the cross CWT of y1 and y2.
     W12 = W1 * W2.conj()
@@ -400,8 +405,8 @@ def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
     # to be calculated.
     if normalize:
         std1 = std2 = 1.
-    a1, _, _ = ar1(signal)
-    a2, _, _ = ar1(signal2)
+    a1, _, _ = ar1(y1)
+    a2, _, _ = ar1(y2)
     Pk1 = ar1_spectrum(freq * dt, a1)
     Pk2 = ar1_spectrum(freq * dt, a2)
     dof = wavelet.dofmin
@@ -415,7 +420,7 @@ def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         significance_level=0.95, wavelet='morlet', normalize=True, **kwargs):
     """
-    Calculates the wavelet coherence (WTC).
+    Wavelet coherence (WTC).
 
     The WTC finds regions in time frequency space where the two time
     series co-vary, but do not necessarily have high power.
@@ -459,7 +464,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         s0 = 2 * dt / wavelet.flambda()
     if J == -1:
         # Number of scales
-        J = np.int(np.round(np.log2(signal.size * dt / s0) / dj))
+        J = np.int(np.round(np.log2(y1.size * dt / s0) / dj))
 
     # Makes sure input signals are numpy arrays.
     y1 = np.asarray(y1)
@@ -477,9 +482,9 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
     # Calculates the CWT of the time-series making sure the same parameters
     # are used in both calculations.
-    kwargs = dict(dj=dj, s0=s0, J=J, wavelet=wavelet)
-    W1, sj, freq, coi = cwt(y1_normal, dt, **kwargs)
-    W2, sj, freq, coi = cwt(y2_normal, dt, **kwargs)
+    _kwargs = dict(dj=dj, s0=s0, J=J, wavelet=wavelet)
+    W1, sj, freq, coi, _, _ = cwt(y1_normal, dt, **_kwargs)
+    W2, sj, freq, coi, _, _ = cwt(y2_normal, dt, **_kwargs)
 
     scales1 = np.ones([1, y1.size]) * sj[:, None]
     scales2 = np.ones([1, y2.size]) * sj[:, None]
@@ -490,15 +495,15 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
     # Now the wavelet transform coherence
     W12 = W1 * W2.conj()
-    scales = np.ones([1, signal.size]) * sj[:, None]
+    scales = np.ones([1, y1.size]) * sj[:, None]
     S12 = wavelet.smooth(W12 / scales, dt, dj, sj)
     WCT = np.abs(S12) ** 2 / (S1 * S2)
     aWCT = np.angle(W12)
 
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
-    a1, b1, c1 = ar1(signal)
-    a2, b2, c2 = ar1(signal)
+    a1, b1, c1 = ar1(y1)
+    a2, b2, c2 = ar1(y2)
     if sig:
         sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
                                significance_level=significance_level,
@@ -545,7 +550,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
 
     Returns
     -------
-    TODO:
+    TODO
 
     """
     if progress and pg is None:
@@ -559,12 +564,13 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
         cache_file = 'wct_sig_{:0.5f}_{:0.5f}_{:0.5f}_{:0.5f}_{:d}_{}'\
             .format(aa[0], aa[1], dj, s0 / dt, J, wavelet.name)
         cache_dir = get_cache_dir()
-#        try:
-#            dat = np.loadtxt('{}/{}.gz'.format(cached, cache), unpack=True)
-#            print("\n\nNOTE: Loading from cache\n\n")
-#            return dat
-#        except IOError:
-#            pass
+        try:
+            dat = np.loadtxt('{}/{}.gz'.format(cache_dir, cache_file),
+                             unpack=True)
+            print('NOTE: WCT significance loaded from cache.\n')
+            return dat
+        except IOError:
+            pass
 
     # Some output to the screen
     if progress:
@@ -575,10 +581,11 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
 
     # Choose N so that largest scale has at least some part outside the COI
     ms = s0 * (2 ** (J * dj)) / dt
-    N = np.ceil(ms * 6)
+    N = int(np.ceil(ms * 6))
     noise1 = rednoise(N, al1, 1)
-    nW1, sj, freq, coi = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J,
-                             wavelet=wavelet)
+    nW1, sj, freq, coi, _, _ = cwt(noise1, dt=dt, dj=dj, s0=s0, J=J,
+                                   wavelet=wavelet)
+
     period = np.ones([1, N]) / freq[:, None]
     coi = np.ones([J + 1, 1]) * coi[None, :]
     outsidecoi = (period <= coi)
@@ -596,8 +603,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
         noise2 = rednoise(N, al2, 1)
         # Calculate the cross wavelet transform of both red-noise signals
         kwargs = dict(dt=dt, dj=dj, s0=s0, J=J, wavelet=wavelet)
-        nW1, sj, freq, coi = cwt(noise1, **kwargs)
-        nW2, sj, freq, coi = cwt(noise2, **kwargs)
+        nW1, sj, freq, coi, _, _ = cwt(noise1, **kwargs)
+        nW2, sj, freq, coi, _, _ = cwt(noise2, **kwargs)
         nW12 = nW1 * nW2.conj()
         # Smooth wavelet wavelet transforms and calculate wavelet coherence
         # between both signals.
@@ -610,7 +617,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
         for s in range(maxscale):
             cd = np.floor(R2[s, :] * nbins)
             for j, t in enumerate(cd[~cd.mask]):
-                wlc[s, t] += 1
+                wlc[s, int(t)] += 1
         # Outputs some text to screen if desired
         if progress:
             pbar.update(i + 1)
