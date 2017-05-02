@@ -71,7 +71,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
            0.25, 0.25, 0.5, 28, mother)
 
     """
-    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
+    if isinstance(wavelet, str) or isinstance(wavelet, bytes):
         wavelet = mothers[wavelet]()
 
     # Original signal length.
@@ -153,7 +153,7 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
     >> iwave = wavelet.icwt(wave, scales, 0.25, 0.25, mother)
 
     """
-    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
+    if isinstance(wavelet, str) or isinstance(wavelet, bytes):
         wavelet = mothers[wavelet]()
 
     a, b = W.shape
@@ -226,7 +226,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
         Theoretical red-noise spectrum as a function of period.
 
     """
-    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
+    if isinstance(wavelet, str) or isinstance(wavelet, bytes):
         wavelet = mothers[wavelet]()
 
     try:
@@ -367,7 +367,7 @@ def xwt(signal, signal2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
         Significance levels as a function of scale.
 
     """
-    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
+    if isinstance(wavelet, str) or isinstance(wavelet, bytes):
         wavelet = mothers[wavelet]()
 
     # Defines some parameters like length of both time-series, time step
@@ -454,7 +454,7 @@ def wct(signal, signal2, dt, dj=1/12, s0=-1, J=-1, sig=True, significance_level=
     wavelet.cwt, wavelet.xwt
 
     """
-    if isinstance(wavelet, unicode) or isinstance(wavelet, str):
+    if isinstance(wavelet, str) or isinstance(wavelet, bytes):
         wavelet = mothers[wavelet]()
 
     if s0 == -1: s0 = 2 * dt / wavelet.flambda()  # Smallest resolvable scale
