@@ -14,8 +14,8 @@ Time-series spectral analysis using wavelets
 In this example we will follow the approach suggested by Torrence and Compo
 (1998)\ [#f1]_, using the NINO3 sea surface temperature anomaly dataset
 between 1871 and 1996. This and other sample data files are kindly provided by
-C. Torrence and G. Compo at
-<http://paos.colorado.edu/research/wavelets/software.html>.
+C. Torrence and G. Compo
+`here <http://paos.colorado.edu/research/wavelets/software.html>`__\ .
 
 We begin by importing the relevant libraries. Please make sure that PyCWT is
 properly installed in your system.
@@ -108,14 +108,28 @@ script source code using the link below.
 
 .. plot:: ../pycwt/sample/simple_sample.py
 
+Wavelet analysis of the NINO3 Sea Surface Temperature record: (a) Time-
+series (solid black line) and inverse wavelet transform (solid grey line),
+(b) Normalized wavelet power spectrum of the NINO3 SST using the Morlet
+wavelet (:math:`\omega_0=6`) as a function of time and of Fourier
+equivalent wave period (in years). The black solid contour lines enclose
+regions of more than 95% condence relative to a red-noise random process
+(:math:`\alpha=0.77`). The cross-hatched and shaded area indicates the
+affected by the cone of inuence of the mother wavelet. (iii) Global wavelet
+power spectrum (solid black line) and Fourier power spectrum (solid grey
+line). The dotted line indicates the 95% condence level.
+(iv) Scale-averaged wavelet power over the 2--8 year band (solid black
+line), power trend (solid grey line) and the 95% condence level (black
+dotted line).
+
 References
 ^^^^^^^^^^
-.. [#f1] Torrence, C. and Compo, G. P. A Practical Guide to Wavelet Analysis.
-         *Bulletin of the American Meteorological Society*, **1998**, 79,
-         61-78.
-         <http://dx.doi.org/10.1175/1520-0477(1998)079<0061:APGTWA>2.0.CO;2>.
+.. [#f1] Torrence, C. and Compo, G. P.. A Practical Guide to Wavelet
+         Analysis. Bulletin of the American Meteorological Society, *American
+         Meteorological Society*, **1998**, 79, 61-78.
+         `DOI <http://dx.doi.org/10.1175/1520-0477(1998)079\<0061:APGTWA\>2.0.CO;2>`__\ .
 
 .. [#f2] Liu, Y., Liang, X. S. and Weisberg, R. H. Rectification of the bias
          in the wavelet power spectrum. *Journal of Atmospheric and Oceanic
          Technology*, **2007**, 24, 2093-2102.
-         <http://dx.doi.org/10.1175/2007JTECHO511.1>.
+         `DOI <http://dx.doi.org/10.1175/2007JTECHO511.1>`__\ .
