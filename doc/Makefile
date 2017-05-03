@@ -6,7 +6,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = PyCWT
 SOURCEDIR     = .
-BUILDDIR      = _build
+BUILDDIR      = ../../pycwt-doc
 
 # Put it first so that "make" without argument is like "make help".
 help:

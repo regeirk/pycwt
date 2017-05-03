@@ -18,7 +18,7 @@ wavelet coherence tests and sample scripts.
    tutorial.rst
    pycwt.rst
 
-.. image:: ../pycwt/sample/sample_NINO3.png
+.. image:: ./sample/sample_NINO3.png
 
 
 

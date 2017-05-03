@@ -20,19 +20,19 @@ C. Torrence and G. Compo
 We begin by importing the relevant libraries. Please make sure that PyCWT is
 properly installed in your system.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 10-15
 
 Then, we load the dataset and define some data related parameters. In this
 case, the first 19 lines of the data file contain meta-data, that we ignore,
 since we set them manually (*i.e.* title, units).
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 20-26
 
 We also create a time array in years.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 29-30
 
 We write the following code to detrend and normalize the input data by its
@@ -43,14 +43,14 @@ above mentioned website, it is strongly advised to perform detrending.
 Here, we fit a one-degree polynomial function and then subtract it from the
 original data.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 39-43
 
 The next step is to define some parameters of our wavelet analysis. We
 select the mother wavelet, in this case the Morlet wavelet with
 :math:`\omega_0=6`.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 48-52
 
 The following routines perform the wavelet transform and inverse wavelet
@@ -58,13 +58,13 @@ transform using the parameters defined above. Since we have normalized our
 input time-series, we multiply the inverse transform by the standard
 deviation.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 58-60
 
 We calculate the normalized wavelet and Fourier power spectra, as well as
 the Fourier equivalent periods for each wavelet scale.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 64-66
 
 Optionally, we could also rectify the power spectrum according to the
@@ -78,19 +78,19 @@ We could stop at this point and plot our results. However we are also
 interested in the power spectra significance test. The power is significant
 where the ratio ``power / sig95 > 1``.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 71-75
 
 Then, we calculate the global wavelet spectrum and determine its
 significance level.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 79-83
 
 We also calculate the scale average between 2 years and 8 years, and its
 significance level.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 87-96
 
 Finally, we plot our results in four different subplots containing the
@@ -99,14 +99,14 @@ wavelet power spectrum (iii) the global wavelet and Fourier spectra ; and
 (iv) the range averaged wavelet spectrum. In all sub-plots the significance
 levels are either included as dotted lines or as filled contour lines.
 
-.. literalinclude:: ../pycwt/sample/simple_sample.py
+.. literalinclude:: ./sample/simple_sample.py
    :lines: 104-166
 
 Running this sequence of commands you should be able to generate the following
 figure. If you don't want to type all the code manually, please download the
 script source code using the link below.
 
-.. plot:: ../pycwt/sample/simple_sample.py
+.. plot:: ./sample/simple_sample.py
 
 Wavelet analysis of the NINO3 Sea Surface Temperature record: (a) Time-
 series (solid black line) and inverse wavelet transform (solid grey line),
