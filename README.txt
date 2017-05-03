@@ -114,4 +114,3 @@ References
 6. Liu, Y.; Liang, X. S. and Weisberg, R. H. (2007). Rectification of the bias
    in the wavelet power spectrum. Journal of Atmospheric and Oceanic
    Technology, 24(12), 2093-2102. http://dx.doi.org/10.1175/2007JTECHO511.1.
-

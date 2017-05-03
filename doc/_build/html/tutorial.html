@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Tutorial &#8212; PyCWT 0.3 documentation</title>
+    <title>Tutorial &#8212; PyCWT 0.3.0a4 documentation</title>
     
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3',
+        VERSION:     '0.3.0a4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -63,7 +63,7 @@
         <li class="right" >
           <a href="getting_started.html" title="Getting started"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -121,8 +121,8 @@ PyCWT to perform the wavelet analysis of a given time-series.</p>
 <p>In this example we will follow the approach suggested by Torrence and Compo
 (1998)<a class="footnote-reference" href="#f1" id="id1">[1]</a>, using the NINO3 sea surface temperature anomaly dataset
 between 1871 and 1996. This and other sample data files are kindly provided by
-C. Torrence and G. Compo at
-&lt;<a class="reference external" href="http://paos.colorado.edu/research/wavelets/software.html">http://paos.colorado.edu/research/wavelets/software.html</a>&gt;.</p>
+C. Torrence and G. Compo
+<a class="reference external" href="http://paos.colorado.edu/research/wavelets/software.html">here</a>.</p>
 <p>We begin by importing the relevant libraries. Please make sure that PyCWT is
 properly installed in your system.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
@@ -305,15 +305,32 @@ script source code using the link below.</p>
 <div class="figure">
 <img alt="_images/simple_sample.png" src="_images/simple_sample.png" />
 </div>
+<p>Wavelet analysis of the NINO3 Sea Surface Temperature record: (a) Time-
+series (solid black line) and inverse wavelet transform (solid grey line),
+(b) Normalized wavelet power spectrum of the NINO3 SST using the Morlet
+wavelet (<span class="math">\(\omega_0=6\)</span>) as a function of time and of Fourier
+equivalent wave period (in years). The black solid contour lines enclose
+regions of more than 95% con
+dence relative to a red-noise random process
+(<span class="math">\(\alpha=0.77\)</span>). The cross-hatched and shaded area indicates the
+affected by the cone of in
+uence of the mother wavelet. (iii) Global wavelet
+power spectrum (solid black line) and Fourier power spectrum (solid grey
+line). The dotted line indicates the 95% con
+dence level.
+(iv) Scale-averaged wavelet power over the 2&#8211;8 year band (solid black
+line), power trend (solid grey line) and the 95% con
+dence level (black
+dotted line).</p>
 <div class="section" id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
 <table class="docutils footnote" frame="void" id="f1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Torrence, C. and Compo, G. P. A Practical Guide to Wavelet Analysis.
-<em>Bulletin of the American Meteorological Society</em>, <strong>1998</strong>, 79,
-61-78.
-&lt;<a class="reference external" href="http://dx.doi.org/10.1175/1520-0477(1998">http://dx.doi.org/10.1175/1520-0477(1998</a>)079&lt;0061:APGTWA&gt;2.0.CO;2&gt;.</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Torrence, C. and Compo, G. P.. A Practical Guide to Wavelet
+Analysis. Bulletin of the American Meteorological Society, <em>American
+Meteorological Society</em>, <strong>1998</strong>, 79, 61-78.
+<a class="reference external" href="http://dx.doi.org/10.1175/1520-0477(1998)079&lt;0061:APGTWA&gt;2.0.CO;2">DOI</a>.</td></tr>
 </tbody>
 </table>
 <table class="docutils footnote" frame="void" id="f2" rules="none">
@@ -322,7 +339,7 @@ script source code using the link below.</p>
 <tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td>Liu, Y., Liang, X. S. and Weisberg, R. H. Rectification of the bias
 in the wavelet power spectrum. <em>Journal of Atmospheric and Oceanic
 Technology</em>, <strong>2007</strong>, 24, 2093-2102.
-&lt;<a class="reference external" href="http://dx.doi.org/10.1175/2007JTECHO511.1">http://dx.doi.org/10.1175/2007JTECHO511.1</a>&gt;.</td></tr>
+<a class="reference external" href="http://dx.doi.org/10.1175/2007JTECHO511.1">DOI</a>.</td></tr>
 </tbody>
 </table>
 </div>
@@ -350,7 +367,7 @@ Technology</em>, <strong>2007</strong>, 24, 2093-2102.
         <li class="right" >
           <a href="getting_started.html" title="Getting started"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

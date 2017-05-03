@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Module reference &#8212; PyCWT 0.3 documentation</title>
+    <title>Module reference &#8212; PyCWT 0.3.0a4 documentation</title>
     
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3',
+        VERSION:     '0.3.0a4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -59,7 +59,7 @@
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a4 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -244,7 +244,7 @@ together. If, for example, the average between scales 2 and
 <dl class="function">
 <dt id="pycwt.xwt">
 <code class="descclassname">pycwt.</code><code class="descname">xwt</code><span class="sig-paren">(</span><em>y1</em>, <em>y2</em>, <em>dt</em>, <em>dj=0.08333333333333333</em>, <em>s0=-1</em>, <em>J=-1</em>, <em>significance_level=0.95</em>, <em>wavelet=u'morlet'</em>, <em>normalize=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.xwt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the cross wavelet transform (XWT) of two signals.</p>
+<dd><p>Cross wavelet transform (XWT) of two signals.</p>
 <p>The XWT finds regions in time frequency space where the time series
 show high common power.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -286,8 +286,8 @@ that correspond to the wavelet scales.</li>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>Torrence and Compo (1998) state that the PPF &#8211; percent point
-function &#8211; (inverse of the cumulative distribution function) of a
+<p>Torrence and Compo (1998) state that the percent point function
+(PPF) &#8211; inverse of the cumulative distribution function &#8211; of a
 chi-square distribution at 95% confidence and two degrees of
 freedom is Z2(95%)=3.999. However, calculating the PPF using
 chi2.ppf gives Z2(95%)=5.991. To ensure similar significance
@@ -298,7 +298,7 @@ of 86.46%.</p>
 <dl class="function">
 <dt id="pycwt.wct">
 <code class="descclassname">pycwt.</code><code class="descname">wct</code><span class="sig-paren">(</span><em>y1</em>, <em>y2</em>, <em>dt</em>, <em>dj=0.08333333333333333</em>, <em>s0=-1</em>, <em>J=-1</em>, <em>sig=True</em>, <em>significance_level=0.95</em>, <em>wavelet=u'morlet'</em>, <em>normalize=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.wct" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the wavelet coherence (WTC).</p>
+<dd><p>Wavelet coherence (WTC).</p>
 <p>The WTC finds regions in time frequency space where the two time
 series co-vary, but do not necessarily have high power.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -628,9 +628,9 @@ a boxed distribution.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pycwt.helpers.fftconv">
-<code class="descclassname">pycwt.helpers.</code><code class="descname">fftconv</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.helpers.fftconv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convolution of <cite>x</cite> and <cite>y</cite> using the FFT convolution theorem.</p>
+<dt id="pycwt.helpers.fft_kwargs">
+<code class="descclassname">pycwt.helpers.</code><code class="descname">fft_kwargs</code><span class="sig-paren">(</span><em>signal</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.helpers.fft_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return next higher power of 2 for given signal to speed up FFT</p>
 </dd></dl>
 
 <dl class="function">
@@ -698,7 +698,7 @@ a boxed distribution.</p>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
