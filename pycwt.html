@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Module reference &#8212; PyCWT 0.3.0a4 documentation</title>
+    <title>Module reference &#8212; PyCWT 0.3.0a5 documentation</title>
     
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3.0a4',
+        VERSION:     '0.3.0a5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -59,7 +59,7 @@
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a5 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -67,9 +67,21 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Module reference</a><ul>
-<li><a class="reference internal" href="#module-pycwt">pycwt</a></li>
+<li><a class="reference internal" href="#module-pycwt">pycwt</a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#disclaimer">Disclaimer</a></li>
+<li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
+<li><a class="reference internal" href="#authors">Authors</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#submodules">Submodules</a><ul>
-<li><a class="reference internal" href="#module-pycwt.helpers">pycwt.helpers module</a></li>
+<li><a class="reference internal" href="#module-pycwt.helpers">pycwt.helpers module</a><ul>
+<li><a class="reference internal" href="#id1">Disclaimer</a></li>
+<li><a class="reference internal" href="#id2">Acknowledgements</a></li>
+<li><a class="reference internal" href="#id3">Authors</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -108,9 +120,95 @@
 <h1>Module reference<a class="headerlink" href="#module-reference" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pycwt">
 <span id="pycwt"></span><h2>pycwt<a class="headerlink" href="#module-pycwt" title="Permalink to this headline">¶</a></h2>
+<p>Python module for continuous wavelet spectral analysis.</p>
+<p>This module includes a collection of routines for wavelet transform and
+statistical analysis via FFT algorithm. In addition, the module also
+includes cross-wavelet transforms, wavelet coherence tests and sample
+scripts.</p>
+<div class="section" id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>cwt : Continuous wavelet transform.</li>
+<li>icwt: Inverse continuous wavelet transform.</li>
+<li><dl class="first docutils">
+<dt>significance <span class="classifier-delimiter">:</span> <span class="classifier">Significance test for the one dimensional wavelet</span></dt>
+<dd>transform.</dd>
+</dl>
+</li>
+<li>xwt : cross-wavelet transform.</li>
+<li>wct : Wavelet coherence transform.</li>
+<li><dl class="first docutils">
+<dt>wct_significance <span class="classifier-delimiter">:</span> <span class="classifier">Wavelet coherence significance using Monte Carlo</span></dt>
+<dd>simulations.</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Morlet : Morlet wavelet</li>
+<li>Paul : Paul wavelet</li>
+<li>DOG : Derivative of a Guassian wavelet family</li>
+<li>MexicanHat : Mexican hat wavelet</li>
+</ul>
+<dl class="attribute">
+<dt>
+<code class="descname">* mothers</code></dt>
+<dd><p><em>Dictionary containing different mother wavelet objects.</em></p>
+</dd></dl>
+
+</div>
+<div class="section" id="disclaimer">
+<h3>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this headline">¶</a></h3>
+<p>This module is based on routines provided by C. Torrence and G. P. Compo
+available at <a class="reference external" href="http://paos.colorado.edu/research/wavelets/">http://paos.colorado.edu/research/wavelets/</a>, on routines
+provided by A. Grinsted, J. Moore and S. Jevrejeva available at
+<a class="reference external" href="http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence">http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence</a>, and
+on routines provided by A. Brazhe available at
+<a class="reference external" href="http://cell.biophys.msu.ru/static/swan/">http://cell.biophys.msu.ru/static/swan/</a>.</p>
+<p>This software is released under a BSD-style open source license. Please read
+the license file for further information. This routine is provided as is
+without any express or implied warranties whatsoever.</p>
+</div>
+<div class="section" id="acknowledgements">
+<h3>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h3>
+<p>We would like to thank Christopher Torrence, Gilbert P. Compo, Aslak Grinsted,
+John Moore, Svetlana Jevrejevaand and Alexey Brazhe for their code and also
+Jack Ireland and Renaud Dussurget for their attentive eyes, feedback and
+debugging.</p>
+</div>
+<div class="section" id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h3>
+<p>Sebastian Krieger, Nabil Freij, Alexey Brazhe, Christopher Torrence,
+Gilbert P. Compo and contributors.</p>
+<p class="rubric">References</p>
+<ol class="arabic simple">
+<li>Torrence, C. and Compo, G. P.. A Practical Guide to Wavelet
+Analysis. Bulletin of the American Meteorological Society, <em>American
+Meteorological Society</em>, <strong>1998</strong>, 79, 61-78.
+<a class="reference external" href="http://dx.doi.org/10.1175/1520-0477(1998)079">http://dx.doi.org/10.1175/1520-0477(1998)079</a>&lt;0061:APGTWA&gt;2.0.CO;2&gt;</li>
+<li>Torrence, C. and Webster, P. J.. Interdecadal changes in the
+ENSO-Monsoon system, <em>Journal of Climate</em>, <strong>1999</strong>, 12(8),
+2679-2690. <a class="reference external" href="http://dx.doi.org/10.1175/1520-0442(1999)012">http://dx.doi.org/10.1175/1520-0442(1999)012</a>&lt;2679:ICITEM&gt;2.0.CO;2&gt;</li>
+<li>Grinsted, A.; Moore, J. C. &amp; Jevrejeva, S. Application of the cross
+wavelet transform and wavelet coherence to geophysical time series.
+<em>Nonlinear Processes in Geophysics</em>, <strong>2004</strong>, 11, 561-566.
+<a class="reference external" href="http://dx.doi.org/10.5194/npg-11-561-2004">http://dx.doi.org/10.5194/npg-11-561-2004</a></li>
+<li>Mallat, S.. A wavelet tour of signal processing: The sparse way.
+<em>Academic Press</em>, <strong>2008</strong>, 805.</li>
+<li>Addison, P. S. The illustrated wavelet transform handbook:
+introductory theory and applications in science, engineering,
+medicine and finance. <em>IOP Publishing</em>, <strong>2002</strong>.
+<a class="reference external" href="http://dx.doi.org/10.1201/9781420033397">http://dx.doi.org/10.1201/9781420033397</a></li>
+<li>Liu, Y., Liang, X. S. and Weisberg, R. H. Rectification of the bias
+in the wavelet power spectrum. <em>Journal of Atmospheric and Oceanic
+Technology</em>, <strong>2007</strong>, 24, 2093-2102.
+<a class="reference external" href="http://dx.doi.org/10.1175/2007JTECHO511.1">http://dx.doi.org/10.1175/2007JTECHO511.1</a></li>
+</ol>
 <dl class="function">
 <dt id="pycwt.cwt">
-<code class="descclassname">pycwt.</code><code class="descname">cwt</code><span class="sig-paren">(</span><em>signal</em>, <em>dt</em>, <em>dj=0.08333333333333333</em>, <em>s0=-1</em>, <em>J=-1</em>, <em>wavelet=u'morlet'</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.cwt" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pycwt.</code><code class="descname">cwt</code><span class="sig-paren">(</span><em>signal</em>, <em>dt</em>, <em>dj=0.08333333333333333</em>, <em>s0=-1</em>, <em>J=-1</em>, <em>wavelet=u'morlet'</em>, <em>freqs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.cwt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Continuous wavelet transform of the signal at specified scales.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -127,6 +225,9 @@ slower calculation and plot.</li>
 s0 * 2**(J * dj), which gives a total of (J + 1) scales.
 Default is J = (log2(N * dt / so)) / dj.</li>
 <li><strong>wavelet</strong> (<em>instance of Wavelet class</em><em>, or </em><em>string</em>) &#8211; Mother wavelet class. Default is Morlet wavelet.</li>
+<li><strong>freqs</strong> (<em>numpy.ndarray</em><em>, </em><em>optional</em>) &#8211; Custom frequencies to use instead of the ones corresponding
+to the scales described above. Corresponding scales are
+calculated using the wavelet Fourier wavelength.</li>
 </ul>
 </td>
 </tr>
@@ -298,8 +399,8 @@ of 86.46%.</p>
 <dl class="function">
 <dt id="pycwt.wct">
 <code class="descclassname">pycwt.</code><code class="descname">wct</code><span class="sig-paren">(</span><em>y1</em>, <em>y2</em>, <em>dt</em>, <em>dj=0.08333333333333333</em>, <em>s0=-1</em>, <em>J=-1</em>, <em>sig=True</em>, <em>significance_level=0.95</em>, <em>wavelet=u'morlet'</em>, <em>normalize=True</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.wct" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wavelet coherence (WTC).</p>
-<p>The WTC finds regions in time frequency space where the two time
+<dd><p>Wavelet coherence transform (WCT).</p>
+<p>The WCT finds regions in time frequency space where the two time
 series co-vary, but do not necessarily have high power.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -338,8 +439,9 @@ the signals.</li>
 <dl class="function">
 <dt id="pycwt.wct_significance">
 <code class="descclassname">pycwt.</code><code class="descname">wct_significance</code><span class="sig-paren">(</span><em>al1</em>, <em>al2</em>, <em>dt</em>, <em>dj</em>, <em>s0</em>, <em>J</em>, <em>significance_level=0.95</em>, <em>wavelet=u'morlet'</em>, <em>mc_count=300</em>, <em>progress=True</em>, <em>cache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.wct_significance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates wavelet coherence significance using Monte Carlo
-simulations with 95% confidence.</p>
+<dd><p>Wavelet coherence transform significance.</p>
+<p>Calculates WCT significance using Monte Carlo simulations with
+95% confidence.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -540,10 +642,35 @@ written as:</p>
 </dd></dl>
 
 </div>
+</div>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-pycwt.helpers">
 <span id="pycwt-helpers-module"></span><h3>pycwt.helpers module<a class="headerlink" href="#module-pycwt.helpers" title="Permalink to this headline">¶</a></h3>
+<p>PyCWT helper functions.</p>
+<div class="section" id="id1">
+<h4>Disclaimer<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>This module is based on routines provided by C. Torrence and G. P. Compo
+available at <a class="reference external" href="http://paos.colorado.edu/research/wavelets/">http://paos.colorado.edu/research/wavelets/</a>, on routines
+provided by A. Grinsted, J. Moore and S. Jevrejeva available at
+<a class="reference external" href="http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence">http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence</a>, and
+on routines provided by A. Brazhe available at
+<a class="reference external" href="http://cell.biophys.msu.ru/static/swan/">http://cell.biophys.msu.ru/static/swan/</a>.</p>
+<p>This software is released under a BSD-style open source license. Please read
+the license file for further information. This routine is provided as is
+without any express or implied warranties whatsoever.</p>
+</div>
+<div class="section" id="id2">
+<h4>Acknowledgements<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>We would like to thank Christopher Torrence, Gilbert P. Compo, Aslak Grinsted,
+John Moore, Svetlana Jevrejevaand and Alexey Brazhe for their code and also
+Jack Ireland and Renaud Dussurget for their attentive eyes, feedback and
+debugging.</p>
+</div>
+<div class="section" id="id3">
+<h4>Authors<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>Sebastian Krieger, Nabil Freij, Alexey Brazhe, Christopher Torrence,
+Gilbert P. Compo and contributors.</p>
 <dl class="function">
 <dt id="pycwt.helpers.ar1">
 <code class="descclassname">pycwt.helpers.</code><code class="descname">ar1</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.helpers.ar1" title="Permalink to this definition">¶</a></dt>
@@ -679,6 +806,7 @@ a boxed distribution.</p>
 </div>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -698,7 +826,7 @@ a boxed distribution.</p>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a4 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a5 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
