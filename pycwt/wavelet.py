@@ -1,3 +1,34 @@
+"""PyCWT core wavelet transform functions.
+
+
+Disclaimer
+----------
+This module is based on routines provided by C. Torrence and G. P. Compo
+available at http://paos.colorado.edu/research/wavelets/, on routines
+provided by A. Grinsted, J. Moore and S. Jevrejeva available at
+http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence, and
+on routines provided by A. Brazhe available at
+http://cell.biophys.msu.ru/static/swan/.
+
+This software is released under a BSD-style open source license. Please read
+the license file for further information. This routine is provided as is
+without any express or implied warranties whatsoever.
+
+
+Acknowledgements
+----------------
+We would like to thank Christopher Torrence, Gilbert P. Compo, Aslak Grinsted,
+John Moore, Svetlana Jevrejevaand and Alexey Brazhe for their code and also
+Jack Ireland and Renaud Dussurget for their attentive eyes, feedback and
+debugging.
+
+
+Authors
+-------
+Sebastian Krieger, Nabil Freij, Alexey Brazhe, Christopher Torrence,
+Gilbert P. Compo and contributors.
+
+"""
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -16,8 +47,7 @@ from .mothers import Morlet, Paul, DOG, MexicanHat
 
 
 def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
-    """
-    Continuous wavelet transform of the signal at specified scales.
+    """Continuous wavelet transform of the signal at specified scales.
 
     Parameters
     ----------
@@ -75,7 +105,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
 
     # Original signal length
     n0 = len(signal)
-    # If no custom frequencies are set, then set default frequencies 
+    # If no custom frequencies are set, then set default frequencies
     # according to input parameters `dj`, `s0` and `J`. Otherwise, set wavelet
     # scales according to Fourier equivalent frequencies.
     if freqs is None:
@@ -131,8 +161,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
 
 
 def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
-    """
-    Inverse continuous wavelet transform.
+    """Inverse continuous wavelet transform.
 
     Parameters
     ----------
@@ -180,8 +209,7 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
 
 def significance(signal, dt, scales, sigma_test=0, alpha=None,
                  significance_level=0.95, dof=-1, wavelet='morlet'):
-    """
-    Significance test for the one dimensional wavelet transform.
+    """Significance test for the one dimensional wavelet transform.
 
     Parameters
     ----------
@@ -323,8 +351,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
 
 def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
         wavelet='morlet', normalize=True):
-    """
-    Cross wavelet transform (XWT) of two signals.
+    """Cross wavelet transform (XWT) of two signals.
 
     The XWT finds regions in time frequency space where the time series
     show high common power.
@@ -430,10 +457,9 @@ def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
 def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         significance_level=0.95, wavelet='morlet', normalize=True, **kwargs):
-    """
-    Wavelet coherence (WTC).
+    """Wavelet coherence transform (WCT).
 
-    The WTC finds regions in time frequency space where the two time
+    The WCT finds regions in time frequency space where the two time
     series co-vary, but do not necessarily have high power.
 
     Parameters
@@ -528,9 +554,10 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
                      wavelet='morlet', mc_count=300, progress=True,
                      cache=True):
-    """
-    Calculates wavelet coherence significance using Monte Carlo
-    simulations with 95% confidence.
+    """Wavelet coherence transform significance.
+
+    Calculates WCT significance using Monte Carlo simulations with
+    95% confidence.
 
     Parameters
     ----------

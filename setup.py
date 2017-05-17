@@ -11,14 +11,14 @@ AUTHORS = ('Sebastian Krieger, Nabil Freij, Alexey Brazhe, '
 
 setup(
     name='pycwt',
-    version='0.3.0a4',
+    version='0.3.0a5',
     author=AUTHORS,
     author_email='sebastian@nublia.com',
     description=('Continuous wavelet transform module for Python.'),
     license='BSD',
     url='https://github.com/regeirk/pycwt',
     packages=['pycwt'],
-    install_requires=['numpy', 'scipy', 'matplotlib'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'progressbar'],
     long_description=read('README.txt'),
     keywords=['wavelet', 'spectral analysis', 'signal processing',
               'data science'],

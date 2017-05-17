@@ -1,3 +1,34 @@
+"""PyCWT helper functions.
+
+
+Disclaimer
+----------
+This module is based on routines provided by C. Torrence and G. P. Compo
+available at http://paos.colorado.edu/research/wavelets/, on routines
+provided by A. Grinsted, J. Moore and S. Jevrejeva available at
+http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence, and
+on routines provided by A. Brazhe available at
+http://cell.biophys.msu.ru/static/swan/.
+
+This software is released under a BSD-style open source license. Please read
+the license file for further information. This routine is provided as is
+without any express or implied warranties whatsoever.
+
+
+Acknowledgements
+----------------
+We would like to thank Christopher Torrence, Gilbert P. Compo, Aslak Grinsted,
+John Moore, Svetlana Jevrejevaand and Alexey Brazhe for their code and also
+Jack Ireland and Renaud Dussurget for their attentive eyes, feedback and
+debugging.
+
+
+Authors
+-------
+Sebastian Krieger, Nabil Freij, Alexey Brazhe, Christopher Torrence,
+Gilbert P. Compo and contributors.
+
+"""
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 

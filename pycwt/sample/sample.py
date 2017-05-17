@@ -4,7 +4,7 @@ suggested by Torrence and Compo (1998) using the wavelet module. To run
 this script successfully, the matplotlib module has to be installed
 
 
-DISCLAIMER
+Disclaimer
 ----------
 This module is based on routines provided by C. Torrence and G. P. Compo
 available at <http://paos.colorado.edu/research/wavelets/>, on routines
@@ -14,10 +14,10 @@ on routines provided by A. Brazhe available at
 <http://cell.biophys.msu.ru/static/swan/>.
 
 This software is released under a BSD-style open source license. Please read
-the license file for furter information. This routine is provided as is without
-any express or implied warranties whatsoever.
+the license file for furter information. This routine is provided as is
+without any express or implied warranties whatsoever.
 
-AUTHORS
+Authors
 -------
 Sebastian Krieger, Nabil Freij
 
