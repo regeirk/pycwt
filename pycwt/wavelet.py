@@ -15,7 +15,7 @@ from .helpers import (ar1, ar1_spectrum, fft, fft_kwargs, find, get_cache_dir,
 from .mothers import Morlet, Paul, DOG, MexicanHat
 
 
-def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
+def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
     """
     Continuous wavelet transform of the signal at specified scales.
 
@@ -37,6 +37,10 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
         Default is J = (log2(N * dt / so)) / dj.
     wavelet : instance of Wavelet class, or string
         Mother wavelet class. Default is Morlet wavelet.
+    freqs : numpy.ndarray, optional
+        Custom frequencies to use instead of the ones corresponding
+        to the scales described above. Corresponding scales are
+        calculated using the wavelet Fourier wavelength.
 
     Returns
     -------
@@ -69,24 +73,31 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet'):
     """
     wavelet = _check_parameter_wavelet(wavelet)
 
-    # Original signal length.
+    # Original signal length
     n0 = len(signal)
-    # Smallest resolvable scale
-    if s0 == -1:
-        s0 = 2 * dt / wavelet.flambda()
-    # Number of scales
-    if J == -1:
-        J = np.int(np.round(np.log2(n0 * dt / s0) / dj))
+    # If no custom frequencies are set, then set default frequencies 
+    # according to input parameters `dj`, `s0` and `J`. Otherwise, set wavelet
+    # scales according to Fourier equivalent frequencies.
+    if freqs is None:
+        # Smallest resolvable scale
+        if s0 == -1:
+            s0 = 2 * dt / wavelet.flambda()
+        # Number of scales
+        if J == -1:
+            J = np.int(np.round(np.log2(n0 * dt / s0) / dj))
+        # The scales as of Mallat 1999
+        sj = s0 * 2 ** (np.arange(0, J + 1) * dj)
+        # Fourier equivalent frequencies
+        freqs = 1 / (wavelet.flambda() * sj)
+    else:
+        # The wavelet scales using custom frequencies.
+        sj = 1 / (wavelet.flambda() * freqs)
 
     # Signal Fourier transform
     signal_ft = fft.fft(signal, **fft_kwargs(signal))
     N = len(signal_ft)
     # Fourier angular frequencies
     ftfreqs = 2 * np.pi * fft.fftfreq(N, dt)
-
-    # The scales as of Mallat 1999.
-    sj = s0 * 2 ** (np.arange(0, J + 1) * dj)
-    freqs = 1 / (wavelet.flambda() * sj)
 
     # Creates wavelet transform matrix as outer product of scaled transformed
     # wavelets and transformed signal according to the convolution theorem.
