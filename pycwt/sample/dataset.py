@@ -2,13 +2,13 @@
 Dataset manager for the wavelet analysis sample script.
 
 
-DISCLAIMER
+Disclaimer
 ----------
 This software is released under a BSD-style open source license. Please read
 the license file for furter information. This routine is provided as is without
 any express or implied warranties whatsoever.
 
-AUTHORS
+Authors
 -------
 Sebastian Krieger, Nabil Freij
 

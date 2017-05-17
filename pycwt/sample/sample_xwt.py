@@ -1,9 +1,28 @@
 """
-Created on Tue Mar  4 16:06:39 2014
+Python sample script for cross-wavelet analysis and the statistical approach
+suggested by Torrence and Compo (1998) using the wavelet module. To run
+this script successfully, the `matplotlib` and `progressbar` modules have to
+be installed.
 
-@author: nabobalis
+
+Disclaimer
+----------
+This module is based on routines provided by C. Torrence and G. P. Compo
+available at <http://paos.colorado.edu/research/wavelets/>, on routines
+provided by A. Grinsted, J. Moore and S. Jevrejeva available at
+<http://noc.ac.uk/using-science/crosswavelet-wavelet-coherence>, and
+on routines provided by A. Brazhe available at
+<http://cell.biophys.msu.ru/static/swan/>.
+
+This software is released under a BSD-style open source license. Please read
+the license file for furter information. This routine is provided as is
+without any express or implied warranties whatsoever.
+
+Authors
+-------
+Nabil Freij, Sebastian Krieger
+
 """
-
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 

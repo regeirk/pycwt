@@ -1,3 +1,4 @@
+"""PyCWT core wavelet transform functions."""
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -16,8 +17,7 @@ from .mothers import Morlet, Paul, DOG, MexicanHat
 
 
 def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
-    """
-    Continuous wavelet transform of the signal at specified scales.
+    """Continuous wavelet transform of the signal at specified scales.
 
     Parameters
     ----------
@@ -75,7 +75,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
 
     # Original signal length
     n0 = len(signal)
-    # If no custom frequencies are set, then set default frequencies 
+    # If no custom frequencies are set, then set default frequencies
     # according to input parameters `dj`, `s0` and `J`. Otherwise, set wavelet
     # scales according to Fourier equivalent frequencies.
     if freqs is None:
@@ -131,8 +131,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
 
 
 def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
-    """
-    Inverse continuous wavelet transform.
+    """Inverse continuous wavelet transform.
 
     Parameters
     ----------
@@ -180,8 +179,7 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
 
 def significance(signal, dt, scales, sigma_test=0, alpha=None,
                  significance_level=0.95, dof=-1, wavelet='morlet'):
-    """
-    Significance test for the one dimensional wavelet transform.
+    """Significance test for the one dimensional wavelet transform.
 
     Parameters
     ----------
@@ -323,8 +321,7 @@ def significance(signal, dt, scales, sigma_test=0, alpha=None,
 
 def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
         wavelet='morlet', normalize=True):
-    """
-    Cross wavelet transform (XWT) of two signals.
+    """Cross wavelet transform (XWT) of two signals.
 
     The XWT finds regions in time frequency space where the time series
     show high common power.
@@ -430,10 +427,9 @@ def xwt(y1, y2, dt, dj=1/12, s0=-1, J=-1, significance_level=0.95,
 
 def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         significance_level=0.95, wavelet='morlet', normalize=True, **kwargs):
-    """
-    Wavelet coherence (WTC).
+    """Wavelet coherence transform (WCT).
 
-    The WTC finds regions in time frequency space where the two time
+    The WCT finds regions in time frequency space where the two time
     series co-vary, but do not necessarily have high power.
 
     Parameters
@@ -528,9 +524,10 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
                      wavelet='morlet', mc_count=300, progress=True,
                      cache=True):
-    """
-    Calculates wavelet coherence significance using Monte Carlo
-    simulations with 95% confidence.
+    """Wavelet coherence transform significance.
+
+    Calculates WCT significance using Monte Carlo simulations with
+    95% confidence.
 
     Parameters
     ----------

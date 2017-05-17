@@ -8,3 +8,5 @@ build
 dist
 *.egg*
 setup.sh
+README.txt
+LICENSE.txt

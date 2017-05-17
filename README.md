@@ -9,7 +9,7 @@ wavelet coherence tests and sample scripts.
 Please read the documentation on http://regeirk.github.io/pycwt/.
 
 This module requires ``NumPy`` and ``SciPy``. In addition, you also need
-``matplotlib`` to run the samples.
+``matplotlib`` and ``progressbar`` to run the samples.
 
 The sample scripts (``sample.py``, ``sample_xwt.py``) illustrate the use of
 the wavelet and inverse wavelet transforms, cross-wavelet transform and

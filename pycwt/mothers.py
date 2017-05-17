@@ -1,3 +1,4 @@
+"""PyCWT mother wavelet classes."""
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -10,8 +11,7 @@ from .helpers import rect, fft, fft_kwargs
 
 
 class Morlet(object):
-    """
-    Implements the Morlet wavelet class.
+    """Implements the Morlet wavelet class.
 
     Note that the input parameters f and f0 are angular frequencies.
     f0 should be more than 0.8 for this function to be correct, its
@@ -59,8 +59,7 @@ class Morlet(object):
             self.deltaj0 = -1
 
     def smooth(self, W, dt, dj, scales):
-        """
-        Smoothing function used in coherence analysis.
+        """Smoothing function used in coherence analysis.
 
         Parameters
         ----------
@@ -106,8 +105,7 @@ class Morlet(object):
 
 
 class Paul(object):
-    """
-    Implements the Paul wavelet class.
+    """Implements the Paul wavelet class.
 
     Note that the input parameter f is the angular frequency and that
     the default order for this wavelet is m=4.
@@ -158,8 +156,7 @@ class Paul(object):
 
 
 class DOG(object):
-    """
-    Implements the derivative of a Guassian wavelet class.
+    """Implements the derivative of a Guassian wavelet class.
 
     Note that the input parameter f is the angular frequency and that
     for m=2 the DOG becomes the Mexican hat wavelet, which is then
@@ -176,8 +173,7 @@ class DOG(object):
                 np.exp(- 0.5 * f ** 2))
 
     def psi(self, t):
-        """
-        DOG wavelet as described in Torrence and Compo (1998).
+        """DOG wavelet as described in Torrence and Compo (1998).
 
         The derivative of a Gaussian of order `n` can be determined using
         the probabilistic Hermite polynomials. They are explicitly
@@ -227,8 +223,7 @@ class DOG(object):
 
 
 class MexicanHat(DOG):
-    """
-    Implements the Mexican hat wavelet class.
+    """Implements the Mexican hat wavelet class.
 
     This class inherits the DOG class using m=2.
 
