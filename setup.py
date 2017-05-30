@@ -18,7 +18,7 @@ setup(
     license='BSD',
     url='https://github.com/regeirk/pycwt',
     packages=['pycwt'],
-    install_requires=['numpy', 'scipy', 'matplotlib', 'progressbar'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'tqdm'],
     long_description=read('README.txt'),
     keywords=['wavelet', 'spectral analysis', 'signal processing',
               'data science'],
