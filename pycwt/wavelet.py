@@ -3,11 +3,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import tqdm
 
-try:
-    import progressbar as pg
-except ImportError:
-    pg = None
 
 import numpy as np
 from scipy.stats import chi2
@@ -522,7 +519,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
 
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
-                     wavelet='morlet', mc_count=300, progress=True,
+                     wavelet='morlet', mc_count=300, 
                      cache=True):
     """Wavelet coherence transform significance.
 
@@ -551,8 +548,6 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
         Mother wavelet class. Default is Morlet wavelet.
     mc_count : integer, optional
         Number of Monte Carlo simulations. Default is 300.
-    progress : bool, optional
-        If `True` (default), shows progress bar on screen.
     cache : bool, optional
         If `True` (default) saves cache to file.
 
@@ -561,8 +556,6 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
     TODO
 
     """
-    if progress and pg is None:
-        raise ImportError('Progressbar is not installed')
 
     if cache:
         # Load cache if previously calculated. It is assumed that wavelet
@@ -581,11 +574,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
             pass
 
     # Some output to the screen
-    if progress:
-        print('Calculating wavelet coherence significance')
-        widgets = [pg.Percentage(), ' ', pg.Bar(), ' ', pg.ETA()]
-        pbar = pg.ProgressBar(widgets=widgets, maxval=mc_count)
-        pbar.start()
+    print('Calculating wavelet coherence significance')
 
     # Choose N so that largest scale has at least some part outside the COI
     ms = s0 * (2 ** (J * dj)) / dt
@@ -604,7 +593,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
 
     nbins = 1000
     wlc = np.ma.zeros([J + 1, nbins])
-    for i in range(mc_count):
+    # Displays progress bar with tqdm
+    for i in tqdm.tqdm(range(mc_count)):
         # Generates two red-noise signals with lag-1 autoregressive
         # coefficients given by al1 and al2
         noise1 = rednoise(N, al1, 1)
@@ -626,9 +616,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
             cd = np.floor(R2[s, :] * nbins)
             for j, t in enumerate(cd[~cd.mask]):
                 wlc[s, int(t)] += 1
-        # Outputs some text to screen if desired
-        if progress:
-            pbar.update(i + 1)
+
 
     # After many, many, many Monte Carlo simulations, determine the
     # significance using the coherence coefficient counter percentile.
