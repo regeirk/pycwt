@@ -2,11 +2,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import os
-import tqdm
-
-
 import numpy as np
+from tqdm import tqdm
 from scipy.stats import chi2
 from .helpers import (ar1, ar1_spectrum, fft, fft_kwargs, find, get_cache_dir,
                       rednoise)
@@ -519,7 +516,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
 
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
-                     wavelet='morlet', mc_count=300, 
+                     wavelet='morlet', mc_count=300, progress=True,
                      cache=True):
     """Wavelet coherence transform significance.
 
@@ -548,6 +545,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
         Mother wavelet class. Default is Morlet wavelet.
     mc_count : integer, optional
         Number of Monte Carlo simulations. Default is 300.
+    progress : bool, optional
+        If `True` (default), shows progress bar on screen.
     cache : bool, optional
         If `True` (default) saves cache to file.
 
@@ -594,7 +593,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
     nbins = 1000
     wlc = np.ma.zeros([J + 1, nbins])
     # Displays progress bar with tqdm
-    for i in tqdm.tqdm(range(mc_count)):
+    for _ in tqdm(range(mc_count), disable=not progress):
         # Generates two red-noise signals with lag-1 autoregressive
         # coefficients given by al1 and al2
         noise1 = rednoise(N, al1, 1)
