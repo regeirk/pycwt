@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Module reference &#8212; PyCWT 0.3.0a6 documentation</title>
+    <title>Module reference &#8212; PyCWT 0.3.0a7 documentation</title>
     
     <link rel="stylesheet" href="_static/bizstyle.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.3.0a6',
+        VERSION:     '0.3.0a7',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -59,7 +59,7 @@
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a7 documentation</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -427,7 +427,7 @@ the signals.</li>
 
 <dl class="function">
 <dt id="pycwt.wct_significance">
-<code class="descclassname">pycwt.</code><code class="descname">wct_significance</code><span class="sig-paren">(</span><em>al1</em>, <em>al2</em>, <em>dt</em>, <em>dj</em>, <em>s0</em>, <em>J</em>, <em>significance_level=0.95</em>, <em>wavelet=u'morlet'</em>, <em>mc_count=300</em>, <em>cache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.wct_significance" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pycwt.</code><code class="descname">wct_significance</code><span class="sig-paren">(</span><em>al1</em>, <em>al2</em>, <em>dt</em>, <em>dj</em>, <em>s0</em>, <em>J</em>, <em>significance_level=0.95</em>, <em>wavelet=u'morlet'</em>, <em>mc_count=300</em>, <em>progress=True</em>, <em>cache=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pycwt.wct_significance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wavelet coherence transform significance.</p>
 <p>Calculates WCT significance using Monte Carlo simulations with
 95% confidence.</p>
@@ -448,6 +448,7 @@ Default is J = (log2(N*dt/so))/dj.</li>
 <li><strong>significance_level</strong> (<em>float</em><em>, </em><em>optional</em>) &#8211; Significance level to use. Default is 0.95.</li>
 <li><strong>wavelet</strong> (<em>instance of a wavelet class</em><em>, </em><em>optional</em>) &#8211; Mother wavelet class. Default is Morlet wavelet.</li>
 <li><strong>mc_count</strong> (<em>integer</em><em>, </em><em>optional</em>) &#8211; Number of Monte Carlo simulations. Default is 300.</li>
+<li><strong>progress</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If <cite>True</cite> (default), shows progress bar on screen.</li>
 <li><strong>cache</strong> (<em>bool</em><em>, </em><em>optional</em>) &#8211; If <cite>True</cite> (default) saves cache to file.</li>
 </ul>
 </td>
@@ -790,7 +791,7 @@ a boxed distribution.</p>
         <li class="right" >
           <a href="tutorial.html" title="Tutorial"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">PyCWT 0.3.0a7 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
