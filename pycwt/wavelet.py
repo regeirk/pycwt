@@ -519,8 +519,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
 
 def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
-                     wavelet='morlet', mc_count=300, 
-                     cache=True):
+                     wavelet='morlet', mc_count=300, cache=True):
     """Wavelet coherence transform significance.
 
     Calculates WCT significance using Monte Carlo simulations with
@@ -616,7 +615,6 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
             cd = np.floor(R2[s, :] * nbins)
             for j, t in enumerate(cd[~cd.mask]):
                 wlc[s, int(t)] += 1
-
 
     # After many, many, many Monte Carlo simulations, determine the
     # significance using the coherence coefficient counter percentile.

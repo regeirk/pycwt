@@ -11,7 +11,7 @@ AUTHORS = ('Sebastian Krieger, Nabil Freij, Alexey Brazhe, '
 
 setup(
     name='pycwt',
-    version='0.3.0a5',
+    version='0.3.0a7',
     author=AUTHORS,
     author_email='sebastian@nublia.com',
     description=('Continuous wavelet transform module for Python.'),
