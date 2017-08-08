@@ -21,7 +21,7 @@ collection of routines for wavelet transform and statistical analysis via FFT
 algorithm. In addition, the module also includes cross-wavelet transforms,
 wavelet coherence tests and sample scripts.
 
-Please read the documentation `here <https://readthedocs.org/projects/pycwt/>`__\ .
+Please read the documentation `here <http://pycwt.readthedocs.io/en/latest/>`__\ .
 
 This module requires ``NumPy``, ``SciPy``, ``tqdm``. In addition, you will 
 also need ``matplotlib`` to run the examples.
