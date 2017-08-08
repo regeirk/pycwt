@@ -1,18 +1,9 @@
+|ReadTheDocs| |PyPi| |Travis|
+
+
+
 PyCWT
 #####
-
-|Travis| |PyPi| |ReadTheDocs|
-
-
-.. |Travis| image:: https://travis-ci.org/regeirk/pycwt.svg?branch=master
-   :target: https://travis-ci.org/regeirk/pycwt
-
-.. |PyPi| image:: https://badge.fury.io/py/pycwt.svg
-   :target: https://badge.fury.io/py/pycwt
-
-.. |ReadTheDocs| image:: https://readthedocs.org/projects/pycwt/badge/?version=latest
-   :target: http://pycwt.readthedocs.io/en/latest/?badge=latest
-
 
 A Python module for continuous wavelet spectral analysis. It includes a
 collection of routines for wavelet transform and statistical analysis via FFT
@@ -98,3 +89,13 @@ References
    in the wavelet power spectrum. *Journal of Atmospheric and Oceanic
    Technology*, **2007**, 24, 2093-2102.
    `DOI <http://dx.doi.org/10.1175/2007JTECHO511.1>`__\ .
+
+
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/pycwt/badge/?version=latest
+   :target: http://pycwt.readthedocs.io/en/latest/?badge=latest
+
+.. |PyPi| image:: https://badge.fury.io/py/pycwt.svg
+   :target: https://badge.fury.io/py/pycwt
+
+.. |Travis| image:: https://travis-ci.org/regeirk/pycwt.svg?branch=master
+   :target: https://travis-ci.org/regeirk/pycwt
