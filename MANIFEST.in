@@ -1,3 +1,5 @@
-include LICENSE.rst
-include README.rst
+# Include the license file
+include LICENSE.txt
+
+# Include sample folder
 recursive-include pycwt/sample *.py *.dat *.png

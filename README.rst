@@ -1,4 +1,4 @@
-|Travis|_ |PyPi|_
+|Travis|_ |PyPi|_ |ReadTheDocs|_
 
 
 .. |Travis| image:: https://travis-ci.org/regeirk/pycwt.svg?branch=master
@@ -6,6 +6,9 @@
 
 .. |PyPi| image:: https://badge.fury.io/py/pycwt.svg
 .. _PyPi: https://badge.fury.io/py/pycwt
+
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/pycwt/badge/?version=latest
+.. _ReadTheDocs: http://pycwt.readthedocs.io/en/latest/?badge=latest
 
 
 
@@ -18,7 +21,7 @@ collection of routines for wavelet transform and statistical analysis via FFT
 algorithm. In addition, the module also includes cross-wavelet transforms,
 wavelet coherence tests and sample scripts.
 
-Please read the documentation on http://regeirk.github.io/pycwt/.
+Please read the documentation `here <https://readthedocs.org/projects/pycwt/>`__\ .
 
 This module requires ``NumPy``, ``SciPy``, ``tqdm``. In addition, you will 
 also need ``matplotlib`` to run the examples.

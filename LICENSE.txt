@@ -1,6 +1,3 @@
-LICENSE
-=======
-
 PyCWT is released under a BSD-style open source licence:
 
 Copyright (c) 2017 Sebastian Krieger, Nabil Freij, Alexey Brazhe, 
