@@ -20,8 +20,13 @@ wavelet coherence tests and sample scripts.
 
 Please read the documentation on http://regeirk.github.io/pycwt/.
 
-This module requires ``NumPy`` and ``SciPy``. In addition, you also need
-``matplotlib`` and ``progressbar`` to run the samples.
+This module requires ``NumPy``, ``SciPy``, ``tqdm``. In addition, you will 
+also need ``matplotlib`` to run the examples.
+
+numpy
+scipy
+matplotlib
+tqdm
 
 The sample scripts (``sample.py``, ``sample_xwt.py``) illustrate the use of
 the wavelet and inverse wavelet transforms, cross-wavelet transform and
@@ -79,21 +84,21 @@ References
 1. Torrence, C. and Compo, G. P.. A Practical Guide to Wavelet
    Analysis. Bulletin of the American Meteorological Society, *American
    Meteorological Society*, **1998**, 79, 61-78.
-   http://dx.doi.org/10.1175/1520-0477(1998)079\<0061:APGTWA\>2.0.CO;2>
+   `DOI <http://dx.doi.org/10.1175/1520-0477(1998)079\<0061:APGTWA\>2.0.CO;2>`__\ .
 2. Torrence, C. and Webster, P. J.. Interdecadal changes in the
    ENSO-Monsoon system, *Journal of Climate*, **1999**, 12(8),
-   2679-2690. http://dx.doi.org/10.1175/1520-0442(1999)012\<2679:ICITEM\>2.0.CO;2>
+   2679-2690. `DOI <http://dx.doi.org/10.1175/1520-0442(1999)012\<2679:ICITEM\>2.0.CO;2>`__\.
 3. Grinsted, A.; Moore, J. C. & Jevrejeva, S. Application of the cross
    wavelet transform and wavelet coherence to geophysical time series.
    *Nonlinear Processes in Geophysics*, **2004**, 11, 561-566.
-   http://dx.doi.org/10.5194/npg-11-561-2004
+   `DOI <http://dx.doi.org/10.5194/npg-11-561-2004>`__\ .
 4. Mallat, S.. A wavelet tour of signal processing: The sparse way.
    *Academic Press*, **2008**, 805.
 5. Addison, P. S. The illustrated wavelet transform handbook:
    introductory theory and applications in science, engineering,
    medicine and finance. *IOP Publishing*, **2002**.
-   http://dx.doi.org/10.1201/9781420033397
+   `DOI <http://dx.doi.org/10.1201/9781420033397>`__\ .
 6. Liu, Y., Liang, X. S. and Weisberg, R. H. Rectification of the bias
    in the wavelet power spectrum. *Journal of Atmospheric and Oceanic
    Technology*, **2007**, 24, 2093-2102.
-   http://dx.doi.org/10.1175/2007JTECHO511.1
+   `DOI <http://dx.doi.org/10.1175/2007JTECHO511.1>`__\ .
