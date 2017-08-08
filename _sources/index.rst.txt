@@ -15,6 +15,7 @@ wavelet coherence tests and sample scripts.
    :maxdepth: 2
 
    getting_started.rst
+   comments.rst
    tutorial.rst
    pycwt.rst
 
