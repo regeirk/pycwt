@@ -1,2 +1,3 @@
-include LICENSE.txt
+include LICENSE.md
+include README.md
 recursive-include pycwt/sample *.py *.dat *.png

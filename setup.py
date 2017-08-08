@@ -11,7 +11,7 @@ AUTHORS = ('Sebastian Krieger, Nabil Freij, Alexey Brazhe, '
 
 setup(
     name='pycwt',
-    version='0.3.0a8',
+    version='0.3.0a9',
     author=AUTHORS,
     author_email='sebastian@nublia.com',
     description=('Continuous wavelet transform module for Python.'),
@@ -19,9 +19,14 @@ setup(
     url='https://github.com/regeirk/pycwt',
     packages=['pycwt'],
     install_requires=['numpy', 'scipy', 'matplotlib', 'tqdm'],
-    long_description=read('README.txt'),
+    long_description="""
+    A Python module for continuous wavelet spectral analysis. It includes a
+    collection of routines for wavelet transform and statistical analysis via
+    FFT algorithm. In addition, the module also includes cross-wavelet 
+    transforms, wavelet coherence tests and sample scripts.
+    """,
     keywords=['wavelet', 'spectral analysis', 'signal processing',
-              'data science'],
+              'data science', 'timeseries'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: BSD License',
