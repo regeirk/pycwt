@@ -4,8 +4,5 @@ python:
 - "2.7"
 - "3.5"
 
-install:
-    - make build
-
 script:
 - echo "TODO"
