@@ -1,20 +1,18 @@
-|Travis|_ |PyPi|_ |ReadTheDocs|_
+PyCWT
+#####
+
+|Travis| |PyPi| |ReadTheDocs|
 
 
 .. |Travis| image:: https://travis-ci.org/regeirk/pycwt.svg?branch=master
-.. _Travis: https://travis-ci.org/regeirk/pycwt
+   :target: https://travis-ci.org/regeirk/pycwt
 
 .. |PyPi| image:: https://badge.fury.io/py/pycwt.svg
-.. _PyPi: https://badge.fury.io/py/pycwt
+   :target: https://badge.fury.io/py/pycwt
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/pycwt/badge/?version=latest
-.. _ReadTheDocs: http://pycwt.readthedocs.io/en/latest/?badge=latest
+   :target: http://pycwt.readthedocs.io/en/latest/?badge=latest
 
-
-
-#####
-PyCWT
-#####
 
 A Python module for continuous wavelet spectral analysis. It includes a
 collection of routines for wavelet transform and statistical analysis via FFT
@@ -25,11 +23,6 @@ Please read the documentation `here <http://pycwt.readthedocs.io/en/latest/>`__\
 
 This module requires ``NumPy``, ``SciPy``, ``tqdm``. In addition, you will 
 also need ``matplotlib`` to run the examples.
-
-numpy
-scipy
-matplotlib
-tqdm
 
 The sample scripts (``sample.py``, ``sample_xwt.py``) illustrate the use of
 the wavelet and inverse wavelet transforms, cross-wavelet transform and
