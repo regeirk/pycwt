@@ -1,4 +1,4 @@
-|Travis|_ |PyPi|_ |Depsy|_
+|Travis|_ |PyPi|_
 
 
 .. |Travis| image:: https://travis-ci.org/regeirk/pycwt.svg?branch=master
@@ -7,8 +7,6 @@
 .. |PyPi| image:: https://badge.fury.io/py/pycwt.svg
 .. _PyPi: https://badge.fury.io/py/pycwt
 
-.. |Depsy| image:: http://depsy.org/api/package/pypi/pycwt/badge.svg
-.. _Depsy: http://depsy.org/package/python/pycwt
 
 
 #####
