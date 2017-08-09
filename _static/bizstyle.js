@@ -36,6 +36,6 @@ $(window).resize(function(){
         $("li.nav-item-0 a").text("Top");
     }
     else {
-        $("li.nav-item-0 a").text("PyCWT 0.3.0a12 documentation");
+        $("li.nav-item-0 a").text("PyCWT 0.3.0a22 documentation");
     }
 });
