@@ -166,8 +166,8 @@ def icwt(W, sj, dt, dj=1/12, wavelet='morlet'):
         raise Warning('Input array dimensions do not match.')
 
     # As of Torrence and Compo (1998), eq. (11)
-    iW = (dj * np.sqrt(dt) / wavelet.cdelta * wavelet.psi(0) *
-          (np.real(W) / sj).sum(axis=0))
+    iW = (dj * np.sqrt(dt) / (wavelet.cdelta * wavelet.psi(0)) *
+          (np.real(W) / np.sqrt(sj)).sum(axis=0))
     return iW
 
 
