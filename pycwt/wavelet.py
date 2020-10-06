@@ -505,7 +505,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
     # confidence as a function of scale.
     a1, b1, c1 = ar1(y1)
     a2, b2, c2 = ar1(y2)
-    if sig:
+    if significance_level:
         sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
                                significance_level=significance_level,
                                wavelet=wavelet, **kwargs)
