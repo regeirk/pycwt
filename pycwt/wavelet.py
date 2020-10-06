@@ -442,6 +442,8 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         Number of scales less one. Scales range from s0 up to
         s0 * 2**(J * dj), which gives a total of (J + 1) scales.
         Default is J = (log2(N*dt/so))/dj.
+    sig : bool 
+        set to compute signficance, default is True
     significance_level (float, optional) :
         Significance level to use. Default is 0.95.
     normalize (boolean, optional) :
@@ -503,7 +505,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
-    if significance_level:
+    if sig:
         a1, b1, c1 = ar1(y1)
         a2, b2, c2 = ar1(y2)
 
