@@ -442,6 +442,8 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         Number of scales less one. Scales range from s0 up to
         s0 * 2**(J * dj), which gives a total of (J + 1) scales.
         Default is J = (log2(N*dt/so))/dj.
+    sig : bool 
+        set to compute signficance, default is True
     significance_level (float, optional) :
         Significance level to use. Default is 0.95.
     normalize (boolean, optional) :
@@ -450,7 +452,17 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
     Returns
     -------
-    TODO: Something TBA and TBC
+    WCT : magnitude of coherence
+    aWCT : phase angle of coherence
+    coi (array like):
+        Cone of influence, which is a vector of N points containing
+        the maximum Fourier period of useful information at that
+        particular time. Periods greater than those are subject to
+        edge effects.
+    freq (array like):
+        Vector of Fourier equivalent frequencies (in 1 / time units)    coi :  
+    sig :  Significance levels as a function of scale 
+       if sig=True when called, otherwise zero.
 
     See also
     --------
@@ -503,9 +515,10 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
 
     # Calculates the significance using Monte Carlo simulations with 95%
     # confidence as a function of scale.
-    a1, b1, c1 = ar1(y1)
-    a2, b2, c2 = ar1(y2)
     if sig:
+        a1, b1, c1 = ar1(y1)
+        a2, b2, c2 = ar1(y2)
+
         sig = wct_significance(a1, a2, dt=dt, dj=dj, s0=s0, J=J,
                                significance_level=significance_level,
                                wavelet=wavelet, **kwargs)
