@@ -27,7 +27,7 @@ except ImportError:
     def fft_kwargs(signal, **kwargs):
         """Return next higher power of 2 for given signal to speed up FFT"""
         if _FFT_NEXT_POW2:
-            return {'n': np.int(2 ** np.ceil(np.log2(len(signal))))}
+            return {'n': int(2 ** np.ceil(np.log2(len(signal))))}
 
 from scipy.signal import lfilter
 from os import makedirs
@@ -220,7 +220,7 @@ def boxpdf(x):
 
     j = np.concatenate([[0], j + 1])
     Y = 0.5 * (j[0:-1] + j[1:]) / n
-    bX = np.interp(x, X, Y)
+    bX = interp(x, X, Y)
 
     return bX, X, Y
 
