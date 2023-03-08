@@ -98,7 +98,7 @@ class Morlet(object):
         # Filter in scale. For the Morlet wavelet it's simply a boxcar with
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
-        win = rect(np.int(np.round(wsize)), normalize=True)
+        win = rect(int(np.round(wsize)), normalize=True)
         T = convolve2d(T, win[:, np.newaxis], 'same')  # Scales are "vertical"
 
         return T

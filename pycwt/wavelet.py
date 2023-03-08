@@ -1,4 +1,4 @@
-"""PyCWT core wavelet transform functions."""
+int"""PyCWT core wavelet transform functions."""
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -78,7 +78,7 @@ def cwt(signal, dt, dj=1/12, s0=-1, J=-1, wavelet='morlet', freqs=None):
             s0 = 2 * dt / wavelet.flambda()
         # Number of scales
         if J == -1:
-            J = np.int(np.round(np.log2(n0 * dt / s0) / dj))
+            J = int(np.round(np.log2(n0 * dt / s0) / dj))
         # The scales as of Mallat 1999
         sj = s0 * 2 ** (np.arange(0, J + 1) * dj)
         # Fourier equivalent frequencies
@@ -477,7 +477,7 @@ def wct(y1, y2, dt, dj=1/12, s0=-1, J=-1, sig=True,
         s0 = 2 * dt / wavelet.flambda()
     if J == -1:
         # Number of scales
-        J = np.int(np.round(np.log2(y1.size * dt / s0) / dj))
+        J = int(np.round(np.log2(y1.size * dt / s0) / dj))
 
     # Makes sure input signals are numpy arrays.
     y1 = np.asarray(y1)
