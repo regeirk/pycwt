@@ -7,10 +7,10 @@ build-backend = "setuptools.build_meta"
 name = "pycwt"
 dynamic = ["version"]
 dependencies = [
-    "numpy",
-    "scipy",
-    "matplotlib",
-    "tqdm"
+    "numpy>=1.24, <2",
+    "scipy>=1.10, <2",
+    "matplotlib>=3.7, <4",
+    "tqdm>=4.65, <5"
 ]
 description = "Continuous wavelet transform module for Python."
 license = {file="LICENSE.rst"}
