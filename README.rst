@@ -43,12 +43,11 @@ We recommend using PyPI to install this package.
 
     $ pip install pycwt
 
-Or, you can download the code and run the below line within the top level
-folder.
+However, if you want to install directly from GitHub, use:
 
 .. code-block:: sh
 
-    $ python setup.py install
+    $ pip install git+https://github.com/regeirk/pycwt
 
 
 Acknowledgements
@@ -60,11 +59,19 @@ Jack Ireland and Renaud Dussurget for their attentive eyes, feedback and
 debugging.
 
 
-Authors
--------
+Contributors
+------------
 
-Sebastian Krieger, Nabil Freij, Alexey Brazhe, Christopher Torrence,
-Gilbert P. Compo and contributors.
+- Sebastian Krieger
+- Nabil Freij
+- Ken Mankoff
+- Aaron Nielsen
+- Rodrigo Nemmen
+- Ondrej Grover
+- Joscelin Rocha Hidalgo
+- Stuart Mumford
+- ymarcon1
+- Tariq Hassan
 
 
 References
