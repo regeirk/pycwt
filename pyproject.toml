@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pycwt"
+dynamic = ["version"]
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "tqdm"
+]
+description = "Continuous wavelet transform module for Python."
+license = {file="LICENSE.rst"}
+authors = [
+    {name="Sebastian Krieger", email="sebastian@nublia.com"},
+    {name="Nabil Freij"},
+    {name="and contributors"}
+]
+maintainers = [
+    {name="Sebastian Krieger", email="sebastian@nublia.com"}
+]
+readme = "README.rst"
+requires-python = ">=3.8"
+keywords = ["wavelet", "spectral analysis", "signal processing", "data science", "timeseries", "time series"]
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'License :: OSI Approved :: BSD License',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Operating System :: OS Independent',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Topic :: Utilities',
+    'Intended Audience :: Science/Research'
+]
+
+
+[project.urls]
+repository = "https://github.com/regeirk/pycwt"
+documentation = "https://pycwt.readthedocs.io/"
+
+
+[tool.setuptools_scm]
+write_to = "src/pycwt/_version_.py"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]

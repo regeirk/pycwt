@@ -7,3 +7,4 @@ build
 dist
 *.egg*
 setup.sh
+_version_.py
