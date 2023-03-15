@@ -2,7 +2,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import numpy as np
+import numpy
 from scipy.special import gamma
 from scipy.signal import convolve2d
 from scipy.special.orthogonal import hermitenorm
@@ -25,19 +25,19 @@ class Morlet(object):
 
     def psi_ft(self, f):
         """Fourier transform of the approximate Morlet wavelet."""
-        return (np.pi ** -0.25) * np.exp(-0.5 * (f - self.f0) ** 2)
+        return (numpy.pi ** -0.25) * numpy.exp(-0.5 * (f - self.f0) ** 2)
 
     def psi(self, t):
         """Morlet wavelet as described in Torrence and Compo (1998)."""
-        return (np.pi ** -0.25) * np.exp(1j * self.f0 * t - t ** 2 / 2)
+        return (numpy.pi ** -0.25) * numpy.exp(1j * self.f0 * t - t ** 2 / 2)
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
-        return (4 * np.pi) / (self.f0 + np.sqrt(2 + self.f0 ** 2))
+        return (4 * numpy.pi) / (self.f0 + numpy.sqrt(2 + self.f0 ** 2))
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1. / np.sqrt(2)
+        return 1. / numpy.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""
@@ -80,26 +80,26 @@ class Morlet(object):
         m, n = W.shape
 
         # Filter in time.
-        k = 2 * np.pi * fft.fftfreq(fft_kwargs(W[0, :])['n'])
+        k = 2 * numpy.pi * fft.fftfreq(fft_kwargs(W[0, :])['n'])
         k2 = k ** 2
         snorm = scales / dt
         # Smoothing by Gaussian window (absolute value of wavelet function)
         # using the convolution theorem: multiplication by Gaussian curve in
         # Fourier domain for each scale, outer product of scale and frequency
-        F = np.exp(-0.5 * (snorm[:, np.newaxis] ** 2) * k2)  # Outer product
+        F = numpy.exp(-0.5 * (snorm[:, numpy.newaxis] ** 2) * k2)  # Outer product
         smooth = fft.ifft(F * fft.fft(W, axis=1, **fft_kwargs(W[0, :])),
                           axis=1,  # Along Fourier frequencies
                           **fft_kwargs(W[0, :], overwrite_x=True))
         T = smooth[:, :n]  # Remove possibly padded region due to FFT
 
-        if np.isreal(W).all():
+        if numpy.isreal(W).all():
             T = T.real
 
         # Filter in scale. For the Morlet wavelet it's simply a boxcar with
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
-        win = rect(int(np.round(wsize)), normalize=True)
-        T = convolve2d(T, win[:, np.newaxis], 'same')  # Scales are "vertical"
+        win = rect(int(numpy.round(wsize)), normalize=True)
+        T = convolve2d(T, win[:, numpy.newaxis], 'same')  # Scales are "vertical"
 
         return T
 
@@ -118,22 +118,22 @@ class Paul(object):
     def psi_ft(self, f):
         """Fourier transform of the Paul wavelet."""
         return (2 ** self.m /
-                np.sqrt(self.m * np.prod(range(2, 2 * self.m))) *
-                f ** self.m * np.exp(-f) * (f > 0))
+                numpy.sqrt(self.m * numpy.prod(range(2, 2 * self.m))) *
+                f ** self.m * numpy.exp(-f) * (f > 0))
 
     def psi(self, t):
         """Paul wavelet as described in Torrence and Compo (1998)."""
-        return (2 ** self.m * 1j ** self.m * np.prod(range(2, self.m - 1)) /
-                np.sqrt(np.pi * np.prod(range(2, 2 * self.m + 1))) *
+        return (2 ** self.m * 1j ** self.m * numpy.prod(range(2, self.m - 1)) /
+                numpy.sqrt(numpy.pi * numpy.prod(range(2, 2 * self.m + 1))) *
                 (1 - 1j * t) ** (-(self.m + 1)))
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
-        return 4 * np.pi / (2 * self.m + 1)
+        return 4 * numpy.pi / (2 * self.m + 1)
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return np.sqrt(2)
+        return numpy.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""
@@ -169,8 +169,8 @@ class DOG(object):
 
     def psi_ft(self, f):
         """Fourier transform of the DOG wavelet."""
-        return (- 1j ** self.m / np.sqrt(gamma(self.m + 0.5)) * f ** self.m *
-                np.exp(- 0.5 * f ** 2))
+        return (- 1j ** self.m / numpy.sqrt(gamma(self.m + 0.5)) * f ** self.m *
+                numpy.exp(- 0.5 * f ** 2))
 
     def psi(self, t):
         """DOG wavelet as described in Torrence and Compo (1998).
@@ -187,16 +187,16 @@ class DOG(object):
 
         """
         p = hermitenorm(self.m)
-        return ((-1) ** (self.m + 1) * np.polyval(p, t) *
-                np.exp(-t ** 2 / 2) / np.sqrt(gamma(self.m + 0.5)))
+        return ((-1) ** (self.m + 1) * numpy.polyval(p, t) *
+                numpy.exp(-t ** 2 / 2) / numpy.sqrt(gamma(self.m + 0.5)))
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
-        return (2 * np.pi / np.sqrt(self.m + 0.5))
+        return (2 * numpy.pi / numpy.sqrt(self.m + 0.5))
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1 / np.sqrt(2)
+        return 1 / numpy.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""

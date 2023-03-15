@@ -22,9 +22,6 @@ Authors
 Sebastian Krieger, Nabil Freij
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import numpy
 from matplotlib import pyplot
 
@@ -116,7 +113,6 @@ pyplot.ioff()
 params = {
           'font.size': 13.0,
           'text.usetex': usetex,
-          'text.fontsize': 12,
           'axes.grid': True,
          }
 pyplot.rcParams.update(params)

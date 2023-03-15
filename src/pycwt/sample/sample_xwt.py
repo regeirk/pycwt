@@ -23,10 +23,7 @@ Authors
 Nabil Freij, Sebastian Krieger
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import numpy as np
+import numpy
 import matplotlib.pyplot as plt
 import pycwt as wavelet
 
@@ -38,9 +35,9 @@ data2 = dict(name='Baltic Sea ice extent', nick='BMI', file='jbaltic.dat')
 mother = 'morlet'
 
 # Loads the data to be analysed.
-t1, s1 = np.loadtxt(data1['file'], unpack=True)
-t2, s2 = np.loadtxt(data2['file'], unpack=True)
-dt = np.diff(t1)[0]
+t1, s1 = numpy.loadtxt(data1['file'], unpack=True)
+t2, s2 = numpy.loadtxt(data2['file'], unpack=True)
+dt = numpy.diff(t1)[0]
 n1 = t1.size
 n2 = t2.size
 n = min(n1, n2)
@@ -84,13 +81,13 @@ signif2, fft_theor2 = wavelet.significance(1.0, dt, scales2, 0, alpha2,
                                            significance_level=slevel,
                                            wavelet=mother)
 
-power1 = (np.abs(W1)) ** 2             # Normalized wavelet power spectrum
-power2 = (np.abs(W2)) ** 2             # Normalized wavelet power spectrum
+power1 = (numpy.abs(W1)) ** 2             # Normalized wavelet power spectrum
+power2 = (numpy.abs(W2)) ** 2             # Normalized wavelet power spectrum
 period1 = 1/freqs1
 period2 = 1/freqs2
-sig95_1 = np.ones([1, n1]) * signif1[:, None]
+sig95_1 = numpy.ones([1, n1]) * signif1[:, None]
 sig95_1 = power1 / sig95_1             # Where ratio > 1, power is significant
-sig95_2 = np.ones([1, n2]) * signif2[:, None]
+sig95_2 = numpy.ones([1, n2]) * signif2[:, None]
 sig95_2 = power2 / sig95_2             # Where ratio > 1, power is significant
 
 # First plot is of both CWT
@@ -100,22 +97,22 @@ extent1 = [t1.min(), t1.max(), 0, max(period1)]
 extent2 = [t2.min(), t2.max(), 0, max(period2)]
 im1 = NonUniformImage(ax1, interpolation='bilinear', extent=extent1)
 im1.set_data(t1, period1, power1)
-ax1.images.append(im1)
+ax1.add_image(im1)
 ax1.contour(t1, period1, sig95_1, [-99, 1], colors='k', linewidths=2,
             extent=extent1)
-ax1.fill(np.concatenate([t1, t1[-1:]+dt, t1[-1:]+dt, t1[:1]-dt, t1[:1]-dt]),
-         np.concatenate([coi1, [1e-9], period1[-1:], period1[-1:], [1e-9]]),
+ax1.fill(numpy.concatenate([t1, t1[-1:]+dt, t1[-1:]+dt, t1[:1]-dt, t1[:1]-dt]),
+         numpy.concatenate([coi1, [1e-9], period1[-1:], period1[-1:], [1e-9]]),
          'k', alpha=0.3, hatch='x')
 ax1.set_title('{} Wavelet Power Spectrum ({})'.format(data1['nick'],
                                                       mother.name))
 
 im2 = NonUniformImage(ax2, interpolation='bilinear', extent=extent2)
 im2.set_data(t2, period2, power2)
-ax2.images.append(im2)
+ax2.add_image(im2)
 ax2.contour(t2, period2, sig95_2, [-99, 1], colors='k', linewidths=2,
             extent=extent2)
-ax2.fill(np.concatenate([t2, t2[-1:]+dt, t2[-1:]+dt, t2[:1]-dt, t2[:1]-dt]),
-         np.concatenate([coi2, [1e-9], period2[-1:], period2[-1:], [1e-9]]),
+ax2.fill(numpy.concatenate([t2, t2[-1:]+dt, t2[-1:]+dt, t2[:1]-dt, t2[:1]-dt]),
+         numpy.concatenate([coi2, [1e-9], period2[-1:], period2[-1:], [1e-9]]),
          'k', alpha=0.3, hatch='x')
 ax2.set_xlim(max(t1.min(), t2.min()), min(t1.max(), t2.max()))
 ax2.set_title('{} Wavelet Power Spectrum ({})'.format(data2['nick'],
@@ -127,7 +124,7 @@ ax2.set_title('{} Wavelet Power Spectrum ({})'.format(data2['nick'],
 
 # Due to the difference in the time series, the second signal has to be
 # trimmed for the XWT process.
-s2 = s2[np.argwhere((t2 >= min(t1)) & (t2 <= max(t1))).flatten()]
+s2 = s2[numpy.argwhere((t2 >= min(t1)) & (t2 <= max(t1))).flatten()]
 
 # Calculate the cross wavelet transform (XWT). The XWT finds regions in time
 # frequency space where the time series show high common power. Torrence and
@@ -140,8 +137,8 @@ W12, cross_coi, freq, signif = wavelet.xwt(s1, s2, dt, dj=1/12, s0=-1, J=-1,
                                            significance_level=0.8646,
                                            wavelet='morlet', normalize=True)
 
-cross_power = np.abs(W12)**2
-cross_sig = np.ones([1, n]) * signif[:, None]
+cross_power = numpy.abs(W12)**2
+cross_sig = numpy.ones([1, n]) * signif[:, None]
 cross_sig = cross_power / cross_sig  # Power is significant where ratio > 1
 cross_period = 1/freq
 
@@ -153,8 +150,8 @@ WCT, aWCT, corr_coi, freq, sig = wavelet.wct(s1, s2, dt, dj=1/12, s0=-1, J=-1,
                                              wavelet='morlet', normalize=True,
                                              cache=True)
 
-cor_sig = np.ones([1, n]) * sig[:, None]
-cor_sig = np.abs(WCT) / cor_sig  # Power is significant where ratio > 1
+cor_sig = numpy.ones([1, n]) * sig[:, None]
+cor_sig = numpy.abs(WCT) / cor_sig  # Power is significant where ratio > 1
 cor_period = 1 / freq
 
 # Calculates the phase between both time series. The phase arrows in the
@@ -164,8 +161,8 @@ cor_period = 1 / freq
 # upwards (N), anti-phase signals point downwards (S). If X leads Y,
 # arrows point to the right (E) and if X lags Y, arrow points to the
 # left (W).
-angle = 0.5 * np.pi - aWCT
-u, v = np.cos(angle), np.sin(angle)
+angle = 0.5 * numpy.pi - aWCT
+u, v = numpy.cos(angle), numpy.sin(angle)
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
 fig.subplots_adjust(right=0.8)
@@ -176,11 +173,11 @@ extent_cross = [t1.min(), t1.max(), 0, max(cross_period)]
 extent_corr = [t1.min(), t1.max(), 0, max(cor_period)]
 im1 = NonUniformImage(ax1, interpolation='bilinear', extent=extent_cross)
 im1.set_data(t1, cross_period, cross_power)
-ax1.images.append(im1)
+ax1.add_image(im1)
 ax1.contour(t1, cross_period, cross_sig, [-99, 1], colors='k', linewidths=2,
             extent=extent_cross)
-ax1.fill(np.concatenate([t1, t1[-1:]+dt, t1[-1:]+dt, t1[:1]-dt, t1[:1]-dt]),
-         np.concatenate([cross_coi, [1e-9], cross_period[-1:],
+ax1.fill(numpy.concatenate([t1, t1[-1:]+dt, t1[-1:]+dt, t1[:1]-dt, t1[:1]-dt]),
+         numpy.concatenate([cross_coi, [1e-9], cross_period[-1:],
                          cross_period[-1:], [1e-9]]),
          'k', alpha=0.3, hatch='x')
 ax1.set_title('Cross-Wavelet')
@@ -192,11 +189,11 @@ fig.colorbar(im1, cax=cbar_ax)
 
 im2 = NonUniformImage(ax2, interpolation='bilinear', extent=extent_corr)
 im2.set_data(t1, cor_period, WCT)
-ax2.images.append(im2)
+ax2.add_image(im2)
 ax2.contour(t1, cor_period, cor_sig, [-99, 1], colors='k', linewidths=2,
             extent=extent_corr)
-ax2.fill(np.concatenate([t1, t1[-1:]+dt, t1[-1:]+dt, t1[:1]-dt, t1[:1]-dt]),
-         np.concatenate([corr_coi, [1e-9], cor_period[-1:], cor_period[-1:],
+ax2.fill(numpy.concatenate([t1, t1[-1:]+dt, t1[-1:]+dt, t1[:1]-dt, t1[:1]-dt]),
+         numpy.concatenate([corr_coi, [1e-9], cor_period[-1:], cor_period[-1:],
                          [1e-9]]),
          'k', alpha=0.3, hatch='x')
 ax2.set_title('Cross-Correlation')

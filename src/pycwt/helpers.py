@@ -2,7 +2,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import numpy as np
+import numpy
 # Try to import the Python wrapper for FFTW.
 try:
     import pyfftw.interfaces.scipy_fftpack as fft
@@ -27,7 +27,7 @@ except ImportError:
     def fft_kwargs(signal, **kwargs):
         """Return next higher power of 2 for given signal to speed up FFT"""
         if _FFT_NEXT_POW2:
-            return {'n': int(2 ** np.ceil(np.log2(len(signal))))}
+            return {'n': int(2 ** numpy.ceil(numpy.log2(len(signal))))}
 
 from scipy.signal import lfilter
 from os import makedirs
@@ -36,7 +36,7 @@ from os.path import exists, expanduser
 
 def find(condition):
     """Returns the indices where ravel(condition) is true."""
-    res, = np.nonzero(np.ravel(condition))
+    res, = numpy.nonzero(numpy.ravel(condition))
     return res
 
 
@@ -74,7 +74,7 @@ def ar1(x):
     [2] http://www.madsci.org/posts/archives/may97/864012045.Eg.r.html
 
     """
-    x = np.asarray(x)
+    x = numpy.asarray(x)
     N = x.size
     xm = x.mean()
     x = x - xm
@@ -136,8 +136,8 @@ def ar1_spectrum(freqs, ar1=0.):
     #
     # which for an AR1 model reduces to
     #
-    freqs = np.asarray(freqs)
-    Pk = (1 - ar1 ** 2) / np.abs(1 - ar1 * np.exp(-2 * np.pi * 1j * freqs)) \
+    freqs = numpy.asarray(freqs)
+    Pk = (1 - ar1 ** 2) / numpy.abs(1 - ar1 * numpy.exp(-2 * numpy.pi * 1j * freqs)) \
         ** 2
 
     return Pk
@@ -163,11 +163,11 @@ def rednoise(N, g, a=1.):
 
     """
     if g == 0:
-        yr = np.randn(N, 1) * a
+        yr = numpy.randn(N, 1) * a
     else:
         # Twice the decorrelation time.
-        tau = int(np.ceil(-2 / np.log(np.abs(g))))
-        yr = lfilter([1, 0], [1, -g], np.random.randn(N + tau, 1) * a)
+        tau = int(numpy.ceil(-2 / numpy.log(numpy.abs(g))))
+        yr = lfilter([1, 0], [1, -g], numpy.random.randn(N + tau, 1) * a)
         yr = yr[tau:]
 
     return yr.flatten()
@@ -179,9 +179,9 @@ def rect(x, normalize=False):
         shape = [x, ]
     elif type(x) in [list, dict]:
         shape = x
-    elif type(x) in [np.ndarray, np.ma.core.MaskedArray]:
+    elif type(x) in [numpy.ndarray, numpy.ma.core.MaskedArray]:
         shape = x.shape
-    X = np.zeros(shape)
+    X = numpy.zeros(shape)
     X[0] = X[-1] = 0.5
     X[1:-1] = 1
 
@@ -209,18 +209,18 @@ def boxpdf(x):
         Data lookup table.
 
     """
-    x = np.asarray(x)
+    x = numpy.asarray(x)
     n = x.size
 
     # Kind of 'unique'
-    i = np.argsort(x)
-    d = (np.diff(x[i]) != 0)
-    j = find(np.concatenate([d, [True]]))
+    i = numpy.argsort(x)
+    d = (numpy.diff(x[i]) != 0)
+    j = find(numpy.concatenate([d, [True]]))
     X = x[i][j]
 
-    j = np.concatenate([[0], j + 1])
+    j = numpy.concatenate([[0], j + 1])
     Y = 0.5 * (j[0:-1] + j[1:]) / n
-    bX = interp(x, X, Y)
+    bX = numpy.interp(x, X, Y)
 
     return bX, X, Y
 

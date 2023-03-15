@@ -50,8 +50,7 @@ debugging.
 
 Authors
 -------
-Sebastian Krieger, Nabil Freij, Alexey Brazhe, Christopher Torrence,
-Gilbert P. Compo and contributors.
+Sebastian Krieger, Nabil Freij, and contributors.
 
 
 References
@@ -82,9 +81,9 @@ References
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from . wavelet import *
+from pycwt.wavelet import *
+from pycwt._version_ import version, __version__
 
 __all__ = ['cwt', 'icwt', 'significance', 'xwt', 'wct', 'wct_significance',
            'mothers', 'Morlet', 'Paul', 'DOG', 'MexicanHat']
 __name__ = 'PyCWT'
-__version__ = '0.3.0a22'

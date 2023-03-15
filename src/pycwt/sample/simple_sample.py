@@ -7,7 +7,6 @@ C. Torrence and G. Compo at
 """
 # We begin by importing the relevant libraries. Please make sure that PyCWT is
 # properly installed in your system.
-from __future__ import division
 import numpy
 from matplotlib import pyplot
 
