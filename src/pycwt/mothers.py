@@ -3,11 +3,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy
-from scipy.special import gamma
 from scipy.signal import convolve2d
+from scipy.special import gamma
 from scipy.special.orthogonal import hermitenorm
 
-from .helpers import rect, fft, fft_kwargs
+from .helpers import fft, fft_kwargs, rect
 
 
 class Morlet(object):
@@ -21,37 +21,37 @@ class Morlet(object):
 
     def __init__(self, f0=6):
         self._set_f0(f0)
-        self.name = 'Morlet'
+        self.name = "Morlet"
 
     def psi_ft(self, f):
         """Fourier transform of the approximate Morlet wavelet."""
-        return (numpy.pi ** -0.25) * numpy.exp(-0.5 * (f - self.f0) ** 2)
+        return (numpy.pi**-0.25) * numpy.exp(-0.5 * (f - self.f0) ** 2)
 
     def psi(self, t):
         """Morlet wavelet as described in Torrence and Compo (1998)."""
-        return (numpy.pi ** -0.25) * numpy.exp(1j * self.f0 * t - t ** 2 / 2)
+        return (numpy.pi**-0.25) * numpy.exp(1j * self.f0 * t - t**2 / 2)
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
-        return (4 * numpy.pi) / (self.f0 + numpy.sqrt(2 + self.f0 ** 2))
+        return (4 * numpy.pi) / (self.f0 + numpy.sqrt(2 + self.f0**2))
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
-        return 1. / numpy.sqrt(2)
+        return 1.0 / numpy.sqrt(2)
 
     def sup(self):
         """Wavelet support defined by the e-Folding time."""
-        return 1. / self.coi
+        return 1.0 / self.coi
 
     def _set_f0(self, f0):
         # Sets the Morlet wave number, the degrees of freedom and the
         # empirically derived factors for the wavelet bases C_{\delta},
         # \gamma, \delta j_0 (Torrence and Compo, 1998, Table 2)
-        self.f0 = f0             # Wave number
-        self.dofmin = 2          # Minimum degrees of freedom
+        self.f0 = f0  # Wave number
+        self.dofmin = 2  # Minimum degrees of freedom
         if self.f0 == 6:
             self.cdelta = 0.776  # Reconstruction factor
-            self.gamma = 2.32    # Decorrelation factor for time averaging
+            self.gamma = 2.32  # Decorrelation factor for time averaging
             self.deltaj0 = 0.60  # Factor for scale averaging
         else:
             self.cdelta = -1
@@ -80,16 +80,18 @@ class Morlet(object):
         m, n = W.shape
 
         # Filter in time.
-        k = 2 * numpy.pi * fft.fftfreq(fft_kwargs(W[0, :])['n'])
-        k2 = k ** 2
+        k = 2 * numpy.pi * fft.fftfreq(fft_kwargs(W[0, :])["n"])
+        k2 = k**2
         snorm = scales / dt
         # Smoothing by Gaussian window (absolute value of wavelet function)
         # using the convolution theorem: multiplication by Gaussian curve in
         # Fourier domain for each scale, outer product of scale and frequency
         F = numpy.exp(-0.5 * (snorm[:, numpy.newaxis] ** 2) * k2)  # Outer product
-        smooth = fft.ifft(F * fft.fft(W, axis=1, **fft_kwargs(W[0, :])),
-                          axis=1,  # Along Fourier frequencies
-                          **fft_kwargs(W[0, :], overwrite_x=True))
+        smooth = fft.ifft(
+            F * fft.fft(W, axis=1, **fft_kwargs(W[0, :])),
+            axis=1,  # Along Fourier frequencies
+            **fft_kwargs(W[0, :], overwrite_x=True),
+        )
         T = smooth[:, :n]  # Remove possibly padded region due to FFT
 
         if numpy.isreal(W).all():
@@ -99,7 +101,7 @@ class Morlet(object):
         # 0.6 width.
         wsize = self.deltaj0 / dj * 2
         win = rect(int(numpy.round(wsize)), normalize=True)
-        T = convolve2d(T, win[:, numpy.newaxis], 'same')  # Scales are "vertical"
+        T = convolve2d(T, win[:, numpy.newaxis], "same")  # Scales are "vertical"
 
         return T
 
@@ -111,21 +113,30 @@ class Paul(object):
     the default order for this wavelet is m=4.
 
     """
+
     def __init__(self, m=4):
         self._set_m(m)
-        self.name = 'Paul'
+        self.name = "Paul"
 
     def psi_ft(self, f):
         """Fourier transform of the Paul wavelet."""
-        return (2 ** self.m /
-                numpy.sqrt(self.m * numpy.prod(range(2, 2 * self.m))) *
-                f ** self.m * numpy.exp(-f) * (f > 0))
+        return (
+            2**self.m
+            / numpy.sqrt(self.m * numpy.prod(range(2, 2 * self.m)))
+            * f**self.m
+            * numpy.exp(-f)
+            * (f > 0)
+        )
 
     def psi(self, t):
         """Paul wavelet as described in Torrence and Compo (1998)."""
-        return (2 ** self.m * 1j ** self.m * numpy.prod(range(2, self.m - 1)) /
-                numpy.sqrt(numpy.pi * numpy.prod(range(2, 2 * self.m + 1))) *
-                (1 - 1j * t) ** (-(self.m + 1)))
+        return (
+            2**self.m
+            * 1j**self.m
+            * numpy.prod(range(2, self.m - 1))
+            / numpy.sqrt(numpy.pi * numpy.prod(range(2, 2 * self.m + 1)))
+            * (1 - 1j * t) ** (-(self.m + 1))
+        )
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
@@ -143,11 +154,11 @@ class Paul(object):
         # Sets the m derivative of a Gaussian, the degrees of freedom and the
         # empirically derived factors for the wavelet bases C_{\delta},
         # \gamma, \delta j_0 (Torrence and Compo, 1998, Table 2)
-        self.m = m               # Wavelet order
-        self.dofmin = 2          # Minimum degrees of freedom
+        self.m = m  # Wavelet order
+        self.dofmin = 2  # Minimum degrees of freedom
         if self.m == 4:
             self.cdelta = 1.132  # Reconstruction factor
-            self.gamma = 1.17    # Decorrelation factor for time averaging
+            self.gamma = 1.17  # Decorrelation factor for time averaging
             self.deltaj0 = 1.50  # Factor for scale averaging
         else:
             self.cdelta = -1
@@ -163,14 +174,19 @@ class DOG(object):
     default.
 
     """
+
     def __init__(self, m=2):
         self._set_m(m)
-        self.name = 'DOG'
+        self.name = "DOG"
 
     def psi_ft(self, f):
         """Fourier transform of the DOG wavelet."""
-        return (- 1j ** self.m / numpy.sqrt(gamma(self.m + 0.5)) * f ** self.m *
-                numpy.exp(- 0.5 * f ** 2))
+        return (
+            -(1j**self.m)
+            / numpy.sqrt(gamma(self.m + 0.5))
+            * f**self.m
+            * numpy.exp(-0.5 * f**2)
+        )
 
     def psi(self, t):
         """DOG wavelet as described in Torrence and Compo (1998).
@@ -187,12 +203,16 @@ class DOG(object):
 
         """
         p = hermitenorm(self.m)
-        return ((-1) ** (self.m + 1) * numpy.polyval(p, t) *
-                numpy.exp(-t ** 2 / 2) / numpy.sqrt(gamma(self.m + 0.5)))
+        return (
+            (-1) ** (self.m + 1)
+            * numpy.polyval(p, t)
+            * numpy.exp(-(t**2) / 2)
+            / numpy.sqrt(gamma(self.m + 0.5))
+        )
 
     def flambda(self):
         """Fourier wavelength as of Torrence and Compo (1998)."""
-        return (2 * numpy.pi / numpy.sqrt(self.m + 0.5))
+        return 2 * numpy.pi / numpy.sqrt(self.m + 0.5)
 
     def coi(self):
         """e-Folding Time as of Torrence and Compo (1998)."""
@@ -206,11 +226,11 @@ class DOG(object):
         # Sets the m derivative of a Gaussian, the degrees of freedom and the
         # empirically derived factors for the wavelet bases C_{\delta},
         # \gamma, \delta j_0 (Torrence and Compo, 1998, Table 2).
-        self.m = m               # m-derivative
-        self.dofmin = 1          # Minimum degrees of freedom
+        self.m = m  # m-derivative
+        self.dofmin = 1  # Minimum degrees of freedom
         if self.m == 2:
             self.cdelta = 3.541  # Reconstruction factor
-            self.gamma = 1.43    # Decorrelation factor for time averaging
+            self.gamma = 1.43  # Decorrelation factor for time averaging
             self.deltaj0 = 1.40  # Factor for scale averaging
         elif self.m == 6:
             self.cdelta = 1.966
@@ -228,6 +248,7 @@ class MexicanHat(DOG):
     This class inherits the DOG class using m=2.
 
     """
+
     def __init__(self):
-        self.name = 'Mexican Hat'
+        self.name = "Mexican Hat"
         self._set_m(2)

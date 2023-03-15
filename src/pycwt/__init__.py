@@ -81,9 +81,20 @@ References
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from pycwt._version_ import __version__, version
 from pycwt.wavelet import *
-from pycwt._version_ import version, __version__
 
-__all__ = ['cwt', 'icwt', 'significance', 'xwt', 'wct', 'wct_significance',
-           'mothers', 'Morlet', 'Paul', 'DOG', 'MexicanHat']
-__name__ = 'PyCWT'
+__all__ = [
+    "cwt",
+    "icwt",
+    "significance",
+    "xwt",
+    "wct",
+    "wct_significance",
+    "mothers",
+    "Morlet",
+    "Paul",
+    "DOG",
+    "MexicanHat",
+]
+__name__ = "PyCWT"
