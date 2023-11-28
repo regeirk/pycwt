@@ -33,6 +33,7 @@ This software is released under a BSD-style open source license. Please read
 the license file for further information. This routine is provided as is
 without any express or implied warranties whatsoever.
 
+Original Matlab code by A. Grinsted available here: https://github.com/grinsted/wavelet-coherence
 
 Installation
 ------------
