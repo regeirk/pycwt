@@ -19,24 +19,24 @@ Did you find a bug?
 Please report a bug by creating a `new issue <https://github.com/regeirk/pycwt/issues>`_. Make sure that the same bug 
 has not been reporterd before by doing a quick search in the open issues.
 
-Please DO NOT create a new issue for general questions related to wavelet analysis like:
+Please DO NOT create a new issue for general questions or comments related to wavelet analysis like:
 
-- Reconstructed waveform from `icwt` is still different from the original timeseries.
+- Reconstructed waveform from ``icwt`` is still different from the original timeseries.
 - The DOF for the global wavelet spectrum will change if scales are in days instead of years?
 
 
 Did you write a patch that fixes a bug?
 ---------------------------------------
 
-You are welcome and free to contribute to the code and make pull requests to the development branch to fix an issue or 
-enhance the code. You don't need to open an issue first, but if your patch fixes a listes issue, please mention the 
-issue number in the commit message and eventually close the issue.
+You are welcome and free to contribute to the code and make pull requests to the development branch to fix any issue or 
+enhance the code. You don't need to open an issue first, but if your patch fixes a listed issue, please mention the 
+issue number in the commit message and eventually close it.
 
 
 Submitting changes
 ------------------
 
-Please add any changes to the `development` branch with a clear and succint description of what you've done.
+Please add any changes to the ``development`` branch with a clear and succint description of what you've done.
 
 Always write a clear log message for your commits and please follow the `Conventional Commits guidelines 
 <https://www.conventionalcommits.org/>`__\.
@@ -45,6 +45,7 @@ Always write a clear log message for your commits and please follow the `Convent
 Coding conventions
 ------------------
 
-Of course you follow coding conventions best practices such as PEP 8, for example. You can always use tools like 
-`black <https://black.readthedocs.io>_` and `isort <https://isort.readthedocs.io>`_\. 
-`This here <https://numpydoc.readthedocs.io/en/latest/format.html>` is a nice style guide to follow.
+Of course you follow coding conventions best practices such as PEP 8, for example. `This here 
+<https://numpydoc.readthedocs.io/en/latest/format.html>`_ is a nice style guide to follow. Keep in mind that you can 
+always use tools like `black <https://black.readthedocs.io>`_ and `isort <https://isort.readthedocs.io>`_ to ensure the
+code looks good.

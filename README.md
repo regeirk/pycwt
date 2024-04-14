@@ -1,7 +1,8 @@
-|ReadTheDocs| |PyPi| |Travis|
-
 PyCWT
 =====
+
+[![ReadTHeDocs](https://readthedocs.org/projects/pycwt/badge/?version=latest)](http://pycwt.readthedocs.io/en/latest/?badge=latest)
+[![PyPi](https://badge.fury.io/py/pycwt.svg)](https://badge.fury.io/py/pycwt)
 
 A Python module for continuous wavelet spectral analysis. It includes a
 collection of routines for wavelet transform and statistical analysis via FFT
@@ -17,6 +18,11 @@ The sample scripts (``sample.py``, ``sample_xwt.py``) illustrate the use of
 the wavelet and inverse wavelet transforms, cross-wavelet transform and
 wavelet transform coherence. Results are plotted in figures similar to the
 sample images.
+
+
+### How to cite
+
+Sebastian Krieger and Nabil Freij. _PyCWT: wavelet spectral analysis in Python_. V. 0.4.0-beta. Python. 2023. <https://github.com/regeirk/pycwt>.
 
 
 Disclaimer
@@ -39,15 +45,15 @@ Installation
 
 We recommend using PyPI to install this package.
 
-.. code-block:: sh
-
-    $ pip install pycwt
+```commandline
+$ pip install pycwt
+```
 
 However, if you want to install directly from GitHub, use:
 
-.. code-block:: sh
-
-    $ pip install git+https://github.com/regeirk/pycwt
+```commandline
+$ pip install git+https://github.com/regeirk/pycwt
+```
 
 
 Acknowledgements
@@ -94,13 +100,3 @@ References
 6. Liu, Y., Liang, X. S. and Weisberg, R. H. Rectification of the bias
    in the wavelet power spectrum. *Journal of Atmospheric and Oceanic
    Technology*, **2007**, 24, 2093-2102.
-
-
-.. |ReadTheDocs| image:: https://readthedocs.org/projects/pycwt/badge/?version=latest
-   :target: http://pycwt.readthedocs.io/en/latest/?badge=latest
-
-.. |PyPi| image:: https://badge.fury.io/py/pycwt.svg
-   :target: https://badge.fury.io/py/pycwt
-
-.. |Travis| image:: https://travis-ci.org/regeirk/pycwt.svg?branch=master
-   :target: https://travis-ci.org/regeirk/pycwt
