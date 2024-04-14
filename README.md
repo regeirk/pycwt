@@ -2,19 +2,23 @@ PyCWT
 =====
 
 [![ReadTHeDocs](https://readthedocs.org/projects/pycwt/badge/?version=latest)](http://pycwt.readthedocs.io/en/latest/?badge=latest)
-[![PyPi](https://badge.fury.io/py/pycwt.svg)](https://badge.fury.io/py/pycwt)
+
+[![PyPI version](https://badge.fury.io/py/pycwt.svg)](https://badge.fury.io/py/pycwt)
+
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pycwt/badges/version.svg)](https://anaconda.org/conda-forge/pycwt)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pycwt/badges/downloads.svg)](https://anaconda.org/conda-forge/pycwt)
 
 A Python module for continuous wavelet spectral analysis. It includes a
 collection of routines for wavelet transform and statistical analysis via FFT
 algorithm. In addition, the module also includes cross-wavelet transforms,
 wavelet coherence tests and sample scripts.
 
-Please read the documentation `here <http://pycwt.readthedocs.io/en/latest/>`__\.
+Please read the documentation [here](http://pycwt.readthedocs.io/en/latest/).
 
 This module requires ``NumPy``, ``SciPy``, ``tqdm``. In addition, you will 
 also need ``matplotlib`` to run the examples.
 
-The sample scripts (``sample.py``, ``sample_xwt.py``) illustrate the use of
+The sample scripts (`sample.py`, `sample_xwt.py`) illustrate the use of
 the wavelet and inverse wavelet transforms, cross-wavelet transform and
 wavelet transform coherence. Results are plotted in figures similar to the
 sample images.
@@ -22,7 +26,8 @@ sample images.
 
 ### How to cite
 
-Sebastian Krieger and Nabil Freij. _PyCWT: wavelet spectral analysis in Python_. V. 0.4.0-beta. Python. 2023. <https://github.com/regeirk/pycwt>.
+Sebastian Krieger and Nabil Freij. _PyCWT: wavelet spectral analysis in 
+Python_. V. 0.4.0-beta. Python. 2023. <https://github.com/regeirk/pycwt>.
 
 
 Disclaimer

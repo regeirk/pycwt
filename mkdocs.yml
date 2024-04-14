@@ -3,11 +3,14 @@ site_url: https://pycwt.readthedocs.io/
 repo_url: https://github.com/regeirk/pycwt
 
 theme:
-  name: readthedocs
+  name: material  # readthedocs
   analytics:
     gtag: G-6KZB8M0J4C
   highlightjs: true
   logo: null
+  features:
+    - content.code.copy
+    - content.code.select
   icon:
     admonition:
       note: fontawesome/solid/note-sticky
@@ -22,9 +25,6 @@ theme:
       bug: fontawesome/solid/robot
       example: fontawesome/solid/flask
       quote: fontawesome/solid/quote-left
-  features:
-    - content.code.copy
-    - content.code.select
 
 # diataxis: https://diataxis.fr/
 
@@ -65,6 +65,7 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
   - pymdownx.tilde
+
 
 plugins:
 - search
