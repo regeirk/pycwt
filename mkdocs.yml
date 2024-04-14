@@ -1,0 +1,80 @@
+site_name: 'PyCWT: spectral analysis using wavelets in Python'
+site_url: https://pycwt.readthedocs.io/
+repo_url: https://github.com/regeirk/pycwt
+
+theme:
+  name: readthedocs
+  analytics:
+    gtag: G-6KZB8M0J4C
+  highlightjs: true
+  logo: null
+  icon:
+    admonition:
+      note: fontawesome/solid/note-sticky
+      abstract: fontawesome/solid/book
+      info: fontawesome/solid/circle-info
+      tip: fontawesome/solid/bullhorn
+      success: fontawesome/solid/check
+      question: fontawesome/solid/circle-question
+      warning: fontawesome/solid/triangle-exclamation
+      failure: fontawesome/solid/bomb
+      danger: fontawesome/solid/skull
+      bug: fontawesome/solid/robot
+      example: fontawesome/solid/flask
+      quote: fontawesome/solid/quote-left
+  features:
+    - content.code.copy
+    - content.code.select
+
+# diataxis: https://diataxis.fr/
+
+nav:
+  - Home: index.md
+  - User guide:
+    - user-guide/installation.md
+    - user-guide/getting-started.md
+  - Tutorial:
+    - tutorial/cwt.md
+#  - Explanation:
+#    - explanation.md
+  - Reference:
+    - reference/index.md
+    - reference/helpers.md
+    - reference/comments.md
+  - About:
+    - about/acknowledgements.md
+    - about/contributing.md
+    - about/release-notes.md
+    - about/license.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - footnotes
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.mark
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tilde
+
+plugins:
+- search
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        paths: [pycwt]
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
