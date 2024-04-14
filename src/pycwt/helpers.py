@@ -46,14 +46,14 @@ def find(condition):
 
 
 def ar1(x):
-    """
-    Allen and Smith autoregressive lag-1 autocorrelation coefficient.
-    In an AR(1) model
+    r"""Lag-1 autocorrelation coefficient.
 
-        x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,
+    In an Allen and Smith AR(1) model,
 
-    where <x> is the process mean, \gamma and \alpha are process
-    parameters and z(t) is a Gaussian unit-variance white noise.
+    $$  x(t) - <x> = \gamma(x(t-1) - <x>) + \alpha z(t) ,$$
+
+    where $<x>$ is the process mean, $\gamma$ and $\alpha$ are process
+    parameters and $z(t)$ is a Gaussian unit-variance white noise.
 
     Parameters
     ----------
