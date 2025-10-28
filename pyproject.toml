@@ -1,19 +1,20 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 
 [project]
 name = "pycwt"
 dynamic = ["version"]
 dependencies = [
-    "numpy>=1.24, <2",
+    "numpy>=2.0, <3",
     "scipy>=1.10, <2",
     "matplotlib>=3.7, <4",
     "tqdm>=4.65, <5"
 ]
 description = "Continuous wavelet transform module for Python."
-license = {file="LICENSE.rst"}
+license = "BSD-3-Clause"
+license-files = ["LICEN[CS]E*"]
 authors = [
     {name="Sebastian Krieger", email="sebastian@nublia.com"},
     {name="Nabil Freij"},
@@ -22,8 +23,8 @@ authors = [
 maintainers = [
     {name="Sebastian Krieger", email="sebastian@nublia.com"}
 ]
-readme = "README.rst"
-requires-python = ">=3.8"
+readme = "README.md"
+requires-python = ">=3.10"
 keywords = ["wavelet", "spectral analysis", "signal processing", "data science", "timeseries", "time series"]
 classifiers = [
     'Development Status :: 3 - Alpha',
@@ -40,11 +41,8 @@ classifiers = [
 [project.urls]
 repository = "https://github.com/regeirk/pycwt"
 documentation = "https://pycwt.readthedocs.io/"
+issues = "https://github.com/regeirk/pycwt/issues"
 
 
-[tool.setuptools_scm]
-write_to = "src/pycwt/_version_.py"
-
-
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.version]
+source = "vcs"

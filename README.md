@@ -2,11 +2,7 @@ PyCWT
 =====
 
 [![ReadTHeDocs](https://readthedocs.org/projects/pycwt/badge/?version=latest)](http://pycwt.readthedocs.io/en/latest/?badge=latest)
-
 [![PyPI version](https://badge.fury.io/py/pycwt.svg)](https://badge.fury.io/py/pycwt)
-
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pycwt/badges/version.svg)](https://anaconda.org/conda-forge/pycwt)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pycwt/badges/downloads.svg)](https://anaconda.org/conda-forge/pycwt)
 
 A Python module for continuous wavelet spectral analysis. It includes a
 collection of routines for wavelet transform and statistical analysis via FFT
