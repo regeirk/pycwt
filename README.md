@@ -1,7 +1,7 @@
 PyCWT
 =====
 
-[![ReadTHeDocs](https://readthedocs.org/projects/pycwt/badge/?version=latest)](http://pycwt.readthedocs.io/en/latest/?badge=latest)
+[![ReadTHeDocs](https://readthedocs.org/projects/pycwt/badge/?version=development)](http://pycwt.readthedocs.io/en/development/?badge=development)
 [![PyPI version](https://badge.fury.io/py/pycwt.svg)](https://badge.fury.io/py/pycwt)
 
 A Python module for continuous wavelet spectral analysis. It includes a
