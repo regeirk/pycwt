@@ -1,6 +1,13 @@
 # Release notes
 
 
+## Oct 27, 2025: v0.5.0-beta
+
+* Upgraded `numpy` dependency to version 2
+- Updated documentation pages
+- Minor bug fixes
+
+
 ## Mar 14, 2023: v0.4.0-beta
 
 * Fixed deprecated `numpy` dependency.
