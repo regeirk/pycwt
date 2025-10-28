@@ -16,4 +16,4 @@ wavelet coherence tests and sample scripts.
 
 !!! info "How to cite"
 
-    Sebastian Krieger and Nabil Freij. _PyCWT: wavelet spectral analysis in Python_. V. 0.4.0-beta. Python. 2023. <https://github.com/regeirk/pycwt>.
+    Sebastian Krieger and Nabil Freij. _PyCWT: wavelet spectral analysis in Python_. V. 0.5.0-beta. Python. 2025. <https://github.com/regeirk/pycwt>.
