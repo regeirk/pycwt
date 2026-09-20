@@ -554,7 +554,7 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
         Default is J = (log2(N*dt/so))/dj.
     significance_level : float, optional
         Significance level to use. Default is 0.95.
-    wavelet : instance of a wavelet class, optional
+    wavelet : instance of Wavelet class, or string
         Mother wavelet class. Default is Morlet wavelet.
     mc_count : integer, optional
         Number of Monte Carlo simulations. Default is 300.
@@ -568,6 +568,8 @@ def wct_significance(al1, al2, dt, dj, s0, J, significance_level=0.95,
     TODO
 
     """
+
+    wavelet = _check_parameter_wavelet(wavelet)
 
     if cache:
         # Load cache if previously calculated. It is assumed that wavelet
