@@ -630,10 +630,10 @@ def wct_significance(
     if cache:
         # Load cache if previously calculated. It is assumed that wavelet
         # analysis is performed using the wavelet's default parameters.
-        aa = numpy.round(numpy.arctanh(numpy.array([al1, al2]) * 4))
+        aa = numpy.round(numpy.arctanh(numpy.array([al1, al2])) * 4)
         aa = numpy.abs(aa) + 0.5 * (aa < 0)
-        cache_file = "wct_sig_{:0.5f}_{:0.5f}_{:0.5f}_{:0.5f}_{:d}_{}".format(
-            aa[0], aa[1], dj, s0 / dt, J, wavelet.name
+        cache_file = "wct_sig_{:0.5f}_{:0.5f}_{:0.5f}_{:0.5f}_{:d}_{}_{}_{:d}".format(
+            aa[0], aa[1], dj, s0 / dt, J, wavelet.name, significance_level, mc_count
         )
         cache_dir = get_cache_dir()
         try:
