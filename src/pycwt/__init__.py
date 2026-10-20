@@ -81,8 +81,11 @@ References
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from pycwt._version_ import __version__, version
+from importlib.metadata import version as _distribution_version
+
 from pycwt.wavelet import *
+
+__version__ = version = _distribution_version("pycwt")
 
 __all__ = [
     "cwt",
