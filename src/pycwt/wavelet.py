@@ -290,8 +290,9 @@ def significance(
         chisquare = chi2.ppf(significance_level, dof) / dof
         signif = fft_theor * chisquare
     elif sigma_test == 1:  # Time-averaged significance
-        if len(dof) == 1:
-            dof = numpy.zeros(1, J + 1) + dof
+        dof = numpy.atleast_1d(dof)
+        if dof.size == 1:
+            dof = numpy.full(J + 1, dof.item(), dtype=float)
         sel = find(dof < 1)
         dof[sel] = 1
         # As in Torrence and Compo (1998), equation 23:
